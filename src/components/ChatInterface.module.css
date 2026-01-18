@@ -4,8 +4,16 @@
   height: 100vh;
   max-width: 800px;
   margin: 0 auto;
-  background: hsl(var(--background));
-  border: 1px solid hsl(var(--border));
+  --chat-primary: hsl(var(--foreground));
+  --chat-bg: hsl(var(--background));
+  --chat-text: hsl(var(--foreground));
+  --chat-muted: hsl(var(--muted-foreground));
+  --chat-user: hsl(var(--foreground));
+  --chat-user-text: hsl(var(--background));
+  --chat-assistant: hsl(var(--background));
+  --chat-assistant-border: hsl(var(--border));
+  background: var(--chat-bg);
+  border: 1px solid var(--chat-assistant-border);
   border-radius: 12px;
   overflow: hidden;
 }
@@ -84,8 +92,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  background: hsl(var(--background));
-  border-bottom: 1px solid hsl(var(--border));
+  background: var(--chat-bg);
+  border-bottom: 1px solid var(--chat-assistant-border);
   flex-shrink: 0;
 }
 
@@ -100,12 +108,12 @@
   font-size: 14px;
   font-weight: 600;
   margin: 0;
-  color: hsl(var(--foreground));
+  color: var(--chat-text);
 }
 
 .headerSub {
   font-size: 12px;
-  color: hsl(var(--muted-foreground));
+  color: var(--chat-muted);
   margin: 2px 0 0;
 }
 
@@ -122,7 +130,7 @@
   border-radius: 6px;
   border: none;
   background: transparent;
-  color: hsl(var(--muted-foreground));
+  color: var(--chat-muted);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -132,7 +140,7 @@
 
 .actionButton:hover {
   background: hsl(var(--muted));
-  color: hsl(var(--foreground));
+  color: var(--chat-text);
 }
 
 .actionButton svg {
@@ -155,7 +163,7 @@
 .metaPanel {
   padding: 16px;
   background: hsl(var(--muted));
-  border-bottom: 1px solid hsl(var(--border));
+  border-bottom: 1px solid var(--chat-assistant-border);
   flex-shrink: 0;
 }
 
@@ -166,8 +174,8 @@
 }
 
 .metaItem {
-  background: hsl(var(--background));
-  border: 1px solid hsl(var(--border));
+  background: var(--chat-bg);
+  border: 1px solid var(--chat-assistant-border);
   border-radius: 8px;
   padding: 12px;
 }
@@ -175,7 +183,7 @@
 .metaLabel {
   font-size: 11px;
   font-weight: 500;
-  color: hsl(var(--muted-foreground));
+  color: var(--chat-muted);
   text-transform: uppercase;
   letter-spacing: 0.02em;
   margin: 0;
@@ -184,14 +192,14 @@
 .metaValue {
   font-size: 14px;
   font-weight: 500;
-  color: hsl(var(--foreground));
+  color: var(--chat-text);
   margin: 4px 0 0;
 }
 
 .pageList {
   margin-top: 12px;
-  background: hsl(var(--background));
-  border: 1px solid hsl(var(--border));
+  background: var(--chat-bg);
+  border: 1px solid var(--chat-assistant-border);
   border-radius: 8px;
   padding: 12px;
 }
@@ -202,14 +210,14 @@
   justify-content: space-between;
   font-size: 13px;
   font-weight: 500;
-  color: hsl(var(--foreground));
+  color: var(--chat-text);
   margin-bottom: 8px;
 }
 
 .pageToggle {
   background: none;
   border: none;
-  color: hsl(var(--muted-foreground));
+  color: var(--chat-muted);
   cursor: pointer;
   font-size: 12px;
   font-weight: 500;
@@ -217,7 +225,7 @@
 }
 
 .pageToggle:hover {
-  color: hsl(var(--foreground));
+  color: var(--chat-text);
 }
 
 .pageList ul {
@@ -237,7 +245,7 @@
 }
 
 .pageIndex {
-  color: hsl(var(--muted-foreground));
+  color: var(--chat-muted);
   width: 20px;
   text-align: right;
   font-size: 12px;
@@ -245,7 +253,7 @@
 }
 
 .pageUrl {
-  color: hsl(var(--muted-foreground));
+  color: var(--chat-muted);
   word-break: break-all;
   font-size: 12px;
 }
@@ -284,15 +292,15 @@
 }
 
 .message.user .bubble {
-  background: hsl(var(--foreground));
-  color: hsl(var(--background));
+  background: var(--chat-user);
+  color: var(--chat-user-text);
   border-bottom-right-radius: 4px;
 }
 
 .message.assistant .bubble {
-  background: hsl(var(--background));
-  color: hsl(var(--foreground));
-  border: 1px solid hsl(var(--border));
+  background: var(--chat-assistant);
+  color: var(--chat-text);
+  border: 1px solid var(--chat-assistant-border);
   border-bottom-left-radius: 4px;
 }
 
@@ -309,7 +317,7 @@
 .typing span {
   width: 6px;
   height: 6px;
-  background: hsl(var(--muted-foreground));
+  background: var(--chat-muted);
   border-radius: 50%;
   animation: typing 1s infinite ease-in-out;
 }
@@ -336,7 +344,7 @@
 .cursor {
   display: inline-block;
   animation: blink 1s infinite step-end;
-  color: hsl(var(--muted-foreground));
+  color: var(--chat-muted);
   margin-left: 1px;
 }
 
@@ -349,8 +357,8 @@
   display: flex;
   gap: 10px;
   padding: 16px 20px;
-  background: hsl(var(--background));
-  border-top: 1px solid hsl(var(--border));
+  background: var(--chat-bg);
+  border-top: 1px solid var(--chat-assistant-border);
   flex-shrink: 0;
 }
 
@@ -358,22 +366,22 @@
   flex: 1;
   height: 40px;
   padding: 0 14px;
-  border: 1px solid hsl(var(--border));
+  border: 1px solid var(--chat-assistant-border);
   border-radius: 100px;
   font-size: 14px;
   background: hsl(var(--muted) / 0.5);
-  color: hsl(var(--foreground));
+  color: var(--chat-text);
   transition: border-color 0.15s, background 0.15s;
 }
 
 .inputArea input::placeholder {
-  color: hsl(var(--muted-foreground));
+  color: var(--chat-muted);
 }
 
 .inputArea input:focus {
   outline: none;
-  border-color: hsl(var(--foreground));
-  background: hsl(var(--background));
+  border-color: var(--chat-primary);
+  background: var(--chat-bg);
 }
 
 .inputArea input:disabled {
@@ -385,9 +393,9 @@
   width: 40px;
   height: 40px;
   border-radius: 100px;
-  background: hsl(var(--foreground));
+  background: var(--chat-primary);
   border: none;
-  color: hsl(var(--background));
+  color: var(--chat-bg);
   cursor: pointer;
   display: flex;
   align-items: center;

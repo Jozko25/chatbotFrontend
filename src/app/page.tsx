@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ClinicData, Message } from '@/types/clinic';
+import { ChatTheme, ClinicData, Message } from '@/types/clinic';
 import { scrapeClinic } from '@/lib/api';
 import { saveSession, loadSession, clearSession } from '@/lib/storage';
 import Navbar from '@/components/Navbar';
@@ -9,20 +9,34 @@ import SetupForm from '@/components/SetupForm';
 import ChatInterface from '@/components/ChatInterface';
 import styles from './page.module.css';
 
+const createDefaultTheme = (name?: string): ChatTheme => ({
+  name: name || 'Assistant',
+  tagline: 'AI-powered assistant',
+  primaryColor: '#18181b',
+  backgroundColor: '#ffffff',
+  textColor: '#09090b',
+  userBubbleColor: '#18181b',
+  assistantBubbleColor: '#ffffff',
+});
+
 export default function Home() {
   const [clinicData, setClinicData] = useState<ClinicData | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [theme, setTheme] = useState<ChatTheme>(createDefaultTheme());
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [embedCode, setEmbedCode] = useState('');
+  const [showCustomizerModal, setShowCustomizerModal] = useState(false);
+  const [draftTheme, setDraftTheme] = useState<ChatTheme | null>(null);
 
   useEffect(() => {
     const saved = loadSession();
     if (saved) {
       setClinicData(saved.clinicData);
       setMessages(saved.messages);
+      setTheme(saved.theme || createDefaultTheme(saved.clinicData?.clinic_name));
       setShowChat(true);
     }
     setIsHydrated(true);
@@ -30,9 +44,9 @@ export default function Home() {
 
   useEffect(() => {
     if (clinicData) {
-      saveSession({ clinicData, messages });
+      saveSession({ clinicData, messages, theme });
     }
-  }, [clinicData, messages]);
+  }, [clinicData, messages, theme]);
 
   useEffect(() => {
     if (!clinicData || !isHydrated) {
@@ -42,6 +56,7 @@ export default function Home() {
 
     const safeData = {
       ...clinicData,
+      theme,
       raw_content: clinicData.raw_content?.slice(0, 24000) || ''
     };
 
@@ -52,7 +67,7 @@ export default function Home() {
 
     const encoded = encode(safeData);
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
-    const apiHost = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const apiHost = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001').replace(/\/+$/, '');
 
     if (!origin || !encoded) {
       setEmbedCode('');
@@ -65,7 +80,7 @@ export default function Home() {
   defer></script>`;
 
     setEmbedCode(snippet);
-  }, [clinicData, isHydrated]);
+  }, [clinicData, isHydrated, theme]);
 
   const handleSetup = async (url: string) => {
     setError(null);
@@ -74,6 +89,7 @@ export default function Home() {
     try {
       const data = await scrapeClinic(url);
       setClinicData(data);
+      setTheme(createDefaultTheme(data.clinic_name));
       setShowChat(true);
 
       if (data.welcomeMessage) {
@@ -94,8 +110,28 @@ export default function Home() {
     clearSession();
     setClinicData(null);
     setMessages([]);
+    setTheme(createDefaultTheme());
     setError(null);
     setShowChat(false);
+  };
+
+  const openCustomizer = () => {
+    if (!clinicData) return;
+    setDraftTheme({ ...theme });
+    setShowCustomizerModal(true);
+    setShowChat(true); // open chat in-page for live feel
+  };
+
+  const closeCustomizer = () => {
+    setShowCustomizerModal(false);
+    setDraftTheme(null);
+  };
+
+  const applyCustomizer = () => {
+    if (draftTheme) {
+      setTheme(draftTheme);
+    }
+    closeCustomizer();
   };
 
   if (!isHydrated) {
@@ -134,6 +170,15 @@ export default function Home() {
           </div>
 
           <p className={styles.subtext}>Free to try. No credit card required.</p>
+          <button
+            type="button"
+            className={styles.customizeBtn}
+            onClick={openCustomizer}
+            disabled={!clinicData || isLoading}
+            title={clinicData ? 'Customize the chatbot appearance' : 'Create your chatbot first'}
+          >
+            Customize chatbot
+          </button>
         </section>
 
         {/* Social proof */}
@@ -243,6 +288,99 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Customization */}
+        {clinicData && (
+          <section className={styles.customizer}>
+            <div className={styles.customizerHeader}>
+              <div>
+                <h3>Customize your bot</h3>
+                <p>Rename it, tweak the tagline, and pick colors before you embed.</p>
+              </div>
+            </div>
+
+            <div className={styles.customizerGrid}>
+              <div className={styles.field}>
+                <label htmlFor="botName">Bot name</label>
+                <input
+                  id="botName"
+                  type="text"
+                  value={theme.name}
+                  onChange={(e) => setTheme({ ...theme, name: e.target.value })}
+                />
+              </div>
+              <div className={styles.field}>
+                <label htmlFor="botTagline">Tagline</label>
+                <input
+                  id="botTagline"
+                  type="text"
+                  value={theme.tagline}
+                  onChange={(e) => setTheme({ ...theme, tagline: e.target.value })}
+                />
+              </div>
+              <div className={styles.field}>
+                <label htmlFor="primaryColor">Primary color</label>
+                <div className={styles.colorRow}>
+                  <input
+                    id="primaryColor"
+                    type="color"
+                    value={theme.primaryColor}
+                    onChange={(e) => setTheme({ ...theme, primaryColor: e.target.value })}
+                  />
+                  <span>{theme.primaryColor}</span>
+                </div>
+              </div>
+              <div className={styles.field}>
+                <label htmlFor="backgroundColor">Panel background</label>
+                <div className={styles.colorRow}>
+                  <input
+                    id="backgroundColor"
+                    type="color"
+                    value={theme.backgroundColor}
+                    onChange={(e) => setTheme({ ...theme, backgroundColor: e.target.value })}
+                  />
+                  <span>{theme.backgroundColor}</span>
+                </div>
+              </div>
+              <div className={styles.field}>
+                <label htmlFor="textColor">Text color</label>
+                <div className={styles.colorRow}>
+                  <input
+                    id="textColor"
+                    type="color"
+                    value={theme.textColor}
+                    onChange={(e) => setTheme({ ...theme, textColor: e.target.value })}
+                  />
+                  <span>{theme.textColor}</span>
+                </div>
+              </div>
+              <div className={styles.field}>
+                <label htmlFor="userBubbleColor">User bubble</label>
+                <div className={styles.colorRow}>
+                  <input
+                    id="userBubbleColor"
+                    type="color"
+                    value={theme.userBubbleColor}
+                    onChange={(e) => setTheme({ ...theme, userBubbleColor: e.target.value })}
+                  />
+                  <span>{theme.userBubbleColor}</span>
+                </div>
+              </div>
+              <div className={styles.field}>
+                <label htmlFor="assistantBubbleColor">Assistant bubble</label>
+                <div className={styles.colorRow}>
+                  <input
+                    id="assistantBubbleColor"
+                    type="color"
+                    value={theme.assistantBubbleColor}
+                    onChange={(e) => setTheme({ ...theme, assistantBubbleColor: e.target.value })}
+                  />
+                  <span>{theme.assistantBubbleColor}</span>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Use cases */}
         <section className={styles.useCases}>
           <h2 className={styles.sectionTitle}>Built for every business</h2>
@@ -326,6 +464,7 @@ export default function Home() {
           {showChat && (
             <ChatInterface
               clinicData={clinicData}
+              theme={theme}
               messages={messages}
               onMessagesUpdate={handleMessagesUpdate}
               onReset={handleReset}
@@ -335,6 +474,146 @@ export default function Home() {
             />
           )}
         </>
+      )}
+
+      {/* Customizer modal */}
+      {showCustomizerModal && draftTheme && clinicData && (
+        <div className={styles.modalOverlay} role="dialog" aria-modal="true">
+          <div className={styles.modal}>
+            <div className={styles.modalHeader}>
+              <div>
+                <h3>Customize chatbot</h3>
+                <p>Adjust name, tagline, and colors with a live preview.</p>
+              </div>
+              <button className={styles.modalClose} onClick={closeCustomizer} aria-label="Close">
+                ×
+              </button>
+            </div>
+
+            <div className={styles.modalBody}>
+              <div className={styles.modalForm}>
+                <div className={styles.field}>
+                  <label htmlFor="modalBotName">Bot name</label>
+                  <input
+                    id="modalBotName"
+                    type="text"
+                    value={draftTheme.name}
+                    onChange={(e) => setDraftTheme({ ...draftTheme, name: e.target.value })}
+                  />
+                </div>
+                <div className={styles.field}>
+                  <label htmlFor="modalBotTagline">Tagline</label>
+                  <input
+                    id="modalBotTagline"
+                    type="text"
+                    value={draftTheme.tagline}
+                    onChange={(e) => setDraftTheme({ ...draftTheme, tagline: e.target.value })}
+                  />
+                </div>
+                <div className={styles.field}>
+                  <label htmlFor="modalPrimary">Primary color</label>
+                  <div className={styles.colorRow}>
+                    <input
+                      id="modalPrimary"
+                      type="color"
+                      value={draftTheme.primaryColor}
+                      onChange={(e) => setDraftTheme({ ...draftTheme, primaryColor: e.target.value })}
+                    />
+                    <span>{draftTheme.primaryColor}</span>
+                  </div>
+                </div>
+                <div className={styles.field}>
+                  <label htmlFor="modalBg">Panel background</label>
+                  <div className={styles.colorRow}>
+                    <input
+                      id="modalBg"
+                      type="color"
+                      value={draftTheme.backgroundColor}
+                      onChange={(e) => setDraftTheme({ ...draftTheme, backgroundColor: e.target.value })}
+                    />
+                    <span>{draftTheme.backgroundColor}</span>
+                  </div>
+                </div>
+                <div className={styles.field}>
+                  <label htmlFor="modalText">Text color</label>
+                  <div className={styles.colorRow}>
+                    <input
+                      id="modalText"
+                      type="color"
+                      value={draftTheme.textColor}
+                      onChange={(e) => setDraftTheme({ ...draftTheme, textColor: e.target.value })}
+                    />
+                    <span>{draftTheme.textColor}</span>
+                  </div>
+                </div>
+                <div className={styles.field}>
+                  <label htmlFor="modalUser">User bubble</label>
+                  <div className={styles.colorRow}>
+                    <input
+                      id="modalUser"
+                      type="color"
+                      value={draftTheme.userBubbleColor}
+                      onChange={(e) => setDraftTheme({ ...draftTheme, userBubbleColor: e.target.value })}
+                    />
+                    <span>{draftTheme.userBubbleColor}</span>
+                  </div>
+                </div>
+                <div className={styles.field}>
+                  <label htmlFor="modalAssistant">Assistant bubble</label>
+                  <div className={styles.colorRow}>
+                    <input
+                      id="modalAssistant"
+                      type="color"
+                      value={draftTheme.assistantBubbleColor}
+                      onChange={(e) => setDraftTheme({ ...draftTheme, assistantBubbleColor: e.target.value })}
+                    />
+                    <span>{draftTheme.assistantBubbleColor}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.modalPreview}>
+                <div
+                  className={styles.previewCard}
+                  style={{
+                    ['--chat-primary' as any]: draftTheme.primaryColor,
+                    ['--chat-bg' as any]: draftTheme.backgroundColor,
+                    ['--chat-text' as any]: draftTheme.textColor,
+                    ['--chat-muted' as any]: draftTheme.textColor,
+                    ['--chat-user' as any]: draftTheme.userBubbleColor,
+                    ['--chat-user-text' as any]: draftTheme.backgroundColor,
+                    ['--chat-assistant' as any]: draftTheme.assistantBubbleColor,
+                    ['--chat-assistant-border' as any]: '#e4e4e7',
+                  }}
+                >
+                  <div className={styles.previewHeader}>
+                    <div>
+                      <h4>{draftTheme.name || clinicData.clinic_name}</h4>
+                      <p>{draftTheme.tagline || 'AI-powered assistant'}</p>
+                    </div>
+                  </div>
+                  <div className={styles.previewMessages}>
+                    <div className={`${styles.previewBubble} ${styles.previewAssistant}`}>
+                      Hi! Ask me anything about your site.
+                    </div>
+                    <div className={`${styles.previewBubble} ${styles.previewUser}`}>
+                      Show me your services.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.modalFooter}>
+              <button className={styles.secondary} type="button" onClick={closeCustomizer}>
+                Cancel
+              </button>
+              <button className={styles.button} type="button" onClick={applyCustomizer}>
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

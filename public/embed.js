@@ -4,7 +4,7 @@
   const script = document.currentScript;
   if (!script) return;
 
-  const apiUrl = script.getAttribute('data-api-url') || '';
+    const apiUrl = script.getAttribute('data-api-url') || '';
   const clinicEncoded = script.getAttribute('data-clinic') || '';
 
   if (!apiUrl || !clinicEncoded) {
@@ -39,8 +39,26 @@
     return div.innerHTML;
   };
 
+  const sanitizeColor = (value, fallback) => {
+    if (typeof value !== 'string') return fallback;
+    return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(value.trim()) ? value : fallback;
+  };
+
+  const themeData = clinicData.theme || {};
+  const theme = {
+    name: sanitize(themeData.name || clinicData.clinic_name || 'Assistant'),
+    tagline: sanitize(themeData.tagline || 'AI-powered assistant'),
+    primary: sanitizeColor(themeData.primaryColor, '#18181b'),
+    surface: sanitizeColor(themeData.backgroundColor, '#ffffff'),
+    text: sanitizeColor(themeData.textColor, '#09090b'),
+    user: sanitizeColor(themeData.userBubbleColor, '#18181b'),
+    userText: sanitizeColor(themeData.backgroundColor, '#ffffff'),
+    assistant: sanitizeColor(themeData.assistantBubbleColor, '#ffffff'),
+    assistantBorder: '#e4e4e7'
+  };
+
   // Create isolated shadow DOM
-  const shadowHost = document.createElement('div');
+    const shadowHost = document.createElement('div');
   shadowHost.id = 'sitebot-widget';
   document.body.appendChild(shadowHost);
   const shadow = shadowHost.attachShadow({ mode: 'closed' });
@@ -69,8 +87,8 @@
       height: 56px;
       border-radius: 16px;
       border: none;
-      background: #18181b;
-      color: #fff;
+      background: var(--chat-primary);
+      color: var(--chat-surface);
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -95,6 +113,14 @@
     }
 
     .panel {
+      --chat-primary: #18181b;
+      --chat-surface: #ffffff;
+      --chat-text: #09090b;
+      --chat-muted: #71717a;
+      --chat-user: var(--chat-primary);
+      --chat-user-text: #ffffff;
+      --chat-assistant: #ffffff;
+      --chat-assistant-border: #e4e4e7;
       position: fixed;
       bottom: 24px;
       right: 24px;
@@ -102,10 +128,10 @@
       max-width: calc(100vw - 48px);
       height: min(560px, 75vh);
       max-height: calc(100vh - 48px);
-      background: #ffffff;
+      background: var(--chat-surface);
       border-radius: 16px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-      border: 1px solid #e4e4e7;
+      border: 1px solid var(--chat-assistant-border);
       display: none;
       flex-direction: column;
       overflow: hidden;
@@ -133,21 +159,21 @@
       justify-content: space-between;
       align-items: center;
       padding: 16px 20px;
-      background: #ffffff;
-      border-bottom: 1px solid #e4e4e7;
+      background: var(--chat-surface);
+      border-bottom: 1px solid var(--chat-assistant-border);
       flex-shrink: 0;
     }
 
     .headerInfo h3 {
       font-size: 14px;
       font-weight: 600;
-      color: #09090b;
+      color: var(--chat-text);
       margin: 0;
     }
 
     .headerSub {
       margin: 2px 0 0;
-      color: #71717a;
+      color: var(--chat-muted);
       font-size: 12px;
     }
 
@@ -163,7 +189,7 @@
       border-radius: 8px;
       border: none;
       background: transparent;
-      color: #71717a;
+      color: var(--chat-muted);
       cursor: pointer;
       display: inline-flex;
       align-items: center;
@@ -173,7 +199,7 @@
 
     .actionBtn:hover {
       background: #f4f4f5;
-      color: #09090b;
+      color: var(--chat-text);
     }
 
     .actionBtn svg {
@@ -214,16 +240,16 @@
 
     .user {
       align-self: flex-end;
-      background: #18181b;
-      color: #fff;
+      background: var(--chat-user);
+      color: var(--chat-user-text);
       border-bottom-right-radius: 4px;
     }
 
     .assistant {
       align-self: flex-start;
-      background: #ffffff;
-      color: #09090b;
-      border: 1px solid #e4e4e7;
+      background: var(--chat-assistant);
+      color: var(--chat-text);
+      border: 1px solid var(--chat-assistant-border);
       border-bottom-left-radius: 4px;
     }
 
@@ -231,40 +257,40 @@
       display: flex;
       gap: 10px;
       padding: 16px 20px;
-      background: #ffffff;
-      border-top: 1px solid #e4e4e7;
+      background: var(--chat-surface);
+      border-top: 1px solid var(--chat-assistant-border);
       flex-shrink: 0;
     }
 
     .inputBar input {
       flex: 1;
       padding: 10px 14px;
-      border: 1px solid #e4e4e7;
+      border: 1px solid var(--chat-assistant-border);
       border-radius: 100px;
       font-size: 14px;
       font-family: inherit;
       background: #fafafa;
-      color: #09090b;
+      color: var(--chat-text);
       transition: border-color 0.15s, background 0.15s;
     }
 
     .inputBar input::placeholder {
-      color: #a1a1aa;
+      color: var(--chat-muted);
     }
 
     .inputBar input:focus {
       outline: none;
-      border-color: #18181b;
-      background: #ffffff;
+      border-color: var(--chat-primary);
+      background: var(--chat-surface);
     }
 
     .send {
       width: 40px;
       height: 40px;
       border-radius: 100px;
-      background: #18181b;
+      background: var(--chat-primary);
       border: none;
-      color: #fff;
+      color: var(--chat-surface);
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -297,7 +323,7 @@
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: #a1a1aa;
+      background: var(--chat-muted);
       animation: typing 1s infinite ease-in-out;
     }
 
@@ -318,7 +344,7 @@
     .cursor {
       display: inline-block;
       animation: blink 1s infinite step-end;
-      color: #71717a;
+      color: var(--chat-muted);
       margin-left: 1px;
     }
 
@@ -346,8 +372,6 @@
     }
   `;
 
-  const safeName = sanitize(clinicData.clinic_name || 'Assistant');
-
   const fab = document.createElement('button');
   fab.className = 'fab';
   fab.type = 'button';
@@ -358,11 +382,19 @@
 
   const panel = document.createElement('div');
   panel.className = 'panel';
+  panel.style.setProperty('--chat-primary', theme.primary);
+  panel.style.setProperty('--chat-surface', theme.surface);
+  panel.style.setProperty('--chat-text', theme.text);
+  panel.style.setProperty('--chat-muted', theme.text);
+  panel.style.setProperty('--chat-user', theme.user);
+  panel.style.setProperty('--chat-user-text', theme.userText);
+  panel.style.setProperty('--chat-assistant', theme.assistant);
+  panel.style.setProperty('--chat-assistant-border', theme.assistantBorder);
   panel.innerHTML = `
     <header class="header">
       <div class="headerInfo">
-        <h3>${safeName}</h3>
-        <p class="headerSub">AI-powered assistant</p>
+        <h3>${theme.name}</h3>
+        <p class="headerSub">${theme.tagline}</p>
       </div>
       <div class="headerActions">
         <button class="actionBtn minimize" aria-label="Minimize" title="Minimize">
@@ -391,6 +423,7 @@
 
   shadow.append(style, fab, panel);
 
+  const apiBase = apiUrl.replace(/\/+$/, '');
   const messagesEl = panel.querySelector('.messages');
   const inputEl = panel.querySelector('input');
   const sendBtn = panel.querySelector('.send');
@@ -466,7 +499,7 @@
     renderMessages();
 
     try {
-      const res = await fetch(`${apiUrl}/api/chat/stream`, {
+      const res = await fetch(`${apiBase}/api/chat/stream`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

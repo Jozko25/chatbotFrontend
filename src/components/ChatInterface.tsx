@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { ClinicData, Message } from '@/types/clinic';
+import { useState, useRef, useEffect, CSSProperties } from 'react';
+import { ChatTheme, ClinicData, Message } from '@/types/clinic';
 import { sendChatMessageStream } from '@/lib/api';
 import styles from './ChatInterface.module.css';
 
 interface ChatInterfaceProps {
   clinicData: ClinicData;
+  theme: ChatTheme;
   messages: Message[];
   onMessagesUpdate: (messages: Message[]) => void;
   onReset: () => void;
@@ -18,6 +19,7 @@ interface ChatInterfaceProps {
 
 export default function ChatInterface({
   clinicData,
+  theme,
   messages,
   onMessagesUpdate,
   onReset,
@@ -32,6 +34,15 @@ export default function ChatInterface({
   const [collapsed, setCollapsed] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerClass = `${styles.container} ${embedded ? styles.embedded : ''} ${floating ? styles.floating : ''} ${collapsed ? styles.collapsed : ''}`;
+  const themeVars: CSSProperties = {
+    ['--chat-primary' as any]: theme.primaryColor,
+    ['--chat-bg' as any]: theme.backgroundColor,
+    ['--chat-text' as any]: theme.textColor,
+    ['--chat-muted' as any]: theme.textColor,
+    ['--chat-user' as any]: theme.userBubbleColor,
+    ['--chat-user-text' as any]: theme.backgroundColor,
+    ['--chat-assistant' as any]: theme.assistantBubbleColor,
+  };
 
   const handleContainerClick = () => {
     if (floating && collapsed) {
@@ -89,12 +100,12 @@ export default function ChatInterface({
   };
 
   return (
-    <div className={containerClass} onClick={handleContainerClick}>
+    <div className={containerClass} onClick={handleContainerClick} style={themeVars}>
       <header className={styles.header}>
         <div className={styles.headerInfo}>
           <div>
-            <h1>{clinicData.clinic_name || 'Assistant'}</h1>
-            <p className={styles.headerSub}>AI-powered assistant</p>
+            <h1>{theme.name || clinicData.clinic_name || 'Assistant'}</h1>
+            <p className={styles.headerSub}>{theme.tagline || 'AI-powered assistant'}</p>
           </div>
         </div>
         <div className={styles.headerActions}>

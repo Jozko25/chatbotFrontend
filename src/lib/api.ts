@@ -1,6 +1,7 @@
 import { ClinicData, Message } from '@/types/clinic';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+// Normalize to avoid double slashes like https://api.example.com//api/...
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001').replace(/\/+$/, '');
 
 export async function scrapeClinic(url: string): Promise<ClinicData> {
   const response = await fetch(`${API_URL}/api/scrape`, {
@@ -10,8 +11,14 @@ export async function scrapeClinic(url: string): Promise<ClinicData> {
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to scrape website');
+    // Handle HTML error responses (e.g., 404 pages)
+    try {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to scrape website');
+    } catch {
+      const text = await response.text();
+      throw new Error(text || 'Failed to scrape website');
+    }
   }
 
   return response.json();
@@ -37,8 +44,13 @@ export async function sendChatMessageStream(
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      onError(error.error || 'Stream failed');
+      try {
+        const error = await response.json();
+        onError(error.error || 'Stream failed');
+      } catch {
+        const text = await response.text();
+        onError(text || 'Stream failed');
+      }
       return;
     }
 
