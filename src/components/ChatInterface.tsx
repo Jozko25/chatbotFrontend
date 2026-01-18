@@ -1,0 +1,228 @@
+'use client';
+
+import { useState, useRef, useEffect } from 'react';
+import { ClinicData, Message } from '@/types/clinic';
+import { sendChatMessageStream } from '@/lib/api';
+import styles from './ChatInterface.module.css';
+
+interface ChatInterfaceProps {
+  clinicData: ClinicData;
+  messages: Message[];
+  onMessagesUpdate: (messages: Message[]) => void;
+  onReset: () => void;
+  embedded?: boolean;
+  floating?: boolean;
+  showMeta?: boolean;
+  onClose?: () => void;
+}
+
+export default function ChatInterface({
+  clinicData,
+  messages,
+  onMessagesUpdate,
+  onReset,
+  embedded,
+  floating,
+  showMeta = true,
+  onClose,
+}: ChatInterfaceProps) {
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showAllPages, setShowAllPages] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const containerClass = `${styles.container} ${embedded ? styles.embedded : ''} ${floating ? styles.floating : ''} ${collapsed ? styles.collapsed : ''}`;
+
+  const handleContainerClick = () => {
+    if (floating && collapsed) {
+      setCollapsed(false);
+    }
+  };
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isLoading]);
+
+  const handleSend = async () => {
+    const message = input.trim();
+    if (!message || isLoading) return;
+
+    setInput('');
+    const newMessages: Message[] = [...messages, { role: 'user', content: message }];
+    onMessagesUpdate(newMessages);
+
+    setIsLoading(true);
+
+    let accumulated = '';
+
+    await sendChatMessageStream(
+      clinicData,
+      messages,
+      message,
+      (chunk: string) => {
+        accumulated += chunk;
+      },
+      () => {
+        if (accumulated) {
+          onMessagesUpdate([
+            ...newMessages,
+            { role: 'assistant', content: accumulated },
+          ]);
+        }
+        setIsLoading(false);
+      },
+      (error: string) => {
+        onMessagesUpdate([
+          ...newMessages,
+          { role: 'assistant', content: error || 'Sorry, something went wrong.' },
+        ]);
+        setIsLoading(false);
+      }
+    );
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  return (
+    <div className={containerClass} onClick={handleContainerClick}>
+      <header className={styles.header}>
+        <div className={styles.headerInfo}>
+          <div>
+            <h1>{clinicData.clinic_name || 'Assistant'}</h1>
+            <p className={styles.headerSub}>AI-powered assistant</p>
+          </div>
+        </div>
+        <div className={styles.headerActions}>
+          {floating && (
+            <>
+              <button
+                className={styles.actionButton}
+                onClick={() => setCollapsed((prev) => !prev)}
+                aria-label={collapsed ? 'Expand chat' : 'Minimize chat'}
+                title={collapsed ? 'Expand' : 'Minimize'}
+              >
+                {collapsed ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <polyline points="9 21 3 21 3 15"></polyline>
+                    <line x1="21" y1="3" x2="14" y2="10"></line>
+                    <line x1="3" y1="21" x2="10" y2="14"></line>
+                  </svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                )}
+              </button>
+              <button
+                className={styles.actionButton}
+                onClick={onClose}
+                aria-label="Close chat"
+                title="Close"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </>
+          )}
+        </div>
+      </header>
+
+      <div className={`${styles.body} ${collapsed ? styles.bodyCollapsed : ''}`}>
+        {showMeta && (
+          <section className={styles.metaPanel}>
+            <div className={styles.metaGrid}>
+              <div className={styles.metaItem}>
+                <p className={styles.metaLabel}>Pages analyzed</p>
+                <p className={styles.metaValue}>{clinicData.source_pages.length}</p>
+              </div>
+              <div className={styles.metaItem}>
+                <p className={styles.metaLabel}>Status</p>
+                <p className={styles.metaValue}>Ready</p>
+              </div>
+            </div>
+
+            {clinicData.source_pages.length > 0 && (
+              <div className={styles.pageList}>
+                <div className={styles.pageListHeader}>
+                  <span>Sources</span>
+                  {clinicData.source_pages.length > 5 && (
+                    <button
+                      className={styles.pageToggle}
+                      onClick={() => setShowAllPages((prev) => !prev)}
+                    >
+                      {showAllPages ? 'Show less' : 'Show all'}
+                    </button>
+                  )}
+                </div>
+                <ul>
+                  {(showAllPages
+                    ? clinicData.source_pages
+                    : clinicData.source_pages.slice(0, 5)
+                  ).map((url, idx) => (
+                    <li key={url + idx} className={styles.pageItem}>
+                      <span className={styles.pageIndex}>{idx + 1}.</span>
+                      <span className={styles.pageUrl}>{url}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </section>
+        )}
+
+        <div className={styles.messages}>
+          {messages.map((msg, i) => (
+            <div
+              key={i}
+              className={`${styles.message} ${msg.role === 'user' ? styles.user : styles.assistant}`}
+            >
+              <div className={styles.bubble}>{msg.content}</div>
+            </div>
+          ))}
+
+          {isLoading && (
+            <div className={`${styles.message} ${styles.assistant}`}>
+              <div className={styles.bubble}>
+                <div className={styles.typing}>
+                  <span />
+                  <span />
+                  <span />
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
+        </div>
+
+        <div className={styles.inputArea}>
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Ask anything..."
+            disabled={isLoading}
+          />
+          <button
+            onClick={handleSend}
+            disabled={!input.trim() || isLoading}
+            className={styles.sendButton}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
