@@ -119,7 +119,7 @@ export default function ChatbotDetailPage() {
     );
   }
 
-  const clinicData = chatbot.clinicData as Record<string, unknown>;
+  const clinicData = chatbot.clinicData;
 
   return (
     <div>
@@ -251,27 +251,27 @@ export default function ChatbotDetailPage() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
           <div>
             <h4 style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>Business Name</h4>
-            <p>{(clinicData.clinic_name as string) || 'Not found'}</p>
+            <p>{clinicData.clinic_name || 'Not found'}</p>
           </div>
           <div>
             <h4 style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>Phone</h4>
-            <p>{(clinicData.phone as string) || 'Not found'}</p>
+            <p>{clinicData.phone || 'Not found'}</p>
           </div>
           <div>
             <h4 style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>Email</h4>
-            <p>{(clinicData.email as string) || 'Not found'}</p>
+            <p>{clinicData.email || 'Not found'}</p>
           </div>
           <div>
             <h4 style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>Address</h4>
-            <p>{(clinicData.address as string) || 'Not found'}</p>
+            <p>{clinicData.address || 'Not found'}</p>
           </div>
           <div>
             <h4 style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>Services</h4>
-            <p>{((clinicData.services as unknown[]) || []).length} found</p>
+            <p>{(clinicData.services || []).length} found</p>
           </div>
           <div>
             <h4 style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>Pages Scraped</h4>
-            <p>{((clinicData.source_pages as unknown[]) || []).length} pages</p>
+            <p>{(clinicData.source_pages || []).length} pages</p>
           </div>
         </div>
       </div>
