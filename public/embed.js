@@ -83,22 +83,21 @@
       right: 24px;
       width: 60px;
       height: 60px;
-      border-radius: 18px;
-      border: none;
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      border-radius: 16px;
+      border: 1px solid #dbeafe;
+      background: #3b82f6;
       color: white;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35), 0 8px 24px rgba(59, 130, 246, 0.2);
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.16);
       z-index: 2147483646;
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: background 0.15s ease;
     }
 
     .fab:hover {
-      transform: scale(1.08) translateY(-2px);
-      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4), 0 12px 32px rgba(59, 130, 246, 0.25);
+      background: #2563eb;
     }
 
     .fab svg {
@@ -127,45 +126,22 @@
       position: fixed;
       bottom: 24px;
       right: 24px;
-      width: 400px;
+      width: 420px;
       max-width: calc(100vw - 48px);
-      height: min(560px, 75vh);
+      height: min(600px, 80vh);
       max-height: calc(100vh - 48px);
       background: var(--chat-surface);
-      border-radius: 20px;
-      box-shadow: 0 12px 40px rgba(30, 64, 175, 0.15), 0 4px 12px rgba(0, 0, 0, 0.08);
+      border-radius: 16px;
+      box-shadow: 0 12px 40px rgba(15, 23, 42, 0.16);
       border: 1px solid var(--chat-assistant-border);
       display: none;
       flex-direction: column;
       overflow: hidden;
       z-index: 2147483646;
-      animation: chatSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     .panel.open {
       display: flex;
-    }
-
-    @keyframes chatSlideUp {
-      from {
-        opacity: 0;
-        transform: translateY(16px) scale(0.95);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    @keyframes messageSlideIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
     }
 
     .header {
@@ -208,7 +184,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s;
+      transition: background 0.15s ease, color 0.15s ease;
     }
 
     .actionBtn:hover {
@@ -225,7 +201,7 @@
       flex: 1;
       overflow-y: auto;
       padding: 20px;
-      background: linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%);
+      background: #f8fafc;
       display: flex;
       flex-direction: column;
       gap: 16px;
@@ -253,15 +229,13 @@
       line-height: 1.6;
       white-space: pre-wrap;
       word-wrap: break-word;
-      animation: messageSlideIn 0.3s ease-out;
     }
 
     .user {
       align-self: flex-end;
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-      color: white;
+      background: var(--chat-user);
+      color: var(--chat-user-text);
       border-bottom-right-radius: 4px;
-      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
     }
 
     .assistant {
@@ -270,7 +244,6 @@
       color: var(--chat-text);
       border: 1px solid var(--chat-assistant-border);
       border-bottom-left-radius: 4px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
     .error {
@@ -302,7 +275,6 @@
       font-family: inherit;
       background: #f8fafc;
       color: var(--chat-text);
-      transition: all 0.2s;
     }
 
     .inputBar input::placeholder {
@@ -311,37 +283,34 @@
 
     .inputBar input:focus {
       outline: none;
-      border-color: #93c5fd;
+      border-color: #3b82f6;
       background: var(--chat-surface);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
     .send {
       width: 44px;
       height: 44px;
       border-radius: 100px;
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-      border: none;
+      background: var(--chat-user);
+      border: 1px solid var(--chat-user);
       color: white;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s;
       flex-shrink: 0;
-      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.25);
+      transition: background 0.15s ease, border-color 0.15s ease;
     }
 
     .send:hover:not(:disabled) {
-      transform: scale(1.05);
-      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35);
+      background: #2563eb;
+      border-color: #2563eb;
     }
 
     .send:disabled {
       opacity: 0.4;
       cursor: not-allowed;
       transform: none;
-      box-shadow: none;
     }
 
     .send svg {
@@ -359,22 +328,8 @@
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: #60a5fa;
-      animation: typingBounce 1.2s infinite ease-in-out;
-    }
-
-    .dot:nth-child(2) { animation-delay: 0.15s; }
-    .dot:nth-child(3) { animation-delay: 0.3s; }
-
-    @keyframes typingBounce {
-      0%, 60%, 100% {
-        transform: translateY(0);
-        opacity: 0.4;
-      }
-      30% {
-        transform: translateY(-6px);
-        opacity: 1;
-      }
+      background: #93c5fd;
+      opacity: 0.9;
     }
 
     @media (max-width: 480px) {
@@ -408,18 +363,6 @@
       display: none;
       flex-direction: column;
       z-index: 10;
-      animation: bookingSlideUp 0.3s ease-out;
-    }
-
-    @keyframes bookingSlideUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
     }
 
     .booking-form.active {
@@ -431,7 +374,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 18px 20px;
-      background: linear-gradient(180deg, #eff6ff 0%, var(--chat-surface) 100%);
+      background: var(--chat-surface);
       border-bottom: 1px solid var(--chat-assistant-border);
       flex-shrink: 0;
     }
@@ -481,16 +424,14 @@
       font-family: inherit;
       background: #f8fafc;
       color: var(--chat-text);
-      transition: all 0.2s;
     }
 
     .form-group input:focus,
     .form-group textarea:focus,
     .form-group select:focus {
       outline: none;
-      border-color: #93c5fd;
+      border-color: #3b82f6;
       background: var(--chat-surface);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
     .form-group input::placeholder,
@@ -526,7 +467,6 @@
       font-weight: 600;
       font-family: inherit;
       cursor: pointer;
-      transition: all 0.2s;
     }
 
     .btn-cancel {
@@ -536,28 +476,23 @@
     }
 
     .btn-cancel:hover {
-      background: #eff6ff;
-      border-color: #bfdbfe;
-      color: #2563eb;
+      background: #f8fafc;
     }
 
     .btn-submit {
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-      border: none;
+      background: var(--chat-primary);
+      border: 1px solid var(--chat-primary);
       color: white;
-      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.25);
     }
 
     .btn-submit:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
+      background: #2563eb;
+      border-color: #2563eb;
     }
 
     .btn-submit:disabled {
       opacity: 0.5;
       cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
     }
 
     .booking-success {
@@ -594,21 +529,20 @@
       align-items: center;
       gap: 8px;
       padding: 10px 18px;
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      background: var(--chat-primary);
       color: white;
-      border: none;
+      border: 1px solid var(--chat-primary);
       border-radius: 10px;
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       margin-top: 10px;
-      transition: all 0.2s;
-      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.25);
+      transition: background 0.15s ease, border-color 0.15s ease;
     }
 
     .book-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35);
+      background: #2563eb;
+      border-color: #2563eb;
     }
 
     .book-btn svg {
