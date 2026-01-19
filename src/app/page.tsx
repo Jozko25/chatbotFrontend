@@ -12,10 +12,10 @@ import styles from './page.module.css';
 const createDefaultTheme = (name?: string): ChatTheme => ({
   name: name || 'Assistant',
   tagline: 'AI-powered assistant',
-  primaryColor: '#18181b',
+  primaryColor: '#3b82f6',
   backgroundColor: '#ffffff',
-  textColor: '#09090b',
-  userBubbleColor: '#18181b',
+  textColor: '#1e293b',
+  userBubbleColor: '#3b82f6',
   assistantBubbleColor: '#ffffff',
 });
 
@@ -147,7 +147,7 @@ export default function Home() {
         <section id="hero" className={styles.hero}>
           <div className={styles.badge}>AI-Powered Customer Support</div>
           <h1 className={styles.title}>
-            Turn any website into<br />an intelligent chatbot
+            Turn any website into<br /><span>an intelligent chatbot</span>
           </h1>
           <p className={styles.description}>
             SiteBot crawls your website, understands your content, and creates a
