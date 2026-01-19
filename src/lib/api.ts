@@ -38,6 +38,9 @@ export interface ChatbotSummary {
 export interface Chatbot extends ChatbotSummary {
   clinicData: ClinicData;
   rawContent: string;
+  systemPrompt: string | null;
+  customKnowledge: string | null;
+  welcomeMessage: string | null;
 }
 
 export interface ApiKey {
@@ -112,6 +115,25 @@ export async function updateChatbotName(id: string, name: string): Promise<void>
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: 'Failed to update name' }));
     throw new Error(error.error || 'Failed to update name');
+  }
+}
+
+// Update chatbot settings (system prompt, knowledge base, welcome message, clinic data)
+export async function updateChatbotSettings(id: string, settings: {
+  systemPrompt?: string | null;
+  customKnowledge?: string | null;
+  welcomeMessage?: string | null;
+  clinicData?: Partial<ClinicData>;
+}): Promise<void> {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_URL}/api/chatbots/${id}/settings`, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify(settings)
+  });
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Failed to update settings' }));
+    throw new Error(error.error || 'Failed to update settings');
   }
 }
 

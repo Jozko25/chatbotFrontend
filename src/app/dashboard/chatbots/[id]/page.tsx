@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getChatbot, deleteChatbot, createApiKey, getApiKeys, Chatbot, ApiKey } from '@/lib/api';
+import { getChatbot, deleteChatbot, createApiKey, getApiKeys, updateChatbotSettings, Chatbot, ApiKey } from '@/lib/api';
 import styles from '../../dashboard.module.css';
 
 export default function ChatbotDetailPage() {
@@ -26,6 +26,14 @@ export default function ChatbotDetailPage() {
   const [deleting, setDeleting] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // AI Settings state
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [systemPrompt, setSystemPrompt] = useState('');
+  const [customKnowledge, setCustomKnowledge] = useState('');
+  const [welcomeMessage, setWelcomeMessage] = useState('');
+  const [savingSettings, setSavingSettings] = useState(false);
+  const [settingsSuccess, setSettingsSuccess] = useState(false);
+
   useEffect(() => {
     loadData();
   }, [chatbotId]);
@@ -39,6 +47,10 @@ export default function ChatbotDetailPage() {
       setChatbot(chatbotData);
       // Filter API keys for this chatbot or global keys
       setApiKeys(keysData.filter(k => k.chatbotId === chatbotId || k.chatbotId === null));
+      // Initialize AI settings
+      setSystemPrompt(chatbotData.systemPrompt || '');
+      setCustomKnowledge(chatbotData.customKnowledge || '');
+      setWelcomeMessage(chatbotData.welcomeMessage || '');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load chatbot');
     } finally {
@@ -97,6 +109,26 @@ export default function ChatbotDetailPage() {
     await navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  async function handleSaveSettings(e: React.FormEvent) {
+    e.preventDefault();
+    setSavingSettings(true);
+    setSettingsSuccess(false);
+
+    try {
+      await updateChatbotSettings(chatbotId, {
+        systemPrompt: systemPrompt || null,
+        customKnowledge: customKnowledge || null,
+        welcomeMessage: welcomeMessage || null
+      });
+      setSettingsSuccess(true);
+      setTimeout(() => setSettingsSuccess(false), 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save settings');
+    } finally {
+      setSavingSettings(false);
+    }
   }
 
   if (loading) {
@@ -244,6 +276,64 @@ export default function ChatbotDetailPage() {
           </div>
         </div>
       )}
+
+      {/* AI Settings Section */}
+      <div className={styles.card} style={{ marginTop: '2rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <h2 style={{ fontSize: '1.125rem', margin: 0 }}>AI Settings</h2>
+          {settingsSuccess && (
+            <span style={{ color: '#22c55e', fontSize: '0.875rem' }}>Settings saved!</span>
+          )}
+        </div>
+        <form onSubmit={handleSaveSettings}>
+          <div className={styles.formGroup} style={{ marginBottom: '1.5rem' }}>
+            <label htmlFor="welcomeMessage">Welcome Message</label>
+            <input
+              type="text"
+              id="welcomeMessage"
+              value={welcomeMessage}
+              onChange={(e) => setWelcomeMessage(e.target.value)}
+              placeholder="Welcome! How can I help you today?"
+              style={{ width: '100%' }}
+            />
+            <small style={{ color: '#64748b' }}>The first message shown to users when they open the chat.</small>
+          </div>
+
+          <div className={styles.formGroup} style={{ marginBottom: '1.5rem' }}>
+            <label htmlFor="systemPrompt">Custom System Prompt (optional)</label>
+            <textarea
+              id="systemPrompt"
+              value={systemPrompt}
+              onChange={(e) => setSystemPrompt(e.target.value)}
+              placeholder="Override the default AI behavior. Leave empty to use the default prompt that works well for most websites."
+              rows={6}
+              style={{ width: '100%', fontFamily: 'inherit', resize: 'vertical' }}
+            />
+            <small style={{ color: '#64748b' }}>
+              Advanced: Customize how the AI responds. This replaces the default system prompt.
+            </small>
+          </div>
+
+          <div className={styles.formGroup} style={{ marginBottom: '1.5rem' }}>
+            <label htmlFor="customKnowledge">Additional Knowledge Base</label>
+            <textarea
+              id="customKnowledge"
+              value={customKnowledge}
+              onChange={(e) => setCustomKnowledge(e.target.value)}
+              placeholder="Add information that wasn't captured by the scraper, such as:&#10;- Special promotions or discounts&#10;- FAQs and their answers&#10;- Policies (return policy, cancellation, etc.)&#10;- Any corrections to scraped data"
+              rows={8}
+              style={{ width: '100%', fontFamily: 'inherit', resize: 'vertical' }}
+            />
+            <small style={{ color: '#64748b' }}>
+              Add extra information the chatbot should know. This supplements the scraped website data.
+            </small>
+          </div>
+
+          <button type="submit" className={styles.primaryBtn} disabled={savingSettings}>
+            {savingSettings ? 'Saving...' : 'Save Settings'}
+          </button>
+        </form>
+      </div>
 
       {/* Scraped Data Preview */}
       <div className={styles.card} style={{ marginTop: '2rem' }}>
