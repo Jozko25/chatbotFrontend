@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, CSSProperties } from 'react';
 import { ChatTheme, ClinicData, Message } from '@/types/clinic';
-import { sendChatMessageStream } from '@/lib/api';
+import { sendChatMessageStreamLegacy } from '@/lib/api';
 import styles from './ChatInterface.module.css';
 
 interface ChatInterfaceProps {
@@ -66,7 +66,7 @@ export default function ChatInterface({
 
     let accumulated = '';
 
-    await sendChatMessageStream(
+    await sendChatMessageStreamLegacy(
       clinicData,
       messages,
       message,
