@@ -247,6 +247,95 @@ export async function scrapeClinic(url: string): Promise<ClinicData & { chatbotI
   return response.json();
 }
 
+// Scrape progress event types
+export interface ScrapeProgressEvent {
+  type: 'start' | 'depth' | 'scraping' | 'page_done' | 'page_error' | 'scrape_complete' | 'extracting' | 'saving' | 'complete' | 'error';
+  url?: string;
+  title?: string;
+  contentLength?: number;
+  linksFound?: number;
+  pagesScraped?: number;
+  maxPages?: number;
+  totalLinksFound?: number;
+  depth?: number;
+  pagesToScrape?: number;
+  step?: string;
+  message?: string;
+  chatbotId?: string;
+  name?: string;
+  servicesFound?: number;
+  phone?: string;
+  email?: string;
+  error?: string;
+}
+
+// Streaming scrape with progress updates
+export async function scrapeClinicStream(
+  url: string,
+  onProgress: (event: ScrapeProgressEvent) => void
+): Promise<{ chatbotId: string; name: string }> {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_URL}/api/scrape/stream`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ url }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Failed to scrape website' }));
+    throw new Error(error.error || 'Failed to scrape website');
+  }
+
+  const reader = response.body?.getReader();
+  if (!reader) {
+    throw new Error('No response body');
+  }
+
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let result: { chatbotId: string; name: string } | null = null;
+
+  while (true) {
+    const { done, value } = await reader.read();
+
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+
+    const lines = buffer.split('\n\n');
+    buffer = lines.pop() || '';
+
+    for (const line of lines) {
+      if (line.startsWith('data: ')) {
+        try {
+          const data = JSON.parse(line.slice(6)) as ScrapeProgressEvent;
+          onProgress(data);
+
+          if (data.type === 'complete' && data.chatbotId) {
+            result = { chatbotId: data.chatbotId, name: data.name || '' };
+          }
+
+          if (data.type === 'error') {
+            throw new Error(data.error || 'Scraping failed');
+          }
+        } catch (e) {
+          if (e instanceof Error && e.message !== 'Scraping failed') {
+            console.error('Failed to parse SSE data:', e);
+          } else {
+            throw e;
+          }
+        }
+      }
+    }
+  }
+
+  if (!result) {
+    throw new Error('Scraping completed but no chatbot was created');
+  }
+
+  return result;
+}
+
 // ============================================
 // CHAT API (authenticated - for dashboard testing)
 // ============================================
