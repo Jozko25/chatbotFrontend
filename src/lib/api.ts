@@ -41,6 +41,18 @@ export interface Chatbot extends ChatbotSummary {
   systemPrompt: string | null;
   customKnowledge: string | null;
   welcomeMessage: string | null;
+  // Communication style
+  communicationStyle: 'PROFESSIONAL' | 'FRIENDLY' | 'CASUAL' | 'CONCISE';
+  language: string;
+  customGreeting: string | null;
+  // Notification settings
+  notificationEmail: string | null;
+  notificationWebhook: string | null;
+  notifyOnBooking: boolean;
+  notifyOnMessage: boolean;
+  // Booking settings
+  bookingEnabled: boolean;
+  bookingFields: string[];
 }
 
 export interface ApiKey {
@@ -147,6 +159,30 @@ export async function deleteChatbot(id: string): Promise<void> {
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: 'Failed to delete chatbot' }));
     throw new Error(error.error || 'Failed to delete chatbot');
+  }
+}
+
+// Update notification and communication settings
+export async function updateNotificationSettings(id: string, settings: {
+  notificationEmail?: string | null;
+  notificationWebhook?: string | null;
+  notifyOnBooking?: boolean;
+  notifyOnMessage?: boolean;
+  bookingEnabled?: boolean;
+  bookingFields?: string[];
+  communicationStyle?: 'PROFESSIONAL' | 'FRIENDLY' | 'CASUAL' | 'CONCISE';
+  language?: string;
+  customGreeting?: string | null;
+}): Promise<void> {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_URL}/api/chatbots/${id}/notifications`, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify(settings)
+  });
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Failed to update settings' }));
+    throw new Error(error.error || 'Failed to update settings');
   }
 }
 

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getChatbot, deleteChatbot, createApiKey, getApiKeys, updateChatbotSettings, Chatbot, ApiKey } from '@/lib/api';
+import { getChatbot, deleteChatbot, createApiKey, getApiKeys, updateChatbotSettings, updateNotificationSettings, Chatbot, ApiKey } from '@/lib/api';
 import styles from '../../dashboard.module.css';
 
 export default function ChatbotDetailPage() {
@@ -44,6 +44,17 @@ export default function ChatbotDetailPage() {
   const [savingClinicData, setSavingClinicData] = useState(false);
   const [clinicDataSuccess, setClinicDataSuccess] = useState(false);
 
+  // Notification & Communication settings state
+  const [notificationEmail, setNotificationEmail] = useState('');
+  const [notificationWebhook, setNotificationWebhook] = useState('');
+  const [notifyOnBooking, setNotifyOnBooking] = useState(true);
+  const [bookingEnabled, setBookingEnabled] = useState(true);
+  const [communicationStyle, setCommunicationStyle] = useState<'PROFESSIONAL' | 'FRIENDLY' | 'CASUAL' | 'CONCISE'>('PROFESSIONAL');
+  const [language, setLanguage] = useState('auto');
+  const [customGreeting, setCustomGreeting] = useState('');
+  const [savingNotifications, setSavingNotifications] = useState(false);
+  const [notificationsSuccess, setNotificationsSuccess] = useState(false);
+
   useEffect(() => {
     loadData();
   }, [chatbotId]);
@@ -70,6 +81,14 @@ export default function ChatbotDetailPage() {
       setEditOpeningHours(cd.opening_hours || '');
       // Convert services array to editable text format
       setEditServices((cd.services || []).map((s: { name: string; price: string }) => `${s.name}: ${s.price}`).join('\n'));
+      // Initialize notification & communication settings
+      setNotificationEmail(chatbotData.notificationEmail || '');
+      setNotificationWebhook(chatbotData.notificationWebhook || '');
+      setNotifyOnBooking(chatbotData.notifyOnBooking ?? true);
+      setBookingEnabled(chatbotData.bookingEnabled ?? true);
+      setCommunicationStyle(chatbotData.communicationStyle || 'PROFESSIONAL');
+      setLanguage(chatbotData.language || 'auto');
+      setCustomGreeting(chatbotData.customGreeting || '');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load chatbot');
     } finally {
@@ -147,6 +166,30 @@ export default function ChatbotDetailPage() {
       setError(err instanceof Error ? err.message : 'Failed to save settings');
     } finally {
       setSavingSettings(false);
+    }
+  }
+
+  async function handleSaveNotifications(e: React.FormEvent) {
+    e.preventDefault();
+    setSavingNotifications(true);
+    setNotificationsSuccess(false);
+
+    try {
+      await updateNotificationSettings(chatbotId, {
+        notificationEmail: notificationEmail || null,
+        notificationWebhook: notificationWebhook || null,
+        notifyOnBooking,
+        bookingEnabled,
+        communicationStyle,
+        language,
+        customGreeting: customGreeting || null
+      });
+      setNotificationsSuccess(true);
+      setTimeout(() => setNotificationsSuccess(false), 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save notification settings');
+    } finally {
+      setSavingNotifications(false);
     }
   }
 
@@ -390,6 +433,140 @@ export default function ChatbotDetailPage() {
 
           <button type="submit" className={styles.primaryBtn} disabled={savingSettings}>
             {savingSettings ? 'Saving...' : 'Save Settings'}
+          </button>
+        </form>
+      </div>
+
+      {/* Communication & Notification Settings */}
+      <div className={styles.card} style={{ marginTop: '2rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <div>
+            <h2 style={{ fontSize: '1.125rem', margin: 0 }}>Communication & Notifications</h2>
+            <p style={{ color: '#64748b', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+              Configure how the chatbot communicates and how you receive booking notifications.
+            </p>
+          </div>
+          {notificationsSuccess && (
+            <span style={{ color: '#22c55e', fontSize: '0.875rem' }}>Settings saved!</span>
+          )}
+        </div>
+        <form onSubmit={handleSaveNotifications}>
+          {/* Communication Style */}
+          <div style={{ marginBottom: '1.5rem', padding: '1rem', background: '#f8fafc', borderRadius: '8px' }}>
+            <h3 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '1rem', color: '#334155' }}>Communication Style</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+              <div className={styles.formGroup}>
+                <label htmlFor="communicationStyle">Tone</label>
+                <select
+                  id="communicationStyle"
+                  value={communicationStyle}
+                  onChange={(e) => setCommunicationStyle(e.target.value as typeof communicationStyle)}
+                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #e2e8f0' }}
+                >
+                  <option value="PROFESSIONAL">Professional - Formal, business-like</option>
+                  <option value="FRIENDLY">Friendly - Warm, conversational</option>
+                  <option value="CASUAL">Casual - Relaxed, informal</option>
+                  <option value="CONCISE">Concise - Brief, to-the-point</option>
+                </select>
+              </div>
+              <div className={styles.formGroup}>
+                <label htmlFor="language">Response Language</label>
+                <select
+                  id="language"
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #e2e8f0' }}
+                >
+                  <option value="auto">Auto-detect (match user)</option>
+                  <option value="sk">Slovak</option>
+                  <option value="cs">Czech</option>
+                  <option value="en">English</option>
+                  <option value="de">German</option>
+                  <option value="hu">Hungarian</option>
+                  <option value="pl">Polish</option>
+                </select>
+              </div>
+            </div>
+            <div className={styles.formGroup} style={{ marginTop: '1rem' }}>
+              <label htmlFor="customGreeting">Custom Greeting (optional)</label>
+              <input
+                type="text"
+                id="customGreeting"
+                value={customGreeting}
+                onChange={(e) => setCustomGreeting(e.target.value)}
+                placeholder="e.g., Ahoj! Ako ti mozem pomoct?"
+                style={{ width: '100%' }}
+              />
+              <small style={{ color: '#64748b' }}>Custom greeting the AI will use when starting conversations.</small>
+            </div>
+          </div>
+
+          {/* Booking Settings */}
+          <div style={{ marginBottom: '1.5rem', padding: '1rem', background: '#f8fafc', borderRadius: '8px' }}>
+            <h3 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '1rem', color: '#334155' }}>Booking & Appointments</h3>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={bookingEnabled}
+                onChange={(e) => setBookingEnabled(e.target.checked)}
+                style={{ width: '18px', height: '18px', accentColor: '#0ea5e9' }}
+              />
+              <div>
+                <span style={{ fontWeight: 500 }}>Enable booking requests</span>
+                <p style={{ color: '#64748b', fontSize: '0.75rem', margin: 0 }}>
+                  Allow customers to request appointments through the chatbot
+                </p>
+              </div>
+            </label>
+          </div>
+
+          {/* Notification Settings */}
+          <div style={{ marginBottom: '1.5rem', padding: '1rem', background: '#f8fafc', borderRadius: '8px' }}>
+            <h3 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '1rem', color: '#334155' }}>Notifications</h3>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', marginBottom: '1rem' }}>
+              <input
+                type="checkbox"
+                checked={notifyOnBooking}
+                onChange={(e) => setNotifyOnBooking(e.target.checked)}
+                style={{ width: '18px', height: '18px', accentColor: '#0ea5e9' }}
+              />
+              <div>
+                <span style={{ fontWeight: 500 }}>Notify on new bookings</span>
+                <p style={{ color: '#64748b', fontSize: '0.75rem', margin: 0 }}>
+                  Send email/webhook when a customer submits a booking request
+                </p>
+              </div>
+            </label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+              <div className={styles.formGroup}>
+                <label htmlFor="notificationEmail">Notification Email</label>
+                <input
+                  type="email"
+                  id="notificationEmail"
+                  value={notificationEmail}
+                  onChange={(e) => setNotificationEmail(e.target.value)}
+                  placeholder="bookings@yourcompany.com"
+                  style={{ width: '100%' }}
+                />
+                <small style={{ color: '#64748b' }}>Email to receive booking notifications</small>
+              </div>
+              <div className={styles.formGroup}>
+                <label htmlFor="notificationWebhook">Webhook URL (optional)</label>
+                <input
+                  type="url"
+                  id="notificationWebhook"
+                  value={notificationWebhook}
+                  onChange={(e) => setNotificationWebhook(e.target.value)}
+                  placeholder="https://your-crm.com/webhook"
+                  style={{ width: '100%' }}
+                />
+                <small style={{ color: '#64748b' }}>For CRM/calendar integrations</small>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" className={styles.primaryBtn} disabled={savingNotifications}>
+            {savingNotifications ? 'Saving...' : 'Save Communication & Notification Settings'}
           </button>
         </form>
       </div>
