@@ -233,6 +233,13 @@ export default function ChatInterface({
             </svg>
           </button>
         </div>
+
+        <div className={styles.legalBar}>
+          <span>
+            AI responses are informational and may be imperfect. Confirm details before acting.
+          </span>
+          <a className={styles.legalLink} href="#terms">Terms</a>
+        </div>
       </div>
     </div>
   );

@@ -50,6 +50,8 @@ export default function SetupForm({ onSubmit, isLoading, error, embedded, info, 
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.inputGroup}>
+            <label htmlFor="url">Website URL</label>
+            <span className={styles.inputIcon}>🔗</span>
             <input
               id="url"
               type="url"
@@ -59,6 +61,7 @@ export default function SetupForm({ onSubmit, isLoading, error, embedded, info, 
               required
               disabled={isLoading}
             />
+            <p className={styles.helpText}>We&apos;ll crawl up to 25 pages automatically.</p>
           </div>
 
           <button
@@ -104,6 +107,10 @@ export default function SetupForm({ onSubmit, isLoading, error, embedded, info, 
             {error}
           </div>
         )}
+
+        <p className={styles.legal}>
+          By continuing you agree to our <a href="#terms">Terms</a> and confirm the chatbot responses are informational only and not legal, financial, or medical advice.
+        </p>
       </div>
     </div>
   );

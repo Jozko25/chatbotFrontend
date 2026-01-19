@@ -155,18 +155,31 @@ export default function Home() {
           </p>
 
           <div id="cta" className={styles.formWrapper}>
-            <SetupForm
-              onSubmit={handleSetup}
-              isLoading={isLoading}
-              error={error}
-              embedded
-              onReset={clinicData ? handleReset : undefined}
-              info={
-                clinicData && showChat
-                  ? 'Your chatbot is ready — try it in the bottom right corner'
-                  : undefined
-              }
-            />
+            <div className={styles.heroCard}>
+              <SetupForm
+                onSubmit={handleSetup}
+                isLoading={isLoading}
+                error={error}
+                embedded
+                onReset={clinicData ? handleReset : undefined}
+              />
+              <div className={styles.heroHighlights}>
+                <div className={styles.heroHighlight}>
+                  <span className={styles.dot} />
+                  <div>
+                    <p>90-second setup</p>
+                    <small>Paste a URL, we crawl the rest</small>
+                  </div>
+                </div>
+                <div className={styles.heroHighlight}>
+                  <span className={styles.dot} />
+                  <div>
+                    <p>One-line embed</p>
+                    <small>Drop in the script and go live</small>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <p className={styles.subtext}>Free to try. No credit card required.</p>
@@ -455,9 +468,11 @@ export default function Home() {
       {clinicData && (
         <>
           {!showChat && (
-            <button className={styles.fab} onClick={() => setShowChat(true)}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            <button className={styles.fab} onClick={() => setShowChat(true)} aria-label="Open chatbot">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M7 11h6M7 15h4" strokeLinecap="round" />
+                <path d="M5 20v-3H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3.5" />
+                <path d="M17 15.5V22l3.5-2H22a2 2 0 0 0 2-2v-4.5a2 2 0 0 0-2-2h-3a2 2 0 0 0-2 2Z" />
               </svg>
             </button>
           )}
