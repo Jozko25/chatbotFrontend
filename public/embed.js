@@ -4,32 +4,29 @@
   const script = document.currentScript;
   if (!script) return;
 
-    const apiUrl = script.getAttribute('data-api-url') || '';
-  const clinicEncoded = script.getAttribute('data-clinic') || '';
+  const chatbotId = script.getAttribute('data-chatbot-id');
+  const apiKey = script.getAttribute('data-api-key');
+  const apiUrl = script.getAttribute('data-api-url') || '';
 
-  if (!apiUrl || !clinicEncoded) {
-    console.warn('[SiteBot] Missing required attributes: data-api-url or data-clinic');
+  if (!chatbotId || !apiKey || !apiUrl) {
+    console.warn('[SiteBot] Missing required attributes: data-chatbot-id, data-api-key, or data-api-url');
     return;
   }
 
-  // Secure decode with error handling
-  const decode = (str) => {
-    try {
-      const decoded = decodeURIComponent(escape(window.atob(str)));
-      const parsed = JSON.parse(decoded);
-      // Validate required fields
-      if (!parsed || typeof parsed !== 'object') {
-        throw new Error('Invalid data structure');
-      }
-      return parsed;
-    } catch (err) {
-      console.error('[SiteBot] Failed to decode clinic data:', err.message);
-      return null;
+  const apiBase = apiUrl.replace(/\/+$/, '');
+
+  // Generate or retrieve session ID for conversation tracking
+  const getSessionId = () => {
+    const key = 'sitebot_session_' + chatbotId;
+    let sessionId = localStorage.getItem(key);
+    if (!sessionId) {
+      sessionId = 'sess_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+      localStorage.setItem(key, sessionId);
     }
+    return sessionId;
   };
 
-  const clinicData = decode(clinicEncoded);
-  if (!clinicData) return;
+  const sessionId = getSessionId();
 
   // Sanitize text content to prevent XSS
   const sanitize = (str) => {
@@ -44,21 +41,22 @@
     return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(value.trim()) ? value : fallback;
   };
 
-  const themeData = clinicData.theme || {};
-  const theme = {
-    name: sanitize(themeData.name || clinicData.clinic_name || 'Assistant'),
-    tagline: sanitize(themeData.tagline || 'AI-powered assistant'),
-    primary: sanitizeColor(themeData.primaryColor, '#18181b'),
-    surface: sanitizeColor(themeData.backgroundColor, '#ffffff'),
-    text: sanitizeColor(themeData.textColor, '#09090b'),
-    user: sanitizeColor(themeData.userBubbleColor, '#18181b'),
-    userText: sanitizeColor(themeData.backgroundColor, '#ffffff'),
-    assistant: sanitizeColor(themeData.assistantBubbleColor, '#ffffff'),
+  // Chatbot data and theme (loaded from API)
+  let clinicData = null;
+  let theme = {
+    name: 'Assistant',
+    tagline: 'AI-powered assistant',
+    primary: '#18181b',
+    surface: '#ffffff',
+    text: '#09090b',
+    user: '#18181b',
+    userText: '#ffffff',
+    assistant: '#ffffff',
     assistantBorder: '#e4e4e7'
   };
 
   // Create isolated shadow DOM
-    const shadowHost = document.createElement('div');
+  const shadowHost = document.createElement('div');
   shadowHost.id = 'sitebot-widget';
   document.body.appendChild(shadowHost);
   const shadow = shadowHost.attachShadow({ mode: 'closed' });
@@ -110,6 +108,11 @@
 
     .fab.hidden {
       display: none;
+    }
+
+    .fab.loading {
+      opacity: 0.5;
+      cursor: wait;
     }
 
     .panel {
@@ -253,6 +256,15 @@
       border-bottom-left-radius: 4px;
     }
 
+    .error {
+      align-self: center;
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+      text-align: center;
+      font-size: 13px;
+    }
+
     .inputBar {
       display: flex;
       gap: 10px;
@@ -341,18 +353,6 @@
       }
     }
 
-    .cursor {
-      display: inline-block;
-      animation: blink 1s infinite step-end;
-      color: var(--chat-muted);
-      margin-left: 1px;
-    }
-
-    @keyframes blink {
-      0%, 50% { opacity: 1; }
-      51%, 100% { opacity: 0; }
-    }
-
     @media (max-width: 480px) {
       .panel {
         bottom: 16px;
@@ -373,7 +373,7 @@
   `;
 
   const fab = document.createElement('button');
-  fab.className = 'fab';
+  fab.className = 'fab loading';
   fab.type = 'button';
   fab.setAttribute('aria-label', 'Open chat');
   fab.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -382,19 +382,11 @@
 
   const panel = document.createElement('div');
   panel.className = 'panel';
-  panel.style.setProperty('--chat-primary', theme.primary);
-  panel.style.setProperty('--chat-surface', theme.surface);
-  panel.style.setProperty('--chat-text', theme.text);
-  panel.style.setProperty('--chat-muted', theme.text);
-  panel.style.setProperty('--chat-user', theme.user);
-  panel.style.setProperty('--chat-user-text', theme.userText);
-  panel.style.setProperty('--chat-assistant', theme.assistant);
-  panel.style.setProperty('--chat-assistant-border', theme.assistantBorder);
   panel.innerHTML = `
     <header class="header">
       <div class="headerInfo">
-        <h3>${theme.name}</h3>
-        <p class="headerSub">${theme.tagline}</p>
+        <h3 class="header-name">Loading...</h3>
+        <p class="headerSub header-tagline">AI-powered assistant</p>
       </div>
       <div class="headerActions">
         <button class="actionBtn minimize" aria-label="Minimize" title="Minimize">
@@ -412,8 +404,8 @@
     </header>
     <div class="messages"></div>
     <div class="inputBar">
-      <input type="text" placeholder="Ask anything..." autocomplete="off" />
-      <button class="send" aria-label="Send message">
+      <input type="text" placeholder="Ask anything..." autocomplete="off" disabled />
+      <button class="send" aria-label="Send message" disabled>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
         </svg>
@@ -423,15 +415,17 @@
 
   shadow.append(style, fab, panel);
 
-  const apiBase = apiUrl.replace(/\/+$/, '');
   const messagesEl = panel.querySelector('.messages');
   const inputEl = panel.querySelector('input');
   const sendBtn = panel.querySelector('.send');
   const closeBtn = panel.querySelector('.close');
   const minimizeBtn = panel.querySelector('.minimize');
+  const headerName = panel.querySelector('.header-name');
+  const headerTagline = panel.querySelector('.header-tagline');
 
   let open = false;
   let loading = false;
+  let initialized = false;
   const messages = [];
 
   const scrollToBottom = () => {
@@ -447,7 +441,7 @@
     messages.forEach((m) => {
       const div = document.createElement('div');
       div.className = `msg ${m.role}`;
-      div.textContent = m.content; // Safe: textContent prevents XSS
+      div.textContent = m.content;
       messagesEl.appendChild(div);
     });
 
@@ -461,18 +455,92 @@
     scrollToBottom();
   };
 
-  // Add welcome message
-  if (clinicData.welcomeMessage) {
-    messages.push({ role: 'assistant', content: clinicData.welcomeMessage });
-    renderMessages();
-  }
+  const showError = (message) => {
+    const div = document.createElement('div');
+    div.className = 'msg error';
+    div.textContent = message;
+    messagesEl?.appendChild(div);
+    scrollToBottom();
+  };
+
+  const applyTheme = (themeData) => {
+    if (!themeData) return;
+
+    theme = {
+      name: sanitize(themeData.name || clinicData?.clinic_name || 'Assistant'),
+      tagline: sanitize(themeData.tagline || 'AI-powered assistant'),
+      primary: sanitizeColor(themeData.primaryColor, '#18181b'),
+      surface: sanitizeColor(themeData.backgroundColor, '#ffffff'),
+      text: sanitizeColor(themeData.textColor, '#09090b'),
+      user: sanitizeColor(themeData.userBubbleColor, '#18181b'),
+      userText: sanitizeColor(themeData.backgroundColor, '#ffffff'),
+      assistant: sanitizeColor(themeData.assistantBubbleColor, '#ffffff'),
+      assistantBorder: '#e4e4e7'
+    };
+
+    panel.style.setProperty('--chat-primary', theme.primary);
+    panel.style.setProperty('--chat-surface', theme.surface);
+    panel.style.setProperty('--chat-text', theme.text);
+    panel.style.setProperty('--chat-muted', theme.text);
+    panel.style.setProperty('--chat-user', theme.user);
+    panel.style.setProperty('--chat-user-text', theme.userText);
+    panel.style.setProperty('--chat-assistant', theme.assistant);
+    panel.style.setProperty('--chat-assistant-border', theme.assistantBorder);
+    fab.style.setProperty('--chat-primary', theme.primary);
+    fab.style.setProperty('--chat-surface', theme.surface);
+
+    if (headerName) headerName.textContent = theme.name;
+    if (headerTagline) headerTagline.textContent = theme.tagline;
+  };
+
+  // Load chatbot configuration from API
+  const loadChatbot = async () => {
+    try {
+      const response = await fetch(`${apiBase}/api/widget/chatbot/${chatbotId}`, {
+        headers: {
+          'X-API-Key': apiKey
+        }
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Failed to load chatbot' }));
+        throw new Error(error.error || 'Failed to load chatbot');
+      }
+
+      const data = await response.json();
+      clinicData = data.clinicData;
+
+      // Apply theme
+      applyTheme(data.theme);
+
+      // Update header with actual name
+      if (headerName) headerName.textContent = sanitize(clinicData?.clinic_name || 'Assistant');
+
+      // Add welcome message
+      if (clinicData?.welcomeMessage) {
+        messages.push({ role: 'assistant', content: clinicData.welcomeMessage });
+        renderMessages();
+      }
+
+      // Enable input
+      if (inputEl) inputEl.disabled = false;
+      if (sendBtn) sendBtn.disabled = false;
+      fab.classList.remove('loading');
+      initialized = true;
+
+    } catch (err) {
+      console.error('[SiteBot] Failed to load chatbot:', err);
+      fab.classList.remove('loading');
+      showError(err.message || 'Failed to load chatbot. Please check your API key.');
+    }
+  };
 
   const openPanel = () => {
     open = true;
     panel.classList.add('open');
     fab.classList.add('hidden');
     setTimeout(scrollToBottom, 50);
-    inputEl?.focus();
+    if (initialized) inputEl?.focus();
   };
 
   const closePanel = () => {
@@ -486,7 +554,7 @@
   minimizeBtn?.addEventListener('click', closePanel);
 
   const sendMessage = async () => {
-    if (!inputEl || !sendBtn) return;
+    if (!inputEl || !sendBtn || !initialized) return;
     const content = inputEl.value.trim();
     if (!content || loading) return;
 
@@ -499,18 +567,27 @@
     renderMessages();
 
     try {
-      const res = await fetch(`${apiBase}/api/chat/stream`, {
+      const res = await fetch(`${apiBase}/api/widget/chat/stream`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': apiKey
+        },
         body: JSON.stringify({
-          clinicData,
-          conversationHistory: messages,
+          chatbotId,
+          sessionId,
+          conversationHistory: messages.slice(-10), // Last 10 messages for context
           message: content
         })
       });
 
-      if (!res.ok || !res.body) {
-        throw new Error('Request failed');
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({ error: 'Request failed' }));
+        throw new Error(error.error || 'Request failed');
+      }
+
+      if (!res.body) {
+        throw new Error('No response body');
       }
 
       const reader = res.body.getReader();
@@ -547,7 +624,15 @@
       }
     } catch (err) {
       console.error('[SiteBot] Send failed:', err);
-      messages.push({ role: 'assistant', content: 'Sorry, something went wrong. Please try again.' });
+
+      // Handle specific error messages
+      if (err.message.includes('limit')) {
+        showError('Message limit exceeded. Please try again later.');
+      } else if (err.message.includes('Domain')) {
+        showError('This widget is not authorized for this domain.');
+      } else {
+        messages.push({ role: 'assistant', content: 'Sorry, something went wrong. Please try again.' });
+      }
     } finally {
       loading = false;
       sendBtn.disabled = false;
@@ -563,4 +648,7 @@
       sendMessage();
     }
   });
+
+  // Load chatbot on init
+  loadChatbot();
 })();
