@@ -987,9 +987,9 @@
         renderMessages();
       }
       
-      // Add booking button if enabled
+      // Update booking form fields visibility (but don't show button yet)
       if (bookingEnabled) {
-        setTimeout(addBookingButton, 500);
+        updateBookingFormFields();
       }
 
       // Enable input
@@ -1082,6 +1082,10 @@
             if (data.done) break;
             if (data.content) {
               assistantText += data.content;
+            }
+            // Check if booking intent was detected - show the booking button
+            if (data.bookingIntent && bookingEnabled) {
+              setTimeout(addBookingButton, 100);
             }
             // Check if booking was auto-submitted
             if (data.bookingSubmitted && data.bookingData) {
