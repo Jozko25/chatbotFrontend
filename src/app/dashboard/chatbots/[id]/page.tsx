@@ -34,6 +34,16 @@ export default function ChatbotDetailPage() {
   const [savingSettings, setSavingSettings] = useState(false);
   const [settingsSuccess, setSettingsSuccess] = useState(false);
 
+  // Editable clinic data state
+  const [editClinicName, setEditClinicName] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editAddress, setEditAddress] = useState('');
+  const [editOpeningHours, setEditOpeningHours] = useState('');
+  const [editServices, setEditServices] = useState('');
+  const [savingClinicData, setSavingClinicData] = useState(false);
+  const [clinicDataSuccess, setClinicDataSuccess] = useState(false);
+
   useEffect(() => {
     loadData();
   }, [chatbotId]);
@@ -51,6 +61,15 @@ export default function ChatbotDetailPage() {
       setSystemPrompt(chatbotData.systemPrompt || '');
       setCustomKnowledge(chatbotData.customKnowledge || '');
       setWelcomeMessage(chatbotData.welcomeMessage || '');
+      // Initialize editable clinic data
+      const cd = chatbotData.clinicData;
+      setEditClinicName(cd.clinic_name || '');
+      setEditPhone(cd.phone || '');
+      setEditEmail(cd.email || '');
+      setEditAddress(cd.address || '');
+      setEditOpeningHours(cd.opening_hours || '');
+      // Convert services array to editable text format
+      setEditServices((cd.services || []).map((s: { name: string; price: string }) => `${s.name}: ${s.price}`).join('\n'));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load chatbot');
     } finally {
@@ -128,6 +147,46 @@ export default function ChatbotDetailPage() {
       setError(err instanceof Error ? err.message : 'Failed to save settings');
     } finally {
       setSavingSettings(false);
+    }
+  }
+
+  async function handleSaveClinicData(e: React.FormEvent) {
+    e.preventDefault();
+    setSavingClinicData(true);
+    setClinicDataSuccess(false);
+
+    try {
+      // Parse services from text format back to array
+      const servicesArray = editServices
+        .split('\n')
+        .filter(line => line.trim())
+        .map(line => {
+          const colonIndex = line.indexOf(':');
+          if (colonIndex > -1) {
+            return {
+              name: line.substring(0, colonIndex).trim(),
+              price: line.substring(colonIndex + 1).trim()
+            };
+          }
+          return { name: line.trim(), price: '' };
+        });
+
+      await updateChatbotSettings(chatbotId, {
+        clinicData: {
+          clinic_name: editClinicName,
+          phone: editPhone,
+          email: editEmail,
+          address: editAddress,
+          opening_hours: editOpeningHours,
+          services: servicesArray
+        }
+      });
+      setClinicDataSuccess(true);
+      setTimeout(() => setClinicDataSuccess(false), 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save knowledge base');
+    } finally {
+      setSavingClinicData(false);
     }
   }
 
@@ -335,35 +394,99 @@ export default function ChatbotDetailPage() {
         </form>
       </div>
 
-      {/* Scraped Data Preview */}
+      {/* Knowledge Base - Editable Scraped Data */}
       <div className={styles.card} style={{ marginTop: '2rem' }}>
-        <h2 style={{ fontSize: '1.125rem', marginBottom: '1rem' }}>Scraped Data</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
           <div>
-            <h4 style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>Business Name</h4>
-            <p>{clinicData.clinic_name || 'Not found'}</p>
+            <h2 style={{ fontSize: '1.125rem', margin: 0 }}>Knowledge Base</h2>
+            <p style={{ color: '#64748b', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+              This is the information the chatbot uses to answer questions. Edit any incorrect data.
+            </p>
           </div>
-          <div>
-            <h4 style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>Phone</h4>
-            <p>{clinicData.phone || 'Not found'}</p>
-          </div>
-          <div>
-            <h4 style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>Email</h4>
-            <p>{clinicData.email || 'Not found'}</p>
-          </div>
-          <div>
-            <h4 style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>Address</h4>
-            <p>{clinicData.address || 'Not found'}</p>
-          </div>
-          <div>
-            <h4 style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>Services</h4>
-            <p>{(clinicData.services || []).length} found</p>
-          </div>
-          <div>
-            <h4 style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>Pages Scraped</h4>
-            <p>{(clinicData.source_pages || []).length} pages</p>
-          </div>
+          {clinicDataSuccess && (
+            <span style={{ color: '#22c55e', fontSize: '0.875rem' }}>Saved!</span>
+          )}
         </div>
+        <form onSubmit={handleSaveClinicData}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+            <div className={styles.formGroup}>
+              <label htmlFor="editClinicName">Business Name</label>
+              <input
+                type="text"
+                id="editClinicName"
+                value={editClinicName}
+                onChange={(e) => setEditClinicName(e.target.value)}
+                placeholder="Business name"
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="editPhone">Phone</label>
+              <input
+                type="text"
+                id="editPhone"
+                value={editPhone}
+                onChange={(e) => setEditPhone(e.target.value)}
+                placeholder="Phone number"
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="editEmail">Email</label>
+              <input
+                type="text"
+                id="editEmail"
+                value={editEmail}
+                onChange={(e) => setEditEmail(e.target.value)}
+                placeholder="Email address"
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="editAddress">Address</label>
+              <input
+                type="text"
+                id="editAddress"
+                value={editAddress}
+                onChange={(e) => setEditAddress(e.target.value)}
+                placeholder="Business address"
+              />
+            </div>
+          </div>
+
+          <div className={styles.formGroup} style={{ marginTop: '1rem' }}>
+            <label htmlFor="editOpeningHours">Opening Hours</label>
+            <textarea
+              id="editOpeningHours"
+              value={editOpeningHours}
+              onChange={(e) => setEditOpeningHours(e.target.value)}
+              placeholder="Mon-Fri: 9:00-17:00&#10;Sat: 10:00-14:00&#10;Sun: Closed"
+              rows={3}
+              style={{ width: '100%', fontFamily: 'inherit', resize: 'vertical' }}
+            />
+          </div>
+
+          <div className={styles.formGroup} style={{ marginTop: '1rem' }}>
+            <label htmlFor="editServices">Services & Prices</label>
+            <textarea
+              id="editServices"
+              value={editServices}
+              onChange={(e) => setEditServices(e.target.value)}
+              placeholder="Service Name: Price&#10;Another Service: €50&#10;Third Service: Free consultation"
+              rows={10}
+              style={{ width: '100%', fontFamily: 'monospace', fontSize: '0.875rem', resize: 'vertical' }}
+            />
+            <small style={{ color: '#64748b' }}>
+              One service per line. Format: &quot;Service Name: Price&quot;
+            </small>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
+            <span style={{ color: '#64748b', fontSize: '0.75rem' }}>
+              {(clinicData.source_pages || []).length} pages were scraped from {chatbot.sourceUrl}
+            </span>
+            <button type="submit" className={styles.primaryBtn} disabled={savingClinicData}>
+              {savingClinicData ? 'Saving...' : 'Save Knowledge Base'}
+            </button>
+          </div>
+        </form>
       </div>
 
       {/* Delete Modal */}
