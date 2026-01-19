@@ -49,11 +49,24 @@ export default function ChatbotDetailPage() {
   const [notificationWebhook, setNotificationWebhook] = useState('');
   const [notifyOnBooking, setNotifyOnBooking] = useState(true);
   const [bookingEnabled, setBookingEnabled] = useState(true);
+  const [bookingFields, setBookingFields] = useState<string[]>(['name', 'email', 'phone', 'service', 'preferredDate', 'notes']);
+  const [bookingPromptMessage, setBookingPromptMessage] = useState('');
   const [communicationStyle, setCommunicationStyle] = useState<'PROFESSIONAL' | 'FRIENDLY' | 'CASUAL' | 'CONCISE'>('PROFESSIONAL');
   const [language, setLanguage] = useState('auto');
   const [customGreeting, setCustomGreeting] = useState('');
   const [savingNotifications, setSavingNotifications] = useState(false);
   const [notificationsSuccess, setNotificationsSuccess] = useState(false);
+
+  // Available booking fields with labels
+  const availableBookingFields = [
+    { id: 'name', label: 'Customer Name', required: true },
+    { id: 'email', label: 'Email Address', required: false },
+    { id: 'phone', label: 'Phone Number', required: false },
+    { id: 'service', label: 'Service/Product', required: false },
+    { id: 'preferredDate', label: 'Preferred Date', required: false },
+    { id: 'preferredTime', label: 'Preferred Time', required: false },
+    { id: 'notes', label: 'Additional Notes', required: false },
+  ];
 
   useEffect(() => {
     loadData();
@@ -86,6 +99,8 @@ export default function ChatbotDetailPage() {
       setNotificationWebhook(chatbotData.notificationWebhook || '');
       setNotifyOnBooking(chatbotData.notifyOnBooking ?? true);
       setBookingEnabled(chatbotData.bookingEnabled ?? true);
+      setBookingFields(chatbotData.bookingFields || ['name', 'email', 'phone', 'service', 'preferredDate', 'notes']);
+      setBookingPromptMessage(chatbotData.bookingPromptMessage || '');
       setCommunicationStyle(chatbotData.communicationStyle || 'PROFESSIONAL');
       setLanguage(chatbotData.language || 'auto');
       setCustomGreeting(chatbotData.customGreeting || '');
@@ -180,6 +195,8 @@ export default function ChatbotDetailPage() {
         notificationWebhook: notificationWebhook || null,
         notifyOnBooking,
         bookingEnabled,
+        bookingFields,
+        bookingPromptMessage: bookingPromptMessage || null,
         communicationStyle,
         language,
         customGreeting: customGreeting || null
@@ -504,7 +521,7 @@ export default function ChatbotDetailPage() {
           {/* Booking Settings */}
           <div style={{ marginBottom: '1.5rem', padding: '1rem', background: '#f8fafc', borderRadius: '8px' }}>
             <h3 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '1rem', color: '#334155' }}>Booking & Appointments</h3>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', marginBottom: '1rem' }}>
               <input
                 type="checkbox"
                 checked={bookingEnabled}
@@ -518,6 +535,74 @@ export default function ChatbotDetailPage() {
                 </p>
               </div>
             </label>
+
+            {bookingEnabled && (
+              <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #e2e8f0' }}>
+                {/* Required Fields */}
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.5rem', fontSize: '0.875rem' }}>
+                    Information to Collect
+                  </label>
+                  <p style={{ color: '#64748b', fontSize: '0.75rem', marginBottom: '0.75rem' }}>
+                    Select which information the chatbot should ask for when booking
+                  </p>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
+                    {availableBookingFields.map((field) => (
+                      <label
+                        key={field.id}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem',
+                          padding: '0.5rem 0.75rem',
+                          background: bookingFields.includes(field.id) ? '#e0f2fe' : '#fff',
+                          border: '1px solid',
+                          borderColor: bookingFields.includes(field.id) ? '#0ea5e9' : '#e2e8f0',
+                          borderRadius: '6px',
+                          cursor: field.required ? 'not-allowed' : 'pointer',
+                          opacity: field.required ? 0.7 : 1,
+                          fontSize: '0.875rem'
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={bookingFields.includes(field.id)}
+                          disabled={field.required}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setBookingFields([...bookingFields, field.id]);
+                            } else {
+                              setBookingFields(bookingFields.filter(f => f !== field.id));
+                            }
+                          }}
+                          style={{ accentColor: '#0ea5e9' }}
+                        />
+                        <span>{field.label}</span>
+                        {field.required && (
+                          <span style={{ fontSize: '0.625rem', color: '#64748b', marginLeft: 'auto' }}>Required</span>
+                        )}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Custom Booking Prompt */}
+                <div className={styles.formGroup} style={{ marginTop: '1rem' }}>
+                  <label htmlFor="bookingPromptMessage">Booking Prompt Message</label>
+                  <textarea
+                    id="bookingPromptMessage"
+                    value={bookingPromptMessage}
+                    onChange={(e) => setBookingPromptMessage(e.target.value)}
+                    placeholder="e.g., To book an appointment, I'll need a few details from you..."
+                    rows={3}
+                    style={{ width: '100%', fontFamily: 'inherit', resize: 'vertical' }}
+                  />
+                  <small style={{ color: '#64748b' }}>
+                    The message the chatbot uses when asking for booking information. Leave empty to use default.
+                  </small>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Notification Settings */}

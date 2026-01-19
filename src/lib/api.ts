@@ -53,6 +53,7 @@ export interface Chatbot extends ChatbotSummary {
   // Booking settings
   bookingEnabled: boolean;
   bookingFields: string[];
+  bookingPromptMessage: string | null;
 }
 
 export interface ApiKey {
@@ -170,6 +171,7 @@ export async function updateNotificationSettings(id: string, settings: {
   notifyOnMessage?: boolean;
   bookingEnabled?: boolean;
   bookingFields?: string[];
+  bookingPromptMessage?: string | null;
   communicationStyle?: 'PROFESSIONAL' | 'FRIENDLY' | 'CASUAL' | 'CONCISE';
   language?: string;
   customGreeting?: string | null;
