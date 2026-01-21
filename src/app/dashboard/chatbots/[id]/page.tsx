@@ -161,6 +161,9 @@ export default function ChatbotDetailPage() {
   const [bookingEnabled, setBookingEnabled] = useState(true);
   const [bookingFields, setBookingFields] = useState<string[]>(['name', 'email', 'phone', 'service', 'preferredDate', 'notes']);
   const [bookingPromptMessage, setBookingPromptMessage] = useState('');
+  const [pageDisplayMode, setPageDisplayMode] = useState<'ALL' | 'INCLUDE' | 'EXCLUDE'>('ALL');
+  const [allowedPages, setAllowedPages] = useState<string[]>([]);
+  const [newPagePattern, setNewPagePattern] = useState('');
   const [communicationStyle, setCommunicationStyle] = useState<'PROFESSIONAL' | 'FRIENDLY' | 'CASUAL' | 'CONCISE'>('PROFESSIONAL');
   const [language, setLanguage] = useState('auto');
   const [customGreeting, setCustomGreeting] = useState('');
@@ -246,6 +249,8 @@ export default function ChatbotDetailPage() {
       setBookingEnabled(chatbotData.bookingEnabled ?? true);
       setBookingFields(chatbotData.bookingFields || ['name', 'email', 'phone', 'service', 'preferredDate', 'notes']);
       setBookingPromptMessage(chatbotData.bookingPromptMessage || '');
+      setPageDisplayMode(chatbotData.pageDisplayMode || 'ALL');
+      setAllowedPages(chatbotData.allowedPages || []);
       setCommunicationStyle(chatbotData.communicationStyle || 'PROFESSIONAL');
       setLanguage(chatbotData.language || 'auto');
       setCustomGreeting(chatbotData.customGreeting || '');
@@ -358,7 +363,9 @@ export default function ChatbotDetailPage() {
       await updateNotificationSettings(chatbotId, {
         bookingEnabled,
         bookingFields,
-        bookingPromptMessage: bookingPromptMessage || null
+        bookingPromptMessage: bookingPromptMessage || null,
+        pageDisplayMode,
+        allowedPages
       });
       setBookingSuccess(true);
       setTimeout(() => setBookingSuccess(false), 3000);
@@ -367,6 +374,18 @@ export default function ChatbotDetailPage() {
     } finally {
       setSavingBooking(false);
     }
+  }
+
+  function handleAddPagePattern() {
+    const pattern = newPagePattern.trim();
+    if (pattern && !allowedPages.includes(pattern)) {
+      setAllowedPages([...allowedPages, pattern]);
+      setNewPagePattern('');
+    }
+  }
+
+  function handleRemovePagePattern(pattern: string) {
+    setAllowedPages(allowedPages.filter(p => p !== pattern));
   }
 
   async function handleSaveNotifications(e: React.FormEvent) {
@@ -717,6 +736,105 @@ export default function ChatbotDetailPage() {
                     />
                     <small>The message the chatbot uses when asking for booking information.</small>
                   </div>
+                </div>
+              )}
+
+              {/* Page Display Restrictions */}
+              <div className={styles.subsectionDivider} style={{ margin: '1.5rem 0 1rem' }}>
+                <span>Page Display Restrictions</span>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Display Mode</label>
+                <div className={styles.radioGroup}>
+                  <label className={`${styles.radioOption} ${pageDisplayMode === 'ALL' ? styles.selected : ''}`}>
+                    <input
+                      type="radio"
+                      name="pageDisplayMode"
+                      checked={pageDisplayMode === 'ALL'}
+                      onChange={() => setPageDisplayMode('ALL')}
+                    />
+                    <div>
+                      <span className={styles.radioLabel}>All Pages</span>
+                      <small>Show widget on every page</small>
+                    </div>
+                  </label>
+                  <label className={`${styles.radioOption} ${pageDisplayMode === 'INCLUDE' ? styles.selected : ''}`}>
+                    <input
+                      type="radio"
+                      name="pageDisplayMode"
+                      checked={pageDisplayMode === 'INCLUDE'}
+                      onChange={() => setPageDisplayMode('INCLUDE')}
+                    />
+                    <div>
+                      <span className={styles.radioLabel}>Only Specific Pages</span>
+                      <small>Only show on matching URLs</small>
+                    </div>
+                  </label>
+                  <label className={`${styles.radioOption} ${pageDisplayMode === 'EXCLUDE' ? styles.selected : ''}`}>
+                    <input
+                      type="radio"
+                      name="pageDisplayMode"
+                      checked={pageDisplayMode === 'EXCLUDE'}
+                      onChange={() => setPageDisplayMode('EXCLUDE')}
+                    />
+                    <div>
+                      <span className={styles.radioLabel}>Exclude Specific Pages</span>
+                      <small>Hide on matching URLs</small>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              {pageDisplayMode !== 'ALL' && (
+                <div className={styles.formGroup}>
+                  <label>URL Patterns</label>
+                  <div className={styles.patternInputRow}>
+                    <input
+                      type="text"
+                      value={newPagePattern}
+                      onChange={(e) => setNewPagePattern(e.target.value)}
+                      placeholder="/contact, /pricing/*, /about"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddPagePattern();
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className={styles.secondaryBtn}
+                      onClick={handleAddPagePattern}
+                      disabled={!newPagePattern.trim()}
+                    >
+                      Add
+                    </button>
+                  </div>
+                  <small>
+                    Use * as wildcard (e.g., /blog/* matches /blog/post-1, /blog/post-2)
+                  </small>
+
+                  {allowedPages.length > 0 && (
+                    <div className={styles.patternList}>
+                      {allowedPages.map((pattern) => (
+                        <div key={pattern} className={styles.patternItem}>
+                          <code>{pattern}</code>
+                          <button
+                            type="button"
+                            className={styles.removePatternBtn}
+                            onClick={() => handleRemovePagePattern(pattern)}
+                            aria-label="Remove pattern"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <line x1="18" y1="6" x2="6" y2="18" />
+                              <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 

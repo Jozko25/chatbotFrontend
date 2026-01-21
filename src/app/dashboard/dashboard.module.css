@@ -914,6 +914,129 @@
   opacity: 0.8;
 }
 
+/* Radio Group for Display Mode */
+.radioGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.radioOption {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: hsl(var(--background));
+}
+
+.radioOption:hover {
+  border-color: hsl(var(--blue-200));
+  background: hsl(var(--blue-50));
+}
+
+.radioOption.selected {
+  border-color: hsl(var(--blue-500));
+  background: hsl(var(--blue-50));
+}
+
+.radioOption input[type="radio"] {
+  margin-top: 2px;
+  accent-color: hsl(var(--blue-500));
+}
+
+.radioOption div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.radioOption .radioLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: hsl(var(--foreground));
+}
+
+.radioOption small {
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Pattern Input for URLs */
+.patternInputRow {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.patternInputRow input {
+  flex: 1;
+}
+
+.patternList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.patternItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.625rem;
+  background: hsl(var(--blue-50));
+  border: 1px solid hsl(var(--blue-200));
+  border-radius: 6px;
+}
+
+.patternItem code {
+  font-size: 0.8125rem;
+  color: hsl(var(--blue-600));
+  font-family: 'SF Mono', Consolas, monospace;
+}
+
+.removePatternBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.removePatternBtn:hover {
+  background: hsl(var(--destructive) / 0.1);
+  color: hsl(var(--destructive));
+}
+
+/* Subsection Divider */
+.subsectionDivider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.subsectionDivider::before,
+.subsectionDivider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: hsl(var(--border));
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   .sidebar {

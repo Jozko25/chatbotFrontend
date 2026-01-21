@@ -94,9 +94,8 @@
       box-shadow: 0 10px 30px rgba(15, 23, 42, 0.16);
       z-index: 2147483646;
       transition: background 0.15s ease,
-                  opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-                  transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-                  visibility 0.25s;
+                  opacity 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+                  transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
     }
 
     .fab:hover {
@@ -110,12 +109,8 @@
 
     .fab.hidden {
       opacity: 0;
-      visibility: hidden;
-      transform: scale(0.8);
+      transform: scale(0.85);
       pointer-events: none;
-      transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-                  transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-                  visibility 0.25s;
     }
 
     .fab.loading {
@@ -148,17 +143,16 @@
       overflow: hidden;
       z-index: 2147483646;
       opacity: 0;
-      visibility: hidden;
-      transform: translateY(16px) scale(0.96);
+      pointer-events: none;
+      transform: translateY(20px) scale(0.92);
       transform-origin: bottom right;
-      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-                  transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-                  visibility 0.35s;
+      transition: opacity 0.4s cubic-bezier(0.32, 0.72, 0, 1),
+                  transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
     }
 
     .panel.open {
       opacity: 1;
-      visibility: visible;
+      pointer-events: auto;
       transform: translateY(0) scale(1);
     }
 
@@ -954,6 +948,40 @@
     if (headerTagline) headerTagline.textContent = theme.tagline;
   };
 
+  // Check if current page matches the display restrictions
+  const shouldDisplayOnPage = (displayMode, patterns) => {
+    if (displayMode === 'ALL' || !patterns || patterns.length === 0) {
+      return true;
+    }
+    
+    const currentPath = window.location.pathname;
+    
+    // Convert patterns to regex and check
+    const matchesPattern = (pattern) => {
+      // Convert wildcard pattern to regex
+      // /blog/* -> /blog/.*
+      // /contact -> /contact (exact)
+      const regexPattern = pattern
+        .replace(/[.+?^${}()|[\]\\]/g, '\\$&') // Escape special regex chars except *
+        .replace(/\*/g, '.*'); // Convert * to .*
+      
+      const regex = new RegExp(`^${regexPattern}$`);
+      return regex.test(currentPath);
+    };
+    
+    const anyMatch = patterns.some(matchesPattern);
+    
+    if (displayMode === 'INCLUDE') {
+      // Only show on matching pages
+      return anyMatch;
+    } else if (displayMode === 'EXCLUDE') {
+      // Show on all pages except matching ones
+      return !anyMatch;
+    }
+    
+    return true;
+  };
+
   // Load chatbot configuration from API
   const loadChatbot = async () => {
     try {
@@ -969,6 +997,18 @@
       }
 
       const data = await response.json();
+      
+      // Check page display restrictions FIRST
+      const pageDisplayMode = data.pageDisplayMode || 'ALL';
+      const allowedPages = data.allowedPages || [];
+      
+      if (!shouldDisplayOnPage(pageDisplayMode, allowedPages)) {
+        // Don't show widget on this page - remove from DOM
+        console.log('[SiteBot] Widget hidden on this page due to display restrictions');
+        shadowHost.remove();
+        return;
+      }
+      
       clinicData = data.clinicData;
       
       // Store booking settings
@@ -983,10 +1023,10 @@
 
       // Add welcome message
       if (clinicData?.welcomeMessage) {
-        messages.push({ role: 'assistant', content: clinicData.welcomeMessage });
-        renderMessages();
-      }
-      
+    messages.push({ role: 'assistant', content: clinicData.welcomeMessage });
+    renderMessages();
+  }
+
       // Update booking form fields visibility (but don't show button yet)
       if (bookingEnabled) {
         updateBookingFormFields();

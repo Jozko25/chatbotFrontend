@@ -64,6 +64,9 @@ export interface Chatbot extends ChatbotSummary {
   bookingEnabled: boolean;
   bookingFields: string[];
   bookingPromptMessage: string | null;
+  // Page display restrictions
+  pageDisplayMode: 'ALL' | 'INCLUDE' | 'EXCLUDE';
+  allowedPages: string[];
 }
 
 export interface ApiKey {
@@ -185,6 +188,8 @@ export async function updateNotificationSettings(id: string, settings: {
   communicationStyle?: 'PROFESSIONAL' | 'FRIENDLY' | 'CASUAL' | 'CONCISE';
   language?: string;
   customGreeting?: string | null;
+  pageDisplayMode?: 'ALL' | 'INCLUDE' | 'EXCLUDE';
+  allowedPages?: string[];
 }): Promise<void> {
   const headers = await getAuthHeaders();
   const response = await fetch(`${API_URL}/api/chatbots/${id}/notifications`, {
