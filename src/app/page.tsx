@@ -7,7 +7,6 @@ import { saveSession, loadSession, clearSession } from '@/lib/storage';
 import Navbar from '@/components/Navbar';
 import SetupForm from '@/components/SetupForm';
 import SiteBotChat from '@/components/SiteBotChat';
-import SiteBotAssistant from '@/components/SiteBotAssistant';
 import styles from './page.module.css';
 
 const createDefaultTheme = (name?: string): ChatTheme => ({
@@ -603,8 +602,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* SiteBot Assistant for landing page help */}
-      <SiteBotAssistant mode="landing" />
     </div>
   );
 }
