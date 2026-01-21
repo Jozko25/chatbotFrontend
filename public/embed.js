@@ -93,7 +93,10 @@
       justify-content: center;
       box-shadow: 0 10px 30px rgba(15, 23, 42, 0.16);
       z-index: 2147483646;
-      transition: background 0.15s ease;
+      transition: background 0.15s ease,
+                  opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                  visibility 0.25s;
     }
 
     .fab:hover {
@@ -106,7 +109,13 @@
     }
 
     .fab.hidden {
-      display: none;
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(0.8);
+      pointer-events: none;
+      transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                  visibility 0.25s;
     }
 
     .fab.loading {
@@ -134,14 +143,23 @@
       border-radius: 16px;
       box-shadow: 0 12px 40px rgba(15, 23, 42, 0.16);
       border: 1px solid var(--chat-assistant-border);
-      display: none;
+      display: flex;
       flex-direction: column;
       overflow: hidden;
       z-index: 2147483646;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px) scale(0.96);
+      transform-origin: bottom right;
+      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                  visibility 0.35s;
     }
 
     .panel.open {
-      display: flex;
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
     }
 
     .header {
