@@ -91,31 +91,56 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.16);
+      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.35);
       z-index: 2147483646;
-      transition: background 0.15s ease,
-                  opacity 0.3s cubic-bezier(0.32, 0.72, 0, 1),
-                  transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+      animation: fabPulse 3s ease-in-out infinite;
+      transition: background 0.2s ease,
+                  box-shadow 0.2s ease,
+                  opacity 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                  transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes fabPulse {
+      0%, 100% { 
+        box-shadow: 0 8px 24px rgba(59, 130, 246, 0.35);
+      }
+      50% { 
+        box-shadow: 0 8px 32px rgba(59, 130, 246, 0.5);
+      }
+    }
+    
+    .fab.hidden {
+      opacity: 0;
+      transform: scale(0.5) rotate(-10deg);
+      pointer-events: none;
+      animation: none;
     }
 
     .fab:hover {
       background: #2563eb;
+      box-shadow: 0 12px 32px rgba(59, 130, 246, 0.45);
+      transform: scale(1.05);
+      animation: none;
+    }
+
+    .fab:active {
+      transform: scale(0.95);
     }
 
     .fab svg {
       width: 24px;
       height: 24px;
+      transition: transform 0.2s ease;
     }
 
-    .fab.hidden {
-      opacity: 0;
-      transform: scale(0.85);
-      pointer-events: none;
+    .fab:hover svg {
+      transform: scale(1.1);
     }
 
     .fab.loading {
       opacity: 0.6;
       cursor: wait;
+      animation: none;
     }
 
     .panel {
@@ -135,25 +160,27 @@
       height: min(600px, 80vh);
       max-height: calc(100vh - 48px);
       background: var(--chat-surface);
-      border-radius: 16px;
-      box-shadow: 0 12px 40px rgba(15, 23, 42, 0.16);
-      border: 1px solid var(--chat-assistant-border);
+      border-radius: 20px;
+      box-shadow: 0 25px 60px rgba(15, 23, 42, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.05);
+      border: none;
       display: flex;
       flex-direction: column;
       overflow: hidden;
       z-index: 2147483646;
       opacity: 0;
       pointer-events: none;
-      transform: translateY(20px) scale(0.92);
+      transform: translateY(40px) scale(0.85) rotate(2deg);
       transform-origin: bottom right;
-      transition: opacity 0.4s cubic-bezier(0.32, 0.72, 0, 1),
-                  transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+      transition: opacity 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                  transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                  box-shadow 0.5s ease;
     }
 
     .panel.open {
       opacity: 1;
       pointer-events: auto;
-      transform: translateY(0) scale(1);
+      transform: translateY(0) scale(1) rotate(0deg);
+      box-shadow: 0 25px 80px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
     }
 
     .header {

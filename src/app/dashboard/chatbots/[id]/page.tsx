@@ -64,6 +64,12 @@ const DatabaseIcon = () => (
   </svg>
 );
 
+const LayoutIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>
+  </svg>
+);
+
 const CheckIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="20 6 9 17 4 12"/>
@@ -82,6 +88,7 @@ const SECTIONS = [
   { id: 'apikeys', title: 'API Keys', description: 'Manage access keys', icon: KeyIcon, keywords: ['api', 'key', 'keys', 'access', 'token', 'authentication'] },
   { id: 'ai', title: 'AI Settings', description: 'Configure AI behavior', icon: BrainIcon, keywords: ['ai', 'prompt', 'system', 'welcome', 'message', 'knowledge', 'behavior'] },
   { id: 'communication', title: 'Communication Style', description: 'Tone and language settings', icon: MessageIcon, keywords: ['communication', 'style', 'tone', 'language', 'greeting', 'professional', 'friendly'] },
+  { id: 'pages', title: 'Page Restrictions', description: 'Control where widget appears', icon: LayoutIcon, keywords: ['page', 'pages', 'restriction', 'display', 'show', 'hide', 'url', 'path', 'exclude', 'include'] },
   { id: 'booking', title: 'Booking & Appointments', description: 'Customer booking settings', icon: CalendarIcon, keywords: ['booking', 'appointment', 'schedule', 'calendar', 'reservation', 'date', 'time'] },
   { id: 'notifications', title: 'Notifications', description: 'Email and webhook alerts', icon: BellIcon, keywords: ['notification', 'email', 'webhook', 'alert', 'notify'] },
   { id: 'knowledge', title: 'Knowledge Base', description: 'Business information', icon: DatabaseIcon, keywords: ['knowledge', 'base', 'data', 'business', 'clinic', 'services', 'hours', 'address', 'phone'] },
@@ -101,9 +108,10 @@ export default function ChatbotDetailPage() {
   // Search and section state
   const [searchQuery, setSearchQuery] = useState('');
   const [openSections, setOpenSections] = useState<Set<string>>(new Set(['embed']));
+  const [highlightedSection, setHighlightedSection] = useState<string | null>(null);
 
   // Handle section navigation from URL params or assistant
-  const navigateToSection = useCallback((sectionId: string) => {
+  const navigateToSection = useCallback((sectionId: string, highlight: boolean = false) => {
     // Open the section
     setOpenSections(prev => {
       const next = new Set(prev);
@@ -114,14 +122,22 @@ export default function ChatbotDetailPage() {
     setTimeout(() => {
       const element = document.getElementById(`section-${sectionId}`);
       element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      
+      // Apply highlight effect if requested
+      if (highlight) {
+        setHighlightedSection(sectionId);
+        // Remove highlight after animation
+        setTimeout(() => setHighlightedSection(null), 2500);
+      }
     }, 100);
   }, []);
 
   // Check URL for section param on mount
   useEffect(() => {
     const section = searchParams.get('section');
+    const shouldHighlight = searchParams.get('highlight') === 'true';
     if (section && SECTIONS.some(s => s.id === section)) {
-      navigateToSection(section);
+      navigateToSection(section, shouldHighlight);
       // Clean up URL
       router.replace(`/dashboard/chatbots/${chatbotId}`, { scroll: false });
     }
@@ -163,7 +179,6 @@ export default function ChatbotDetailPage() {
   const [bookingPromptMessage, setBookingPromptMessage] = useState('');
   const [pageDisplayMode, setPageDisplayMode] = useState<'ALL' | 'INCLUDE' | 'EXCLUDE'>('ALL');
   const [allowedPages, setAllowedPages] = useState<string[]>([]);
-  const [newPagePattern, setNewPagePattern] = useState('');
   const [communicationStyle, setCommunicationStyle] = useState<'PROFESSIONAL' | 'FRIENDLY' | 'CASUAL' | 'CONCISE'>('PROFESSIONAL');
   const [language, setLanguage] = useState('auto');
   const [customGreeting, setCustomGreeting] = useState('');
@@ -363,9 +378,7 @@ export default function ChatbotDetailPage() {
       await updateNotificationSettings(chatbotId, {
         bookingEnabled,
         bookingFields,
-        bookingPromptMessage: bookingPromptMessage || null,
-        pageDisplayMode,
-        allowedPages
+        bookingPromptMessage: bookingPromptMessage || null
       });
       setBookingSuccess(true);
       setTimeout(() => setBookingSuccess(false), 3000);
@@ -376,16 +389,26 @@ export default function ChatbotDetailPage() {
     }
   }
 
-  function handleAddPagePattern() {
-    const pattern = newPagePattern.trim();
-    if (pattern && !allowedPages.includes(pattern)) {
-      setAllowedPages([...allowedPages, pattern]);
-      setNewPagePattern('');
-    }
-  }
+  const [savingPages, setSavingPages] = useState(false);
+  const [pagesSuccess, setPagesSuccess] = useState(false);
 
-  function handleRemovePagePattern(pattern: string) {
-    setAllowedPages(allowedPages.filter(p => p !== pattern));
+  async function handleSavePages(e: React.FormEvent) {
+    e.preventDefault();
+    setSavingPages(true);
+    setPagesSuccess(false);
+
+    try {
+      await updateNotificationSettings(chatbotId, {
+        pageDisplayMode,
+        allowedPages
+      });
+      setPagesSuccess(true);
+      setTimeout(() => setPagesSuccess(false), 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save page restrictions');
+    } finally {
+      setSavingPages(false);
+    }
   }
 
   async function handleSaveNotifications(e: React.FormEvent) {
@@ -739,109 +762,55 @@ export default function ChatbotDetailPage() {
                 </div>
               )}
 
-              {/* Page Display Restrictions */}
-              <div className={styles.subsectionDivider} style={{ margin: '1.5rem 0 1rem' }}>
-                <span>Page Display Restrictions</span>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Display Mode</label>
-                <div className={styles.radioGroup}>
-                  <label className={`${styles.radioOption} ${pageDisplayMode === 'ALL' ? styles.selected : ''}`}>
-                    <input
-                      type="radio"
-                      name="pageDisplayMode"
-                      checked={pageDisplayMode === 'ALL'}
-                      onChange={() => setPageDisplayMode('ALL')}
-                    />
-                    <div>
-                      <span className={styles.radioLabel}>All Pages</span>
-                      <small>Show widget on every page</small>
-                    </div>
-                  </label>
-                  <label className={`${styles.radioOption} ${pageDisplayMode === 'INCLUDE' ? styles.selected : ''}`}>
-                    <input
-                      type="radio"
-                      name="pageDisplayMode"
-                      checked={pageDisplayMode === 'INCLUDE'}
-                      onChange={() => setPageDisplayMode('INCLUDE')}
-                    />
-                    <div>
-                      <span className={styles.radioLabel}>Only Specific Pages</span>
-                      <small>Only show on matching URLs</small>
-                    </div>
-                  </label>
-                  <label className={`${styles.radioOption} ${pageDisplayMode === 'EXCLUDE' ? styles.selected : ''}`}>
-                    <input
-                      type="radio"
-                      name="pageDisplayMode"
-                      checked={pageDisplayMode === 'EXCLUDE'}
-                      onChange={() => setPageDisplayMode('EXCLUDE')}
-                    />
-                    <div>
-                      <span className={styles.radioLabel}>Exclude Specific Pages</span>
-                      <small>Hide on matching URLs</small>
-                    </div>
-                  </label>
-                </div>
-              </div>
-
-              {pageDisplayMode !== 'ALL' && (
-                <div className={styles.formGroup}>
-                  <label>URL Patterns</label>
-                  <div className={styles.patternInputRow}>
-                    <input
-                      type="text"
-                      value={newPagePattern}
-                      onChange={(e) => setNewPagePattern(e.target.value)}
-                      placeholder="/contact, /pricing/*, /about"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleAddPagePattern();
-                        }
-                      }}
-                    />
-                    <button
-                      type="button"
-                      className={styles.secondaryBtn}
-                      onClick={handleAddPagePattern}
-                      disabled={!newPagePattern.trim()}
-                    >
-                      Add
-                    </button>
-                  </div>
-                  <small>
-                    Use * as wildcard (e.g., /blog/* matches /blog/post-1, /blog/post-2)
-                  </small>
-
-                  {allowedPages.length > 0 && (
-                    <div className={styles.patternList}>
-                      {allowedPages.map((pattern) => (
-                        <div key={pattern} className={styles.patternItem}>
-                          <code>{pattern}</code>
-                          <button
-                            type="button"
-                            className={styles.removePatternBtn}
-                            onClick={() => handleRemovePagePattern(pattern)}
-                            aria-label="Remove pattern"
-                          >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <line x1="18" y1="6" x2="6" y2="18" />
-                              <line x1="6" y1="6" x2="18" y2="18" />
-                            </svg>
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
               <div className={styles.saveButtonContainer}>
                 <button type="submit" className={styles.primaryBtn} disabled={savingBooking}>
                   {savingBooking ? 'Saving...' : 'Save Booking Settings'}
                 </button>
+              </div>
+            </form>
+          </div>
+        );
+
+      case 'pages':
+        return (
+          <div className={styles.sectionContentInner}>
+            <form onSubmit={handleSavePages}>
+              <div className={styles.formGroup}>
+                <label htmlFor="pageDisplayMode">Display Mode</label>
+                <select
+                  id="pageDisplayMode"
+                  value={pageDisplayMode}
+                  onChange={(e) => setPageDisplayMode(e.target.value as 'ALL' | 'INCLUDE' | 'EXCLUDE')}
+                >
+                  <option value="ALL">Show on all pages</option>
+                  <option value="INCLUDE">Only show on specific pages</option>
+                  <option value="EXCLUDE">Hide on specific pages</option>
+                </select>
+                <small>Control which pages display the chatbot widget</small>
+              </div>
+
+              {pageDisplayMode !== 'ALL' && (
+                <div className={styles.formGroup}>
+                  <label htmlFor="allowedPages">
+                    {pageDisplayMode === 'INCLUDE' ? 'Pages to show widget' : 'Pages to hide widget'}
+                  </label>
+                  <textarea
+                    id="allowedPages"
+                    value={allowedPages.join('\n')}
+                    onChange={(e) => setAllowedPages(e.target.value.split('\n').map(p => p.trim()).filter(Boolean))}
+                    placeholder={`/contact\n/pricing/*\n/about`}
+                    rows={4}
+                    style={{ fontFamily: 'monospace', fontSize: '0.875rem' }}
+                  />
+                  <small>One URL pattern per line. Use * as wildcard (e.g., /blog/* matches /blog/post-1)</small>
+                </div>
+              )}
+
+              <div className={styles.saveButtonContainer}>
+                <button type="submit" className={styles.primaryBtn} disabled={savingPages}>
+                  {savingPages ? 'Saving...' : 'Save Page Restrictions'}
+                </button>
+                {pagesSuccess && <span className={styles.successMessage}><CheckIcon /> Saved</span>}
               </div>
             </form>
           </div>
@@ -995,6 +964,7 @@ export default function ChatbotDetailPage() {
     switch (sectionId) {
       case 'ai': return settingsSuccess;
       case 'communication': return communicationSuccess;
+      case 'pages': return pagesSuccess;
       case 'booking': return bookingSuccess;
       case 'notifications': return notificationsSuccess;
       case 'knowledge': return clinicDataSuccess;
@@ -1005,6 +975,7 @@ export default function ChatbotDetailPage() {
   const getSectionBadge = (sectionId: string) => {
     switch (sectionId) {
       case 'apikeys': return apiKeys.length > 0 ? `${apiKeys.length} keys` : null;
+      case 'pages': return pageDisplayMode !== 'ALL' ? (pageDisplayMode === 'INCLUDE' ? 'Include' : 'Exclude') : null;
       case 'booking': return bookingEnabled ? 'Enabled' : 'Disabled';
       case 'notifications': return notifyOnBooking ? 'Active' : null;
       default: return null;
@@ -1086,7 +1057,11 @@ export default function ChatbotDetailPage() {
             const badge = getSectionBadge(section.id);
 
             return (
-              <div key={section.id} id={`section-${section.id}`} className={styles.settingsSection}>
+              <div 
+                key={section.id} 
+                id={`section-${section.id}`} 
+                className={`${styles.settingsSection} ${highlightedSection === section.id ? styles.highlighted : ''}`}
+              >
                 <div
                   className={styles.sectionHeader}
                   onClick={() => toggleSection(section.id)}

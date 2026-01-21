@@ -41,13 +41,14 @@ const APP_KNOWLEDGE = {
     { name: 'Notifications', description: 'Email and webhook notifications for bookings' },
   ],
   settings: {
-    embed: { name: 'Embed Code', description: 'Get the script to add chatbot to your website', keywords: ['embed', 'code', 'script', 'install', 'website'] },
-    apikeys: { name: 'API Keys', description: 'Manage authentication keys for your chatbot', keywords: ['api', 'key', 'authentication', 'access'] },
-    ai: { name: 'AI Settings', description: 'Configure welcome message, system prompt, and custom knowledge', keywords: ['ai', 'prompt', 'welcome', 'message', 'knowledge'] },
-    communication: { name: 'Communication Style', description: 'Set tone (professional/friendly/casual) and language preferences', keywords: ['tone', 'style', 'language', 'greeting'] },
-    booking: { name: 'Booking & Appointments', description: 'Enable/disable booking, choose what info to collect', keywords: ['booking', 'appointment', 'schedule', 'reservation'] },
-    notifications: { name: 'Notifications', description: 'Set up email and webhook alerts for bookings', keywords: ['notification', 'email', 'webhook', 'alert'] },
-    knowledge: { name: 'Knowledge Base', description: 'Edit business info, services, prices, opening hours', keywords: ['knowledge', 'business', 'services', 'prices', 'hours'] },
+    embed: { name: 'Embed Code', description: 'Get the script to add chatbot to your website', keywords: ['embed', 'code', 'script', 'install', 'website', 'snippet'], path: 'Settings → Embed Code' },
+    apikeys: { name: 'API Keys', description: 'Manage authentication keys for your chatbot', keywords: ['api', 'key', 'authentication', 'access', 'token'], path: 'Settings → API Keys' },
+    ai: { name: 'AI Settings', description: 'Configure welcome message, system prompt, and custom knowledge', keywords: ['ai', 'prompt', 'welcome', 'message', 'custom knowledge', 'behavior'], path: 'Settings → AI Settings' },
+    communication: { name: 'Communication Style', description: 'Set tone (professional/friendly/casual) and language preferences', keywords: ['tone', 'style', 'language', 'greeting', 'friendly', 'professional', 'casual'], path: 'Settings → Communication Style' },
+    pages: { name: 'Page Restrictions', description: 'Control which pages display the widget (show/hide on specific URLs)', keywords: ['page', 'pages', 'restriction', 'url', 'display', 'show', 'hide', 'exclude', 'include', 'where'], path: 'Settings → Page Restrictions' },
+    booking: { name: 'Booking & Appointments', description: 'Enable/disable booking, choose what info to collect', keywords: ['booking', 'appointment', 'schedule', 'reservation', 'calendar'], path: 'Settings → Booking & Appointments' },
+    notifications: { name: 'Notifications', description: 'Set up email and webhook alerts for bookings', keywords: ['notification', 'email', 'webhook', 'alert', 'notify'], path: 'Settings → Notifications' },
+    knowledge: { name: 'Knowledge Base', description: 'Edit business info, services, prices, opening hours', keywords: ['knowledge', 'business', 'services', 'prices', 'hours', 'info', 'data', 'content'], path: 'Settings → Knowledge Base' },
   },
   dashboardPages: {
     dashboard: { path: '/dashboard', description: 'Overview with usage stats and recent chatbots' },
@@ -82,6 +83,12 @@ function detectAssistantIntent(message: string): { intent: string; context: stri
   }
   if (lower.includes('booking') || lower.includes('appointment') || lower.includes('schedule') || lower.includes('reservation')) {
     return { intent: 'settings', context: 'booking' };
+  }
+  if (lower.includes('page') && (lower.includes('restriction') || lower.includes('hide') || lower.includes('show') || lower.includes('display') || lower.includes('where') || lower.includes('which'))) {
+    return { intent: 'settings', context: 'pages' };
+  }
+  if (lower.includes('exclude') || lower.includes('include') || (lower.includes('url') && lower.includes('widget'))) {
+    return { intent: 'settings', context: 'pages' };
   }
   if (lower.includes('notification') || lower.includes('email alert') || lower.includes('webhook')) {
     return { intent: 'settings', context: 'notifications' };
@@ -155,11 +162,14 @@ function generateAssistantResponse(message: string, mode: 'landing' | 'dashboard
     case 'settings':
       const setting = APP_KNOWLEDGE.settings[context as keyof typeof APP_KNOWLEDGE.settings];
       if (setting) {
-        baseResponse.content = `**${setting.name}**\n\n${setting.description}\n\nWould you like me to take you there?`;
+        const settingWithPath = setting as typeof setting & { path?: string };
+        baseResponse.content = `**${setting.name}**\n\n${setting.description}`;
+        if (settingWithPath.path) {
+          baseResponse.content += `\n\n📍 Location: **${settingWithPath.path}**`;
+        }
         if (mode === 'dashboard' && chatbotId) {
           baseResponse.actions = [
-            { label: `Open ${setting.name}`, action: 'openSection', target: context, icon: 'settings' },
-            { label: 'Show All Settings', action: 'navigate', target: `/dashboard/chatbots/${chatbotId}`, icon: 'list' },
+            { label: `Go to ${setting.name}`, action: 'openSection', target: context, icon: 'arrow' },
           ];
         } else if (mode === 'dashboard') {
           baseResponse.content += '\n\nFirst, select a chatbot to configure its settings.';
@@ -217,12 +227,11 @@ function generateAssistantResponse(message: string, mode: 'landing' | 'dashboard
 
     case 'help':
       if (mode === 'dashboard') {
-        baseResponse.content = `I can help you find what you're looking for! Here are the main areas:\n\n**Settings you can configure:**\n- Embed Code - Add chatbot to your website\n- API Keys - Authentication\n- AI Settings - Welcome message & prompts\n- Communication Style - Tone & language\n- Booking - Appointment settings\n- Notifications - Email/webhook alerts\n- Knowledge Base - Business info\n\nWhat would you like to find?`;
+        baseResponse.content = `I can help you find what you're looking for! Here are the main settings:\n\n• **Embed Code** - Add chatbot to your website\n• **API Keys** - Authentication keys\n• **AI Settings** - Welcome message & prompts\n• **Communication Style** - Tone & language\n• **Page Restrictions** - Control where widget shows\n• **Booking** - Appointment settings\n• **Notifications** - Email/webhook alerts\n• **Knowledge Base** - Business info\n\nJust ask about any of these!`;
         baseResponse.actions = [
           { label: 'Embed Code', action: 'openSection', target: 'embed', icon: 'code' },
           { label: 'AI Settings', action: 'openSection', target: 'ai', icon: 'brain' },
-          { label: 'Booking', action: 'openSection', target: 'booking', icon: 'calendar' },
-          { label: 'All Settings', action: 'navigate', target: chatbotId ? `/dashboard/chatbots/${chatbotId}` : '/dashboard/chatbots', icon: 'settings' },
+          { label: 'Page Restrictions', action: 'openSection', target: 'pages', icon: 'settings' },
         ];
       } else {
         baseResponse.content = `I'm here to help! What would you like to know about SiteBot?`;
@@ -239,14 +248,19 @@ function generateAssistantResponse(message: string, mode: 'landing' | 'dashboard
       const lower = message.toLowerCase();
       for (const [key, setting] of Object.entries(APP_KNOWLEDGE.settings)) {
         if (setting.keywords.some(kw => lower.includes(kw))) {
+          const settingWithPath = setting as typeof setting & { path?: string };
           baseResponse.content = `It sounds like you're looking for **${setting.name}**.\n\n${setting.description}`;
+          if (settingWithPath.path) {
+            baseResponse.content += `\n\n📍 Location: **${settingWithPath.path}**`;
+          }
           if (mode === 'dashboard' && chatbotId) {
             baseResponse.actions = [
-              { label: `Open ${setting.name}`, action: 'openSection', target: key, icon: 'settings' },
+              { label: `Go to ${setting.name}`, action: 'openSection', target: key, icon: 'arrow' },
             ];
           } else if (mode === 'dashboard') {
+            baseResponse.content += '\n\nFirst, select a chatbot to configure.';
             baseResponse.actions = [
-              { label: 'Select a Chatbot', action: 'navigate', target: '/dashboard/chatbots', icon: 'list' },
+              { label: 'View My Chatbots', action: 'navigate', target: '/dashboard/chatbots', icon: 'list' },
             ];
           }
           return baseResponse;
@@ -255,7 +269,7 @@ function generateAssistantResponse(message: string, mode: 'landing' | 'dashboard
 
       // Default response
       if (mode === 'dashboard') {
-        baseResponse.content = `I'm not sure I understood that. I can help you with:\n\n- Finding settings (embed code, AI settings, booking, etc.)\n- Navigating the dashboard\n- Explaining features\n\nTry asking something like "Where can I change the welcome message?" or "How do I set up booking?"`;
+        baseResponse.content = `I'm not sure I understood that. I can help you with:\n\n• Finding settings (embed code, AI settings, booking, page restrictions, etc.)\n• Navigating the dashboard\n• Explaining features\n\nTry asking something like "Where can I change the welcome message?" or "How do I hide the widget on certain pages?"`;
         baseResponse.actions = [
           { label: 'Show All Settings', action: 'navigate', target: chatbotId ? `/dashboard/chatbots/${chatbotId}` : '/dashboard/chatbots', icon: 'settings' },
           { label: 'Dashboard Home', action: 'navigate', target: '/dashboard', icon: 'home' },
@@ -286,6 +300,27 @@ const icons = {
   calendar: () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
 };
 
+// Storage key for persistence
+const STORAGE_KEY = 'sitebot_assistant_state';
+
+// Helper to create welcome message based on mode
+function createWelcomeMessage(mode: 'landing' | 'dashboard'): Message {
+  return {
+    role: 'assistant',
+    content: mode === 'landing'
+      ? "Hi! I'm the SiteBot assistant. I can help you understand how SiteBot works and guide you through creating your AI chatbot. What would you like to know?"
+      : "Hi! I'm here to help you navigate and configure your chatbot. Ask me anything or use the quick actions below.",
+    actions: mode === 'landing' ? [
+      { label: 'Features', action: 'link', target: '#features', icon: 'sparkle' },
+      { label: 'How It Works', action: 'link', target: '#how', icon: 'help' },
+      { label: 'Get Started', action: 'link', target: '#cta', icon: 'arrow' },
+    ] : [
+      { label: 'Find a Setting', action: 'openSection', target: 'help', icon: 'settings' },
+      { label: 'All Chatbots', action: 'navigate', target: '/dashboard/chatbots', icon: 'list' },
+    ],
+  };
+}
+
 export default function SiteBotAssistant({ mode, chatbotId, onNavigateToSection, hasDemoChatbot, onSwitchToDemo }: SiteBotAssistantProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -294,28 +329,48 @@ export default function SiteBotAssistant({ mode, chatbotId, onNavigateToSection,
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [initialized, setInitialized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Initial welcome message
+  // Load persisted state on mount (runs only once)
   useEffect(() => {
-    if (messages.length === 0) {
-      const welcomeMessage: Message = {
-        role: 'assistant',
-        content: mode === 'landing'
-          ? "Hi! I'm the SiteBot assistant. I can help you understand how SiteBot works and guide you through creating your AI chatbot. What would you like to know?"
-          : "Hi! I'm here to help you navigate and configure your chatbot. Ask me anything or use the quick actions below.",
-        actions: mode === 'landing' ? [
-          { label: 'Features', action: 'link', target: '#features', icon: 'sparkle' },
-          { label: 'How It Works', action: 'link', target: '#how', icon: 'help' },
-          { label: 'Get Started', action: 'link', target: '#cta', icon: 'arrow' },
-        ] : [
-          { label: 'Find a Setting', action: 'openSection', target: 'help', icon: 'settings' },
-          { label: 'All Chatbots', action: 'navigate', target: '/dashboard/chatbots', icon: 'list' },
-        ],
-      };
-      setMessages([welcomeMessage]);
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        // Check if stored data is recent (within 24 hours)
+        const isRecent = parsed.timestamp && (Date.now() - parsed.timestamp) < 24 * 60 * 60 * 1000;
+        if (isRecent && parsed.messages && Array.isArray(parsed.messages) && parsed.messages.length > 0) {
+          setMessages(parsed.messages);
+          setIsOpen(parsed.isOpen ?? false);
+          setInitialized(true);
+          return;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load assistant state:', e);
     }
-  }, [mode, messages.length]);
+    
+    // Initialize with welcome message if no stored state
+    setMessages([createWelcomeMessage(mode)]);
+    setInitialized(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
+
+  // Persist state when it changes
+  useEffect(() => {
+    if (initialized && messages.length > 0) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          messages,
+          isOpen,
+          timestamp: Date.now()
+        }));
+      } catch (e) {
+        console.error('Failed to save assistant state:', e);
+      }
+    }
+  }, [messages, isOpen, initialized]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -340,6 +395,12 @@ export default function SiteBotAssistant({ mode, chatbotId, onNavigateToSection,
     setMessages(prev => [...prev, response]);
   };
 
+  // Clear conversation and reset to welcome message
+  const handleClearConversation = () => {
+    setMessages([createWelcomeMessage(mode)]);
+    localStorage.removeItem(STORAGE_KEY);
+  };
+
   // Handle action button click
   const handleAction = (action: ActionButton) => {
     switch (action.action) {
@@ -352,8 +413,8 @@ export default function SiteBotAssistant({ mode, chatbotId, onNavigateToSection,
           onNavigateToSection(action.target);
           setIsOpen(false);
         } else if (chatbotId) {
-          // Navigate to chatbot page with section hash
-          router.push(`/dashboard/chatbots/${chatbotId}?section=${action.target}`);
+          // Navigate to chatbot page with section and highlight params
+          router.push(`/dashboard/chatbots/${chatbotId}?section=${action.target}&highlight=true`);
           setIsOpen(false);
         }
         break;
@@ -384,124 +445,133 @@ export default function SiteBotAssistant({ mode, chatbotId, onNavigateToSection,
   return (
     <>
       {/* FAB Button */}
-      {!isOpen && (
-        <button
-          className={styles.fab}
-          onClick={() => setIsOpen(true)}
-          aria-label="Open SiteBot Assistant"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-          </svg>
-          <span className={styles.fabBadge}>?</span>
-        </button>
-      )}
+      <button
+        className={`${styles.fab} ${isOpen ? styles.hidden : ''}`}
+        onClick={() => setIsOpen(true)}
+        aria-label="Open SiteBot Assistant"
+      >
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path 
+            d="M8 10.5h8M8 14.5h5" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round"
+          />
+          <path 
+            d="M12 3C6.5 3 2 6.8 2 11.5c0 2.4 1.2 4.6 3.1 6.1l-.6 3.9 4.3-2.2c1 .3 2.1.4 3.2.4 5.5 0 10-3.8 10-8.5S17.5 3 12 3z" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
 
       {/* Chat Panel */}
-      {isOpen && (
-        <div className={styles.panel}>
-          <header className={styles.header}>
-            <div className={styles.headerInfo}>
-              <div className={styles.headerAvatar}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                </svg>
-              </div>
-              <div>
-                <h3>SiteBot Assistant</h3>
-                <span>Ask me anything</span>
-              </div>
-            </div>
-            <div className={styles.headerActions}>
-              {hasDemoChatbot && onSwitchToDemo && (
-                <button
-                  className={styles.switchBtn}
-                  onClick={onSwitchToDemo}
-                  title="Switch to your demo chatbot"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M17 1l4 4-4 4"/>
-                    <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
-                    <path d="M7 23l-4-4 4-4"/>
-                    <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
-                  </svg>
-                  Demo
-                </button>
-              )}
+      <div className={`${styles.panel} ${isOpen ? styles.open : ''}`}>
+        <header className={styles.header}>
+          <div className={styles.headerInfo}>
+            <h3>SiteBot Assistant</h3>
+            <span>Ask me anything</span>
+          </div>
+          <div className={styles.headerActions}>
+            {hasDemoChatbot && onSwitchToDemo && (
               <button
-                className={styles.closeBtn}
-                onClick={() => setIsOpen(false)}
-                aria-label="Close"
+                className={styles.switchBtn}
+                onClick={onSwitchToDemo}
+                title="Switch to your demo chatbot"
               >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M17 1l4 4-4 4"/>
+                  <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+                  <path d="M7 23l-4-4 4-4"/>
+                  <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+                </svg>
+                Demo
+              </button>
+            )}
+            <button
+              className={styles.clearBtn}
+              onClick={handleClearConversation}
+              title="Clear conversation"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="1 4 1 10 7 10"/>
+                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+              </svg>
+            </button>
+            <button
+              className={styles.closeBtn}
+              onClick={() => setIsOpen(false)}
+              aria-label="Close"
+            >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="18" y1="6" x2="6" y2="18"/>
                 <line x1="6" y1="6" x2="18" y2="18"/>
               </svg>
             </button>
-            </div>
-          </header>
+          </div>
+        </header>
 
-          <div className={styles.messages}>
-            {messages.map((msg, i) => (
-              <div key={i} className={`${styles.message} ${styles[msg.role]}`}>
-                <div className={styles.bubble}>
-                  <p dangerouslySetInnerHTML={{ __html: msg.content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br/>') }} />
+        <div className={styles.messages}>
+          {messages.map((msg, i) => (
+            <div key={i} className={`${styles.message} ${styles[msg.role]}`}>
+              <div className={styles.bubble}>
+                <p dangerouslySetInnerHTML={{ __html: msg.content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br/>') }} />
 
-                  {msg.actions && msg.actions.length > 0 && (
-                    <div className={styles.actions}>
-                      {msg.actions.map((action, j) => (
-                        <button
-                          key={j}
-                          className={styles.actionBtn}
-                          onClick={() => handleAction(action)}
-                        >
-                          {renderIcon(action.icon)}
-                          {action.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-
-            {isTyping && (
-              <div className={`${styles.message} ${styles.assistant}`}>
-                <div className={styles.bubble}>
-                  <div className={styles.typing}>
-                    <span></span>
-                    <span></span>
-                    <span></span>
+                {msg.actions && msg.actions.length > 0 && (
+                  <div className={styles.actions}>
+                    {msg.actions.map((action, j) => (
+                      <button
+                        key={j}
+                        className={styles.actionBtn}
+                        onClick={() => handleAction(action)}
+                      >
+                        {renderIcon(action.icon)}
+                        {action.label}
+                      </button>
+                    ))}
                   </div>
+                )}
+              </div>
+            </div>
+          ))}
+
+          {isTyping && (
+            <div className={`${styles.message} ${styles.assistant}`}>
+              <div className={styles.bubble}>
+                <div className={styles.typing}>
+                  <span></span>
+                  <span></span>
+                  <span></span>
                 </div>
               </div>
-            )}
+            </div>
+          )}
 
-            <div ref={messagesEndRef} />
-          </div>
-
-          <div className={styles.inputArea}>
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Ask about features, settings..."
-              disabled={isTyping}
-            />
-            <button
-              onClick={handleSend}
-              disabled={!input.trim() || isTyping}
-              className={styles.sendBtn}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="22" y1="2" x2="11" y2="13"/>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-              </svg>
-            </button>
-          </div>
+          <div ref={messagesEndRef} />
         </div>
-      )}
+
+        <div className={styles.inputArea}>
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Ask about features, settings..."
+            disabled={isTyping}
+          />
+          <button
+            onClick={handleSend}
+            disabled={!input.trim() || isTyping}
+            className={styles.sendBtn}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        </div>
+      </div>
     </>
   );
 }
