@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getChatbot, deleteChatbot, createApiKey, getApiKeys, updateChatbotSettings, updateNotificationSettings, Chatbot, ApiKey } from '@/lib/api';
-import SiteBotAssistant from '@/components/SiteBotAssistant';
+import XeloChatAssistant from '@/components/XeloChatAssistant';
 import styles from '../../dashboard.module.css';
 
 // Icons as simple SVG components
@@ -1206,8 +1206,8 @@ export default function ChatbotDetailPage() {
         </div>
       )}
 
-      {/* SiteBot Assistant */}
-      <SiteBotAssistant
+      {/* XeloChat Assistant */}
+      <XeloChatAssistant
         mode="dashboard"
         chatbotId={chatbotId}
         onNavigateToSection={navigateToSection}

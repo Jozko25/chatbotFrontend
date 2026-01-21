@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, CSSProperties } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import styles from './SiteBotAssistant.module.css';
+import styles from './XeloChatAssistant.module.css';
 
 // Types
 interface Message {
@@ -18,7 +18,7 @@ interface ActionButton {
   icon?: string;
 }
 
-interface SiteBotAssistantProps {
+interface XeloChatAssistantProps {
   mode: 'landing' | 'dashboard';
   chatbotId?: string;
   onNavigateToSection?: (sectionId: string) => void;
@@ -28,7 +28,7 @@ interface SiteBotAssistantProps {
 
 // App Knowledge Base
 const APP_KNOWLEDGE = {
-  name: 'SiteBot',
+  name: 'XeloChat',
   description: 'AI-powered chatbot platform that turns any website into an intelligent assistant',
   features: [
     { name: 'Smart Crawling', description: 'Automatically scans up to 25 pages and extracts products, services, pricing, and FAQs' },
@@ -143,14 +143,14 @@ function generateAssistantResponse(message: string, mode: 'landing' | 'dashboard
   switch (intent) {
     case 'greeting':
       if (mode === 'landing') {
-        baseResponse.content = `Hi there! I'm the SiteBot assistant. I can help you understand how SiteBot works and guide you through creating your AI chatbot.\n\nWould you like to know about our features, how to get started, or something else?`;
+        baseResponse.content = `Hi there! I'm the XeloChat assistant. I can help you understand how XeloChat works and guide you through creating your AI chatbot.\n\nWould you like to know about our features, how to get started, or something else?`;
         baseResponse.actions = [
           { label: 'Show Features', action: 'link', target: '#features', icon: 'sparkle' },
           { label: 'How It Works', action: 'link', target: '#how', icon: 'help' },
           { label: 'Get Started', action: 'link', target: '#cta', icon: 'arrow' },
         ];
       } else {
-        baseResponse.content = `Hello! I'm your SiteBot assistant. I can help you configure your chatbot, find settings, or navigate the dashboard.\n\nWhat would you like to do?`;
+        baseResponse.content = `Hello! I'm your XeloChat assistant. I can help you configure your chatbot, find settings, or navigate the dashboard.\n\nWhat would you like to do?`;
         baseResponse.actions = [
           { label: 'Go to Settings', action: 'navigate', target: chatbotId ? `/dashboard/chatbots/${chatbotId}` : '/dashboard/chatbots', icon: 'settings' },
           { label: 'View All Chatbots', action: 'navigate', target: '/dashboard/chatbots', icon: 'list' },
@@ -192,7 +192,7 @@ function generateAssistantResponse(message: string, mode: 'landing' | 'dashboard
 
     case 'features':
       const featureList = APP_KNOWLEDGE.features.map(f => `- **${f.name}**: ${f.description}`).join('\n');
-      baseResponse.content = `Here are SiteBot's main features:\n\n${featureList}`;
+      baseResponse.content = `Here are XeloChat's main features:\n\n${featureList}`;
       if (mode === 'landing') {
         baseResponse.actions = [
           { label: 'Learn More', action: 'link', target: '#features', icon: 'sparkle' },
@@ -203,7 +203,7 @@ function generateAssistantResponse(message: string, mode: 'landing' | 'dashboard
 
     case 'howto':
       const steps = APP_KNOWLEDGE.howItWorks.map((s, i) => `${i + 1}. ${s}`).join('\n');
-      baseResponse.content = `Getting started with SiteBot is easy:\n\n${steps}\n\nThat's it! Your AI chatbot will be live on your website.`;
+      baseResponse.content = `Getting started with XeloChat is easy:\n\n${steps}\n\nThat's it! Your AI chatbot will be live on your website.`;
       if (mode === 'landing') {
         baseResponse.actions = [
           { label: 'See How It Works', action: 'link', target: '#how', icon: 'help' },
@@ -234,7 +234,7 @@ function generateAssistantResponse(message: string, mode: 'landing' | 'dashboard
           { label: 'Page Restrictions', action: 'openSection', target: 'pages', icon: 'settings' },
         ];
       } else {
-        baseResponse.content = `I'm here to help! What would you like to know about SiteBot?`;
+        baseResponse.content = `I'm here to help! What would you like to know about XeloChat?`;
         baseResponse.actions = [
           { label: 'Features', action: 'link', target: '#features', icon: 'sparkle' },
           { label: 'How It Works', action: 'link', target: '#how', icon: 'help' },
@@ -275,7 +275,7 @@ function generateAssistantResponse(message: string, mode: 'landing' | 'dashboard
           { label: 'Dashboard Home', action: 'navigate', target: '/dashboard', icon: 'home' },
         ];
       } else {
-        baseResponse.content = `I can help you learn about SiteBot! Try asking about features, how it works, or pricing.`;
+        baseResponse.content = `I can help you learn about XeloChat! Try asking about features, how it works, or pricing.`;
         baseResponse.actions = [
           { label: 'Show Features', action: 'link', target: '#features', icon: 'sparkle' },
           { label: 'How It Works', action: 'link', target: '#how', icon: 'help' },
@@ -301,14 +301,14 @@ const icons = {
 };
 
 // Storage key for persistence
-const STORAGE_KEY = 'sitebot_assistant_state';
+const STORAGE_KEY = 'xelochat_assistant_state';
 
 // Helper to create welcome message based on mode
 function createWelcomeMessage(mode: 'landing' | 'dashboard'): Message {
   return {
     role: 'assistant',
     content: mode === 'landing'
-      ? "Hi! I'm the SiteBot assistant. I can help you understand how SiteBot works and guide you through creating your AI chatbot. What would you like to know?"
+      ? "Hi! I'm the XeloChat assistant. I can help you understand how XeloChat works and guide you through creating your AI chatbot. What would you like to know?"
       : "Hi! I'm here to help you navigate and configure your chatbot. Ask me anything or use the quick actions below.",
     actions: mode === 'landing' ? [
       { label: 'Features', action: 'link', target: '#features', icon: 'sparkle' },
@@ -321,7 +321,7 @@ function createWelcomeMessage(mode: 'landing' | 'dashboard'): Message {
   };
 }
 
-export default function SiteBotAssistant({ mode, chatbotId, onNavigateToSection, hasDemoChatbot, onSwitchToDemo }: SiteBotAssistantProps) {
+export default function XeloChatAssistant({ mode, chatbotId, onNavigateToSection, hasDemoChatbot, onSwitchToDemo }: XeloChatAssistantProps) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -448,7 +448,7 @@ export default function SiteBotAssistant({ mode, chatbotId, onNavigateToSection,
       <button
         className={`${styles.fab} ${isOpen ? styles.hidden : ''}`}
         onClick={() => setIsOpen(true)}
-        aria-label="Open SiteBot Assistant"
+        aria-label="Open XeloChat Assistant"
       >
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
           <path 
@@ -470,7 +470,7 @@ export default function SiteBotAssistant({ mode, chatbotId, onNavigateToSection,
       <div className={`${styles.panel} ${isOpen ? styles.open : ''}`}>
         <header className={styles.header}>
           <div className={styles.headerInfo}>
-            <h3>SiteBot Assistant</h3>
+            <h3>XeloChat Assistant</h3>
             <span>Ask me anything</span>
           </div>
           <div className={styles.headerActions}>

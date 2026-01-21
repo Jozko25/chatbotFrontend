@@ -6,7 +6,7 @@ import { scrapeClinic } from '@/lib/api';
 import { saveSession, loadSession, clearSession } from '@/lib/storage';
 import Navbar from '@/components/Navbar';
 import SetupForm from '@/components/SetupForm';
-import SiteBotChat from '@/components/SiteBotChat';
+import XeloChatChat from '@/components/XeloChatChat';
 import styles from './page.module.css';
 
 const createDefaultTheme = (name?: string): ChatTheme => ({
@@ -145,7 +145,7 @@ export default function Home() {
             Turn any website into<br /><span>an intelligent chatbot</span>
           </h1>
           <p className={styles.description}>
-            SiteBot crawls your website, understands your content, and creates a
+            XeloChat crawls your website, understands your content, and creates a
             smart AI assistant that can answer customer questions 24/7.
           </p>
 
@@ -392,7 +392,7 @@ export default function Home() {
         {/* Use cases */}
         <section className={styles.useCases}>
           <h2 className={styles.sectionTitle}>Built for every business</h2>
-          <p className={styles.sectionSub}>SiteBot adapts to your industry</p>
+          <p className={styles.sectionSub}>XeloChat adapts to your industry</p>
 
           <div className={styles.caseGrid}>
             <div className={styles.caseCard}>
@@ -453,14 +453,14 @@ export default function Home() {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
-            <span>SiteBot</span>
+            <span>XeloChat</span>
           </div>
           <p className={styles.footerText}>AI-powered chatbots for any website</p>
         </div>
       </footer>
 
-      {/* SiteBot Chat - Our own chatbot for this website */}
-      <SiteBotChat />
+      {/* XeloChat Chat - Our own chatbot for this website */}
+      <XeloChatChat />
 
       {/* Customizer modal */}
       {showCustomizerModal && draftTheme && clinicData && (

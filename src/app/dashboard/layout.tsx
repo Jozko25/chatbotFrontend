@@ -4,7 +4,7 @@ import { useUser } from '@auth0/nextjs-auth0';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
-import SiteBotAssistant from '@/components/SiteBotAssistant';
+import XeloChatAssistant from '@/components/XeloChatAssistant';
 import styles from './dashboard.module.css';
 
 export default function DashboardLayout({
@@ -51,7 +51,7 @@ export default function DashboardLayout({
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
-            SiteBot
+            XeloChat
           </Link>
         </div>
 
@@ -99,9 +99,9 @@ export default function DashboardLayout({
         {children}
       </main>
 
-      {/* SiteBot Assistant - shown on all pages except chatbot detail (which has its own) */}
+      {/* XeloChat Assistant - shown on all pages except chatbot detail (which has its own) */}
       {showAssistant && (
-        <SiteBotAssistant mode="dashboard" />
+        <XeloChatAssistant mode="dashboard" />
       )}
     </div>
   );

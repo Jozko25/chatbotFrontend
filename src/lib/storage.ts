@@ -1,6 +1,6 @@
 import { ChatState } from '@/types/clinic';
 
-const STORAGE_KEY = 'sitebot-session';
+const STORAGE_KEY = 'xelochat-session';
 
 export function saveSession(state: ChatState): void {
   if (typeof window === 'undefined') return;

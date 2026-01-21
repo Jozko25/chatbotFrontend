@@ -4,20 +4,46 @@
   const script = document.currentScript;
   if (!script) return;
 
-  const chatbotId = script.getAttribute('data-chatbot-id');
-  const apiKey = script.getAttribute('data-api-key');
-  const apiUrl = script.getAttribute('data-api-url') || '';
+  const chatbotId = script.getAttribute('data-chatbot-id')?.trim();
+  const apiKey = script.getAttribute('data-api-key')?.trim();
+  const apiUrl = script.getAttribute('data-api-url')?.trim() || '';
 
+  // Security: Validate required attributes
   if (!chatbotId || !apiKey || !apiUrl) {
-    console.warn('[SiteBot] Missing required attributes: data-chatbot-id, data-api-key, or data-api-url');
+    console.warn('[XeloChat] Missing required attributes: data-chatbot-id, data-api-key, or data-api-url');
     return;
   }
 
-  const apiBase = apiUrl.replace(/\/+$/, '');
+  // Security: Validate chatbotId format (alphanumeric, hyphens, underscores only)
+  if (!/^[a-zA-Z0-9_-]+$/.test(chatbotId)) {
+    console.error('[XeloChat] Invalid chatbot ID format');
+    return;
+  }
+
+  // Security: Validate API key format (basic length check)
+  if (apiKey.length < 10 || apiKey.length > 200) {
+    console.error('[XeloChat] Invalid API key format');
+    return;
+  }
+
+  // Security: Validate API URL to prevent SSRF
+  let apiBase;
+  try {
+    const url = new URL(apiUrl);
+    // Only allow http/https protocols
+    if (!['http:', 'https:'].includes(url.protocol)) {
+      console.error('[XeloChat] Invalid API URL protocol. Only http/https allowed.');
+      return;
+    }
+    apiBase = url.origin + url.pathname.replace(/\/+$/, '');
+  } catch (e) {
+    console.error('[XeloChat] Invalid API URL format:', e);
+    return;
+  }
 
   // Generate or retrieve session ID for conversation tracking
   const getSessionId = () => {
-    const key = 'sitebot_session_' + chatbotId;
+    const key = 'xelochat_session_' + chatbotId;
     let sessionId = localStorage.getItem(key);
     if (!sessionId) {
       sessionId = 'sess_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
@@ -57,7 +83,7 @@
 
   // Create isolated shadow DOM
   const shadowHost = document.createElement('div');
-  shadowHost.id = 'sitebot-widget';
+  shadowHost.id = 'xelochat-widget';
   document.body.appendChild(shadowHost);
   const shadow = shadowHost.attachShadow({ mode: 'closed' });
 
@@ -81,60 +107,79 @@
       position: fixed;
       bottom: 24px;
       right: 24px;
-      width: 60px;
-      height: 60px;
-      border-radius: 16px;
-      border: 1px solid #dbeafe;
-      background: #3b82f6;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      border: none;
       color: white;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.35);
+      box-shadow: 
+        0 4px 14px rgba(59, 130, 246, 0.4),
+        0 0 0 0 rgba(59, 130, 246, 0);
       z-index: 2147483646;
-      animation: fabPulse 3s ease-in-out infinite;
-      transition: background 0.2s ease,
-                  box-shadow 0.2s ease,
-                  opacity 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-                  transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transition: 
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+      animation: fabEnter 0.35s ease-out forwards,
+                 fabPulse 3s ease-in-out 0.35s infinite;
+    }
+
+    @keyframes fabEnter {
+      0% {
+        opacity: 0;
+        transform: scale(0.5);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
 
     @keyframes fabPulse {
       0%, 100% { 
-        box-shadow: 0 8px 24px rgba(59, 130, 246, 0.35);
+        box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
       }
       50% { 
-        box-shadow: 0 8px 32px rgba(59, 130, 246, 0.5);
+        box-shadow: 0 4px 18px rgba(59, 130, 246, 0.5);
       }
     }
     
     .fab.hidden {
       opacity: 0;
-      transform: scale(0.5) rotate(-10deg);
+      transform: scale(0.8);
       pointer-events: none;
-      animation: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
     }
 
     .fab:hover {
-      background: #2563eb;
-      box-shadow: 0 12px 32px rgba(59, 130, 246, 0.45);
-      transform: scale(1.05);
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      box-shadow: 
+        0 6px 20px rgba(59, 130, 246, 0.5),
+        0 0 0 4px rgba(59, 130, 246, 0.15);
+      transform: scale(1.08);
       animation: none;
     }
 
     .fab:active {
-      transform: scale(0.95);
+      transform: scale(0.96);
+      box-shadow: 
+        0 2px 8px rgba(59, 130, 246, 0.4),
+        0 0 0 2px rgba(59, 130, 246, 0.2);
     }
 
     .fab svg {
-      width: 24px;
-      height: 24px;
+      width: 22px;
+      height: 22px;
       transition: transform 0.2s ease;
     }
 
     .fab:hover svg {
-      transform: scale(1.1);
+      transform: scale(1.05);
     }
 
     .fab.loading {
@@ -155,13 +200,15 @@
       position: fixed;
       bottom: 24px;
       right: 24px;
-      width: 420px;
+      width: 400px;
       max-width: calc(100vw - 48px);
-      height: min(600px, 80vh);
+      height: min(560px, 75vh);
       max-height: calc(100vh - 48px);
       background: var(--chat-surface);
-      border-radius: 20px;
-      box-shadow: 0 25px 60px rgba(15, 23, 42, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.05);
+      border-radius: 24px;
+      box-shadow: 
+        0 25px 50px -12px rgba(0, 0, 0, 0.15),
+        0 0 0 1px rgba(0, 0, 0, 0.05);
       border: none;
       display: flex;
       flex-direction: column;
@@ -169,18 +216,21 @@
       z-index: 2147483646;
       opacity: 0;
       pointer-events: none;
-      transform: translateY(40px) scale(0.85) rotate(2deg);
+      transform: translateY(20px) scale(0.96);
       transform-origin: bottom right;
-      transition: opacity 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-                  transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-                  box-shadow 0.5s ease;
+      transition: 
+        opacity 0.25s ease,
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
     }
 
     .panel.open {
       opacity: 1;
       pointer-events: auto;
-      transform: translateY(0) scale(1) rotate(0deg);
-      box-shadow: 0 25px 80px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
+      transform: translateY(0) scale(1);
+      box-shadow: 
+        0 25px 50px -12px rgba(0, 0, 0, 0.2),
+        0 0 0 1px rgba(0, 0, 0, 0.05);
     }
 
     .header {
@@ -188,8 +238,8 @@
       justify-content: space-between;
       align-items: center;
       padding: 18px 20px;
-      background: var(--chat-surface);
-      border-bottom: 1px solid var(--chat-assistant-border);
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
       flex-shrink: 0;
     }
 
@@ -218,7 +268,7 @@
       border-radius: 10px;
       border: none;
       background: transparent;
-      color: var(--chat-muted);
+      color: #64748b;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
@@ -227,6 +277,11 @@
     }
 
     .actionBtn:hover {
+      background: #eff6ff;
+      color: #3b82f6;
+    }
+
+    .actionBtn:active {
       background: #eff6ff;
       color: #3b82f6;
     }
@@ -594,8 +649,19 @@
   fab.className = 'fab loading';
   fab.type = 'button';
   fab.setAttribute('aria-label', 'Open chat');
-  fab.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+  fab.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <path 
+      d="M8 10.5h8M8 14.5h5" 
+      stroke="currentColor" 
+      stroke-width="2" 
+      stroke-linecap="round"
+    />
+    <path 
+      d="M12 3C6.5 3 2 6.8 2 11.5c0 2.4 1.2 4.6 3.1 6.1l-.6 3.9 4.3-2.2c1 .3 2.1.4 3.2.4 5.5 0 10-3.8 10-8.5S17.5 3 12 3z" 
+      stroke="currentColor" 
+      stroke-width="2" 
+      stroke-linejoin="round"
+    />
   </svg>`;
 
   const panel = document.createElement('div');
@@ -849,7 +915,7 @@
       renderMessages();
 
     } catch (err) {
-      console.error('[SiteBot] Booking failed:', err);
+      console.error('[XeloChat] Booking failed:', err);
       messages.push({ 
         role: 'assistant', 
         content: 'Sorry, there was an error submitting your booking. Please try again or contact us directly.' 
@@ -1031,7 +1097,7 @@
       
       if (!shouldDisplayOnPage(pageDisplayMode, allowedPages)) {
         // Don't show widget on this page - remove from DOM
-        console.log('[SiteBot] Widget hidden on this page due to display restrictions');
+        console.log('[XeloChat] Widget hidden on this page due to display restrictions');
         shadowHost.remove();
         return;
       }
@@ -1048,11 +1114,11 @@
       // Update header with actual name
       if (headerName) headerName.textContent = sanitize(clinicData?.clinic_name || 'Assistant');
 
-      // Add welcome message
+      // Add welcome message (sanitized via textContent in renderMessages)
       if (clinicData?.welcomeMessage) {
-    messages.push({ role: 'assistant', content: clinicData.welcomeMessage });
-    renderMessages();
-  }
+        messages.push({ role: 'assistant', content: sanitize(clinicData.welcomeMessage) });
+        renderMessages();
+      }
 
       // Update booking form fields visibility (but don't show button yet)
       if (bookingEnabled) {
@@ -1066,7 +1132,7 @@
       initialized = true;
 
     } catch (err) {
-      console.error('[SiteBot] Failed to load chatbot:', err);
+      console.error('[XeloChat] Failed to load chatbot:', err);
       fab.classList.remove('loading');
       showError(err.message || 'Failed to load chatbot. Please check your API key.');
     }
@@ -1074,15 +1140,15 @@
 
   const openPanel = () => {
     open = true;
-    panel.classList.add('open');
+      panel.classList.add('open');
     fab.classList.add('hidden');
-    setTimeout(scrollToBottom, 50);
+      setTimeout(scrollToBottom, 50);
     if (initialized) inputEl?.focus();
   };
 
   const closePanel = () => {
     open = false;
-    panel.classList.remove('open');
+      panel.classList.remove('open');
     fab.classList.remove('hidden');
   };
 
@@ -1170,7 +1236,7 @@
         messages.push({ role: 'assistant', content: assistantText });
       }
     } catch (err) {
-      console.error('[SiteBot] Send failed:', err);
+      console.error('[XeloChat] Send failed:', err);
 
       // Handle specific error messages
       if (err.message.includes('limit')) {
