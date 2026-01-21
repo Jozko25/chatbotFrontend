@@ -1,9 +1,10 @@
 'use client';
 
 import { useUser } from '@auth0/nextjs-auth0';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
+import SiteBotAssistant from '@/components/SiteBotAssistant';
 import styles from './dashboard.module.css';
 
 export default function DashboardLayout({
@@ -13,6 +14,14 @@ export default function DashboardLayout({
 }) {
   const { user, isLoading } = useUser();
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Extract chatbot ID if on a chatbot detail page
+  const chatbotIdMatch = pathname.match(/\/dashboard\/chatbots\/([^/]+)/);
+  const currentChatbotId = chatbotIdMatch ? chatbotIdMatch[1] : undefined;
+
+  // Don't show assistant on chatbot detail pages (they have their own with section navigation)
+  const showAssistant = !currentChatbotId;
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -89,6 +98,11 @@ export default function DashboardLayout({
       <main className={styles.main}>
         {children}
       </main>
+
+      {/* SiteBot Assistant - shown on all pages except chatbot detail (which has its own) */}
+      {showAssistant && (
+        <SiteBotAssistant mode="dashboard" />
+      )}
     </div>
   );
 }

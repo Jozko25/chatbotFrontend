@@ -7,6 +7,7 @@ import { saveSession, loadSession, clearSession } from '@/lib/storage';
 import Navbar from '@/components/Navbar';
 import SetupForm from '@/components/SetupForm';
 import ChatInterface from '@/components/ChatInterface';
+import SiteBotAssistant from '@/components/SiteBotAssistant';
 import styles from './page.module.css';
 
 const createDefaultTheme = (name?: string): ChatTheme => ({
@@ -464,8 +465,8 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Chat widget */}
-      {clinicData && (
+      {/* Chat widget - Show demo chatbot if clinicData exists, otherwise show SiteBot Assistant */}
+      {clinicData ? (
         <>
           {!showChat && (
             <button className={styles.fab} onClick={() => setShowChat(true)} aria-label="Open chatbot">
@@ -489,6 +490,8 @@ export default function Home() {
             />
           )}
         </>
+      ) : (
+        <SiteBotAssistant mode="landing" />
       )}
 
       {/* Customizer modal */}

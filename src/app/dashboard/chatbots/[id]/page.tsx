@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getChatbot, deleteChatbot, createApiKey, getApiKeys, updateChatbotSettings, updateNotificationSettings, Chatbot, ApiKey } from '@/lib/api';
+import SiteBotAssistant from '@/components/SiteBotAssistant';
 import styles from '../../dashboard.module.css';
 
 // Icons as simple SVG components
@@ -89,6 +90,7 @@ const SECTIONS = [
 export default function ChatbotDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const chatbotId = params.id as string;
 
   const [chatbot, setChatbot] = useState<Chatbot | null>(null);
@@ -99,6 +101,31 @@ export default function ChatbotDetailPage() {
   // Search and section state
   const [searchQuery, setSearchQuery] = useState('');
   const [openSections, setOpenSections] = useState<Set<string>>(new Set(['embed']));
+
+  // Handle section navigation from URL params or assistant
+  const navigateToSection = useCallback((sectionId: string) => {
+    // Open the section
+    setOpenSections(prev => {
+      const next = new Set(prev);
+      next.add(sectionId);
+      return next;
+    });
+    // Scroll to the section after a small delay
+    setTimeout(() => {
+      const element = document.getElementById(`section-${sectionId}`);
+      element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }, []);
+
+  // Check URL for section param on mount
+  useEffect(() => {
+    const section = searchParams.get('section');
+    if (section && SECTIONS.some(s => s.id === section)) {
+      navigateToSection(section);
+      // Clean up URL
+      router.replace(`/dashboard/chatbots/${chatbotId}`, { scroll: false });
+    }
+  }, [searchParams, chatbotId, router, navigateToSection]);
 
   // Modal states
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -941,7 +968,7 @@ export default function ChatbotDetailPage() {
             const badge = getSectionBadge(section.id);
 
             return (
-              <div key={section.id} className={styles.settingsSection}>
+              <div key={section.id} id={`section-${section.id}`} className={styles.settingsSection}>
                 <div
                   className={styles.sectionHeader}
                   onClick={() => toggleSection(section.id)}
@@ -1085,6 +1112,13 @@ export default function ChatbotDetailPage() {
           </div>
         </div>
       )}
+
+      {/* SiteBot Assistant */}
+      <SiteBotAssistant
+        mode="dashboard"
+        chatbotId={chatbotId}
+        onNavigateToSection={navigateToSection}
+      />
     </div>
   );
 }
