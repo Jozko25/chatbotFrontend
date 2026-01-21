@@ -54,7 +54,7 @@ export default function ChatbotsPage() {
     setScrapeProgress({
       status: 'Starting...',
       pagesScraped: 0,
-      maxPages: 25,
+      maxPages: 50,
       totalLinksFound: 0,
       currentUrl: createUrl,
       scrapedPages: [],
@@ -71,7 +71,7 @@ export default function ChatbotsPage() {
           switch (event.type) {
             case 'start':
               newState.status = 'Connecting to website...';
-              newState.maxPages = event.maxPages || 25;
+              newState.maxPages = event.maxPages || 50;
               break;
 
             case 'scraping':

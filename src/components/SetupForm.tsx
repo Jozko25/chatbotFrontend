@@ -61,7 +61,7 @@ export default function SetupForm({ onSubmit, isLoading, error, embedded, info, 
               required
               disabled={isLoading}
             />
-            <p className={styles.helpText}>We&apos;ll crawl up to 25 pages automatically.</p>
+            <p className={styles.helpText}>We&apos;ll crawl up to 50 pages automatically.</p>
           </div>
 
           <button
