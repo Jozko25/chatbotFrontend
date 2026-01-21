@@ -588,6 +588,332 @@
   color: hsl(var(--muted-foreground));
 }
 
+/* Settings Search Bar */
+.settingsSearch {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.settingsSearch input {
+  width: 100%;
+  padding: 0.875rem 1rem 0.875rem 2.75rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+  font-size: 0.9rem;
+  background: hsl(var(--background));
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.settingsSearch input:focus {
+  outline: none;
+  border-color: hsl(var(--blue-500));
+  box-shadow: 0 0 0 3px hsl(var(--blue-500) / 0.1);
+}
+
+.settingsSearch input::placeholder {
+  color: hsl(var(--muted-foreground));
+}
+
+.searchIcon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: hsl(var(--muted-foreground));
+  pointer-events: none;
+}
+
+/* Collapsible Settings Sections */
+.settingsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.settingsSection {
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.settingsSection:hover {
+  box-shadow: 0 2px 8px hsl(var(--foreground) / 0.04);
+}
+
+.settingsSection.hidden {
+  display: none;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+
+.sectionHeader:hover {
+  background: hsl(var(--blue-50) / 0.5);
+}
+
+.sectionHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.sectionIcon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: hsl(var(--blue-50));
+  border-radius: 0.625rem;
+  color: hsl(var(--blue-600));
+}
+
+.sectionTitle {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.sectionTitle h3 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  margin: 0;
+}
+
+.sectionTitle span {
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.sectionHeaderRight {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sectionBadge {
+  font-size: 0.6875rem;
+  padding: 0.25rem 0.5rem;
+  background: hsl(var(--blue-100));
+  color: hsl(var(--blue-700));
+  border-radius: 9999px;
+  font-weight: 500;
+}
+
+.chevron {
+  color: hsl(var(--muted-foreground));
+  transition: transform 0.2s ease;
+}
+
+.chevron.open {
+  transform: rotate(180deg);
+}
+
+.sectionContent {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.sectionContent.open {
+  max-height: 2000px;
+  transition: max-height 0.4s ease-in;
+}
+
+.sectionContentInner {
+  padding: 0 1.25rem 1.25rem;
+  border-top: 1px solid hsl(var(--border));
+}
+
+/* Success indicator in section header */
+.successIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: hsl(142 76% 36%);
+  background: hsl(142 76% 92%);
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  animation: fadeInOut 3s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0; }
+  10%, 90% { opacity: 1; }
+}
+
+/* Form sections within collapsible */
+.formSection {
+  padding: 1rem;
+  background: hsl(var(--blue-50) / 0.3);
+  border-radius: 0.75rem;
+  margin-top: 1rem;
+}
+
+.formSection:first-child {
+  margin-top: 1rem;
+}
+
+.formSectionTitle {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Checkbox field styles */
+.checkboxField {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.625rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.checkboxField:hover {
+  border-color: hsl(var(--blue-300));
+}
+
+.checkboxField.checked {
+  background: hsl(var(--blue-50));
+  border-color: hsl(var(--blue-500));
+}
+
+.checkboxField input {
+  width: 18px;
+  height: 18px;
+  accent-color: hsl(var(--blue-600));
+  margin-top: 0.125rem;
+}
+
+.checkboxField .checkboxContent {
+  flex: 1;
+}
+
+.checkboxField .checkboxLabel {
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: hsl(var(--foreground));
+}
+
+.checkboxField .checkboxDescription {
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+  margin-top: 0.125rem;
+}
+
+/* Booking fields grid */
+.bookingFieldsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .bookingFieldsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bookingFieldItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.bookingFieldItem:hover {
+  border-color: hsl(var(--blue-300));
+}
+
+.bookingFieldItem.selected {
+  background: hsl(var(--blue-50));
+  border-color: hsl(var(--blue-500));
+}
+
+.bookingFieldItem.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.bookingFieldItem input {
+  accent-color: hsl(var(--blue-600));
+}
+
+.requiredTag {
+  font-size: 0.625rem;
+  color: hsl(var(--muted-foreground));
+  margin-left: auto;
+}
+
+/* Save button container */
+.saveButtonContainer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid hsl(var(--border));
+}
+
+/* No results state */
+.noResults {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.noResults svg {
+  margin-bottom: 1rem;
+  color: hsl(var(--blue-200));
+}
+
+.noResults p {
+  font-size: 0.9375rem;
+}
+
+.noResults span {
+  display: block;
+  font-size: 0.8125rem;
+  margin-top: 0.5rem;
+  opacity: 0.8;
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   .sidebar {

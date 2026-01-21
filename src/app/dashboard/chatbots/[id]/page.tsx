@@ -1,10 +1,90 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getChatbot, deleteChatbot, createApiKey, getApiKeys, updateChatbotSettings, updateNotificationSettings, Chatbot, ApiKey } from '@/lib/api';
 import styles from '../../dashboard.module.css';
+
+// Icons as simple SVG components
+const SearchIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="11" cy="11" r="8"/>
+    <path d="m21 21-4.35-4.35"/>
+  </svg>
+);
+
+const ChevronIcon = ({ className }: { className?: string }) => (
+  <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="6 9 12 15 18 9"/>
+  </svg>
+);
+
+const CodeIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+  </svg>
+);
+
+const KeyIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m21 2-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+  </svg>
+);
+
+const BrainIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-1.54"/>
+    <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-1.54"/>
+  </svg>
+);
+
+const MessageIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+);
+
+const CalendarIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+  </svg>
+);
+
+const BellIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+  </svg>
+);
+
+const DatabaseIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+  </svg>
+);
+
+const CheckIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
+);
+
+const SearchEmptyIcon = () => (
+  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+  </svg>
+);
+
+// Section configuration with search keywords
+const SECTIONS = [
+  { id: 'embed', title: 'Embed Code', description: 'Add chatbot to your website', icon: CodeIcon, keywords: ['embed', 'code', 'script', 'website', 'install', 'widget'] },
+  { id: 'apikeys', title: 'API Keys', description: 'Manage access keys', icon: KeyIcon, keywords: ['api', 'key', 'keys', 'access', 'token', 'authentication'] },
+  { id: 'ai', title: 'AI Settings', description: 'Configure AI behavior', icon: BrainIcon, keywords: ['ai', 'prompt', 'system', 'welcome', 'message', 'knowledge', 'behavior'] },
+  { id: 'communication', title: 'Communication Style', description: 'Tone and language settings', icon: MessageIcon, keywords: ['communication', 'style', 'tone', 'language', 'greeting', 'professional', 'friendly'] },
+  { id: 'booking', title: 'Booking & Appointments', description: 'Customer booking settings', icon: CalendarIcon, keywords: ['booking', 'appointment', 'schedule', 'calendar', 'reservation', 'date', 'time'] },
+  { id: 'notifications', title: 'Notifications', description: 'Email and webhook alerts', icon: BellIcon, keywords: ['notification', 'email', 'webhook', 'alert', 'notify'] },
+  { id: 'knowledge', title: 'Knowledge Base', description: 'Business information', icon: DatabaseIcon, keywords: ['knowledge', 'base', 'data', 'business', 'clinic', 'services', 'hours', 'address', 'phone'] },
+];
 
 export default function ChatbotDetailPage() {
   const params = useParams();
@@ -15,6 +95,10 @@ export default function ChatbotDetailPage() {
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Search and section state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [openSections, setOpenSections] = useState<Set<string>>(new Set(['embed']));
 
   // Modal states
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -27,7 +111,6 @@ export default function ChatbotDetailPage() {
   const [copied, setCopied] = useState(false);
 
   // AI Settings state
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [systemPrompt, setSystemPrompt] = useState('');
   const [customKnowledge, setCustomKnowledge] = useState('');
   const [welcomeMessage, setWelcomeMessage] = useState('');
@@ -54,6 +137,10 @@ export default function ChatbotDetailPage() {
   const [communicationStyle, setCommunicationStyle] = useState<'PROFESSIONAL' | 'FRIENDLY' | 'CASUAL' | 'CONCISE'>('PROFESSIONAL');
   const [language, setLanguage] = useState('auto');
   const [customGreeting, setCustomGreeting] = useState('');
+  const [savingCommunication, setSavingCommunication] = useState(false);
+  const [communicationSuccess, setCommunicationSuccess] = useState(false);
+  const [savingBooking, setSavingBooking] = useState(false);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
   const [savingNotifications, setSavingNotifications] = useState(false);
   const [notificationsSuccess, setNotificationsSuccess] = useState(false);
 
@@ -68,6 +155,36 @@ export default function ChatbotDetailPage() {
     { id: 'notes', label: 'Additional Notes', required: false },
   ];
 
+  // Filter sections based on search
+  const filteredSections = useMemo(() => {
+    if (!searchQuery.trim()) return SECTIONS;
+    const query = searchQuery.toLowerCase();
+    return SECTIONS.filter(section =>
+      section.title.toLowerCase().includes(query) ||
+      section.description.toLowerCase().includes(query) ||
+      section.keywords.some(kw => kw.includes(query))
+    );
+  }, [searchQuery]);
+
+  // Auto-open sections when searching
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      setOpenSections(new Set(filteredSections.map(s => s.id)));
+    }
+  }, [searchQuery, filteredSections]);
+
+  const toggleSection = (id: string) => {
+    setOpenSections(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
   useEffect(() => {
     loadData();
   }, [chatbotId]);
@@ -79,12 +196,13 @@ export default function ChatbotDetailPage() {
         getApiKeys()
       ]);
       setChatbot(chatbotData);
-      // Filter API keys for this chatbot or global keys
       setApiKeys(keysData.filter(k => k.chatbotId === chatbotId || k.chatbotId === null));
+
       // Initialize AI settings
       setSystemPrompt(chatbotData.systemPrompt || '');
       setCustomKnowledge(chatbotData.customKnowledge || '');
       setWelcomeMessage(chatbotData.welcomeMessage || '');
+
       // Initialize editable clinic data
       const cd = chatbotData.clinicData;
       setEditClinicName(cd.clinic_name || '');
@@ -92,8 +210,8 @@ export default function ChatbotDetailPage() {
       setEditEmail(cd.email || '');
       setEditAddress(cd.address || '');
       setEditOpeningHours(cd.opening_hours || '');
-      // Convert services array to editable text format
       setEditServices((cd.services || []).map((s: { name: string; price: string }) => `${s.name}: ${s.price}`).join('\n'));
+
       // Initialize notification & communication settings
       setNotificationEmail(chatbotData.notificationEmail || '');
       setNotificationWebhook(chatbotData.notificationWebhook || '');
@@ -150,7 +268,7 @@ export default function ChatbotDetailPage() {
   function generateEmbedCode(apiKey: string) {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
     return `<script
-  src="${window.location.origin}/embed.js"
+  src="${typeof window !== 'undefined' ? window.location.origin : ''}/embed.js"
   data-chatbot-id="${chatbotId}"
   data-api-key="${apiKey}"
   data-api-url="${apiUrl}"
@@ -164,7 +282,7 @@ export default function ChatbotDetailPage() {
     setTimeout(() => setCopied(false), 2000);
   }
 
-  async function handleSaveSettings(e: React.FormEvent) {
+  async function handleSaveAISettings(e: React.FormEvent) {
     e.preventDefault();
     setSavingSettings(true);
     setSettingsSuccess(false);
@@ -184,6 +302,46 @@ export default function ChatbotDetailPage() {
     }
   }
 
+  async function handleSaveCommunication(e: React.FormEvent) {
+    e.preventDefault();
+    setSavingCommunication(true);
+    setCommunicationSuccess(false);
+
+    try {
+      await updateNotificationSettings(chatbotId, {
+        communicationStyle,
+        language,
+        customGreeting: customGreeting || null
+      });
+      setCommunicationSuccess(true);
+      setTimeout(() => setCommunicationSuccess(false), 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save communication settings');
+    } finally {
+      setSavingCommunication(false);
+    }
+  }
+
+  async function handleSaveBooking(e: React.FormEvent) {
+    e.preventDefault();
+    setSavingBooking(true);
+    setBookingSuccess(false);
+
+    try {
+      await updateNotificationSettings(chatbotId, {
+        bookingEnabled,
+        bookingFields,
+        bookingPromptMessage: bookingPromptMessage || null
+      });
+      setBookingSuccess(true);
+      setTimeout(() => setBookingSuccess(false), 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save booking settings');
+    } finally {
+      setSavingBooking(false);
+    }
+  }
+
   async function handleSaveNotifications(e: React.FormEvent) {
     e.preventDefault();
     setSavingNotifications(true);
@@ -193,13 +351,7 @@ export default function ChatbotDetailPage() {
       await updateNotificationSettings(chatbotId, {
         notificationEmail: notificationEmail || null,
         notificationWebhook: notificationWebhook || null,
-        notifyOnBooking,
-        bookingEnabled,
-        bookingFields,
-        bookingPromptMessage: bookingPromptMessage || null,
-        communicationStyle,
-        language,
-        customGreeting: customGreeting || null
+        notifyOnBooking
       });
       setNotificationsSuccess(true);
       setTimeout(() => setNotificationsSuccess(false), 3000);
@@ -216,7 +368,6 @@ export default function ChatbotDetailPage() {
     setClinicDataSuccess(false);
 
     try {
-      // Parse services from text format back to array
       const servicesArray = editServices
         .split('\n')
         .filter(line => line.trim())
@@ -272,8 +423,452 @@ export default function ChatbotDetailPage() {
 
   const clinicData = chatbot.clinicData;
 
+  const renderSectionContent = (sectionId: string) => {
+    switch (sectionId) {
+      case 'embed':
+        return (
+          <div className={styles.sectionContentInner}>
+            {apiKeys.length === 0 ? (
+              <div style={{ padding: '1rem 0' }}>
+                <p style={{ color: '#64748b', marginBottom: '1rem' }}>
+                  Create an API key to get your embed code.
+                </p>
+                <button onClick={() => setShowApiKeyModal(true)} className={styles.primaryBtn}>
+                  Create API Key
+                </button>
+              </div>
+            ) : (
+              <div style={{ paddingTop: '1rem' }}>
+                <p style={{ color: '#64748b', marginBottom: '1rem', fontSize: '0.875rem' }}>
+                  Add this code to your website to embed the chatbot widget.
+                </p>
+                <div className={styles.snippetCode}>
+                  {generateEmbedCode(apiKeys[0].keyPrefix.replace('...', '••••••••'))}
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem' }}>
+                  <button
+                    onClick={() => copyToClipboard(generateEmbedCode('YOUR_API_KEY'))}
+                    className={styles.secondaryBtn}
+                  >
+                    {copied ? 'Copied!' : 'Copy Code'}
+                  </button>
+                  <button onClick={() => setShowApiKeyModal(true)} className={styles.secondaryBtn}>
+                    Create New API Key
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+
+      case 'apikeys':
+        return (
+          <div className={styles.sectionContentInner}>
+            {apiKeys.length > 0 ? (
+              <div style={{ paddingTop: '1rem' }}>
+                <div className={styles.table}>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Key</th>
+                        <th>Allowed Domains</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {apiKeys.map((key) => (
+                        <tr key={key.id}>
+                          <td>{key.name}</td>
+                          <td><code className={styles.keyPrefix}>{key.keyPrefix}</code></td>
+                          <td>
+                            <div className={styles.domainsList}>
+                              {key.allowedDomains.length === 0 ? (
+                                <span style={{ color: '#94a3b8' }}>All domains</span>
+                              ) : (
+                                key.allowedDomains.map((d, i) => (
+                                  <span key={i} className={styles.domainTag}>{d}</span>
+                                ))
+                              )}
+                            </div>
+                          </td>
+                          <td>
+                            <span className={`${styles.cardBadge} ${key.isActive ? styles.active : styles.paused}`}>
+                              {key.isActive ? 'Active' : 'Revoked'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className={styles.saveButtonContainer}>
+                  <button onClick={() => setShowApiKeyModal(true)} className={styles.primaryBtn}>
+                    Create New API Key
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div style={{ padding: '1rem 0', textAlign: 'center', color: '#64748b' }}>
+                <p>No API keys yet.</p>
+                <button onClick={() => setShowApiKeyModal(true)} className={styles.primaryBtn} style={{ marginTop: '1rem' }}>
+                  Create First API Key
+                </button>
+              </div>
+            )}
+          </div>
+        );
+
+      case 'ai':
+        return (
+          <div className={styles.sectionContentInner}>
+            <form onSubmit={handleSaveAISettings}>
+              <div className={styles.formGroup} style={{ marginTop: '1rem' }}>
+                <label htmlFor="welcomeMessage">Welcome Message</label>
+                <input
+                  type="text"
+                  id="welcomeMessage"
+                  value={welcomeMessage}
+                  onChange={(e) => setWelcomeMessage(e.target.value)}
+                  placeholder="Welcome! How can I help you today?"
+                />
+                <small>The first message shown to users when they open the chat.</small>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="systemPrompt">Custom System Prompt (Advanced)</label>
+                <textarea
+                  id="systemPrompt"
+                  value={systemPrompt}
+                  onChange={(e) => setSystemPrompt(e.target.value)}
+                  placeholder="Override the default AI behavior. Leave empty to use the default prompt."
+                  rows={5}
+                  style={{ fontFamily: 'inherit', resize: 'vertical' }}
+                />
+                <small>Customize how the AI responds. This replaces the default system prompt.</small>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="customKnowledge">Additional Knowledge Base</label>
+                <textarea
+                  id="customKnowledge"
+                  value={customKnowledge}
+                  onChange={(e) => setCustomKnowledge(e.target.value)}
+                  placeholder="Add information not captured by the scraper: promotions, FAQs, policies..."
+                  rows={6}
+                  style={{ fontFamily: 'inherit', resize: 'vertical' }}
+                />
+                <small>Extra information the chatbot should know, supplementing scraped data.</small>
+              </div>
+
+              <div className={styles.saveButtonContainer}>
+                <button type="submit" className={styles.primaryBtn} disabled={savingSettings}>
+                  {savingSettings ? 'Saving...' : 'Save AI Settings'}
+                </button>
+              </div>
+            </form>
+          </div>
+        );
+
+      case 'communication':
+        return (
+          <div className={styles.sectionContentInner}>
+            <form onSubmit={handleSaveCommunication}>
+              <div className={styles.formGrid} style={{ marginTop: '1rem' }}>
+                <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                  <label htmlFor="communicationStyle">Tone</label>
+                  <select
+                    id="communicationStyle"
+                    value={communicationStyle}
+                    onChange={(e) => setCommunicationStyle(e.target.value as typeof communicationStyle)}
+                  >
+                    <option value="PROFESSIONAL">Professional - Formal, business-like</option>
+                    <option value="FRIENDLY">Friendly - Warm, conversational</option>
+                    <option value="CASUAL">Casual - Relaxed, informal</option>
+                    <option value="CONCISE">Concise - Brief, to-the-point</option>
+                  </select>
+                </div>
+                <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                  <label htmlFor="language">Response Language</label>
+                  <select
+                    id="language"
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                  >
+                    <option value="auto">Auto-detect (match user)</option>
+                    <option value="sk">Slovak</option>
+                    <option value="cs">Czech</option>
+                    <option value="en">English</option>
+                    <option value="de">German</option>
+                    <option value="hu">Hungarian</option>
+                    <option value="pl">Polish</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className={styles.formGroup} style={{ marginTop: '1rem' }}>
+                <label htmlFor="customGreeting">Custom Greeting (optional)</label>
+                <input
+                  type="text"
+                  id="customGreeting"
+                  value={customGreeting}
+                  onChange={(e) => setCustomGreeting(e.target.value)}
+                  placeholder="e.g., Ahoj! Ako ti mozem pomoct?"
+                />
+                <small>Custom greeting the AI will use when starting conversations.</small>
+              </div>
+
+              <div className={styles.saveButtonContainer}>
+                <button type="submit" className={styles.primaryBtn} disabled={savingCommunication}>
+                  {savingCommunication ? 'Saving...' : 'Save Communication Settings'}
+                </button>
+              </div>
+            </form>
+          </div>
+        );
+
+      case 'booking':
+        return (
+          <div className={styles.sectionContentInner}>
+            <form onSubmit={handleSaveBooking}>
+              <label
+                className={`${styles.checkboxField} ${bookingEnabled ? styles.checked : ''}`}
+                style={{ marginTop: '1rem' }}
+              >
+                <input
+                  type="checkbox"
+                  checked={bookingEnabled}
+                  onChange={(e) => setBookingEnabled(e.target.checked)}
+                />
+                <div className={styles.checkboxContent}>
+                  <span className={styles.checkboxLabel}>Enable booking requests</span>
+                  <p className={styles.checkboxDescription}>
+                    Allow customers to request appointments through the chatbot
+                  </p>
+                </div>
+              </label>
+
+              {bookingEnabled && (
+                <div className={styles.formSection}>
+                  <div className={styles.formSectionTitle}>Information to Collect</div>
+                  <p style={{ color: '#64748b', fontSize: '0.75rem', marginBottom: '0.75rem' }}>
+                    Select which information the chatbot should ask for when booking
+                  </p>
+                  <div className={styles.bookingFieldsGrid}>
+                    {availableBookingFields.map((field) => (
+                      <label
+                        key={field.id}
+                        className={`${styles.bookingFieldItem} ${bookingFields.includes(field.id) ? styles.selected : ''} ${field.required ? styles.disabled : ''}`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={bookingFields.includes(field.id)}
+                          disabled={field.required}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setBookingFields([...bookingFields, field.id]);
+                            } else {
+                              setBookingFields(bookingFields.filter(f => f !== field.id));
+                            }
+                          }}
+                        />
+                        <span>{field.label}</span>
+                        {field.required && <span className={styles.requiredTag}>Required</span>}
+                      </label>
+                    ))}
+                  </div>
+
+                  <div className={styles.formGroup} style={{ marginTop: '1rem', marginBottom: 0 }}>
+                    <label htmlFor="bookingPromptMessage">Booking Prompt Message</label>
+                    <textarea
+                      id="bookingPromptMessage"
+                      value={bookingPromptMessage}
+                      onChange={(e) => setBookingPromptMessage(e.target.value)}
+                      placeholder="e.g., To book an appointment, I'll need a few details from you..."
+                      rows={2}
+                      style={{ fontFamily: 'inherit', resize: 'vertical' }}
+                    />
+                    <small>The message the chatbot uses when asking for booking information.</small>
+                  </div>
+                </div>
+              )}
+
+              <div className={styles.saveButtonContainer}>
+                <button type="submit" className={styles.primaryBtn} disabled={savingBooking}>
+                  {savingBooking ? 'Saving...' : 'Save Booking Settings'}
+                </button>
+              </div>
+            </form>
+          </div>
+        );
+
+      case 'notifications':
+        return (
+          <div className={styles.sectionContentInner}>
+            <form onSubmit={handleSaveNotifications}>
+              <label
+                className={`${styles.checkboxField} ${notifyOnBooking ? styles.checked : ''}`}
+                style={{ marginTop: '1rem' }}
+              >
+                <input
+                  type="checkbox"
+                  checked={notifyOnBooking}
+                  onChange={(e) => setNotifyOnBooking(e.target.checked)}
+                />
+                <div className={styles.checkboxContent}>
+                  <span className={styles.checkboxLabel}>Notify on new bookings</span>
+                  <p className={styles.checkboxDescription}>
+                    Send email/webhook when a customer submits a booking request
+                  </p>
+                </div>
+              </label>
+
+              <div className={styles.formGrid} style={{ marginTop: '1rem' }}>
+                <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                  <label htmlFor="notificationEmail">Notification Email</label>
+                  <input
+                    type="email"
+                    id="notificationEmail"
+                    value={notificationEmail}
+                    onChange={(e) => setNotificationEmail(e.target.value)}
+                    placeholder="bookings@yourcompany.com"
+                  />
+                  <small>Email to receive booking notifications</small>
+                </div>
+                <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                  <label htmlFor="notificationWebhook">Webhook URL (optional)</label>
+                  <input
+                    type="url"
+                    id="notificationWebhook"
+                    value={notificationWebhook}
+                    onChange={(e) => setNotificationWebhook(e.target.value)}
+                    placeholder="https://your-crm.com/webhook"
+                  />
+                  <small>For CRM/calendar integrations</small>
+                </div>
+              </div>
+
+              <div className={styles.saveButtonContainer}>
+                <button type="submit" className={styles.primaryBtn} disabled={savingNotifications}>
+                  {savingNotifications ? 'Saving...' : 'Save Notification Settings'}
+                </button>
+              </div>
+            </form>
+          </div>
+        );
+
+      case 'knowledge':
+        return (
+          <div className={styles.sectionContentInner}>
+            <form onSubmit={handleSaveClinicData}>
+              <div className={styles.formGrid} style={{ marginTop: '1rem' }}>
+                <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                  <label htmlFor="editClinicName">Business Name</label>
+                  <input
+                    type="text"
+                    id="editClinicName"
+                    value={editClinicName}
+                    onChange={(e) => setEditClinicName(e.target.value)}
+                    placeholder="Business name"
+                  />
+                </div>
+                <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                  <label htmlFor="editPhone">Phone</label>
+                  <input
+                    type="text"
+                    id="editPhone"
+                    value={editPhone}
+                    onChange={(e) => setEditPhone(e.target.value)}
+                    placeholder="Phone number"
+                  />
+                </div>
+                <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                  <label htmlFor="editEmail">Email</label>
+                  <input
+                    type="text"
+                    id="editEmail"
+                    value={editEmail}
+                    onChange={(e) => setEditEmail(e.target.value)}
+                    placeholder="Email address"
+                  />
+                </div>
+                <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                  <label htmlFor="editAddress">Address</label>
+                  <input
+                    type="text"
+                    id="editAddress"
+                    value={editAddress}
+                    onChange={(e) => setEditAddress(e.target.value)}
+                    placeholder="Business address"
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formGroup} style={{ marginTop: '1rem' }}>
+                <label htmlFor="editOpeningHours">Opening Hours</label>
+                <textarea
+                  id="editOpeningHours"
+                  value={editOpeningHours}
+                  onChange={(e) => setEditOpeningHours(e.target.value)}
+                  placeholder="Mon-Fri: 9:00-17:00&#10;Sat: 10:00-14:00&#10;Sun: Closed"
+                  rows={3}
+                  style={{ fontFamily: 'inherit', resize: 'vertical' }}
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="editServices">Services & Prices</label>
+                <textarea
+                  id="editServices"
+                  value={editServices}
+                  onChange={(e) => setEditServices(e.target.value)}
+                  placeholder="Service Name: Price&#10;Another Service: €50"
+                  rows={8}
+                  style={{ fontFamily: 'monospace', fontSize: '0.875rem', resize: 'vertical' }}
+                />
+                <small>One service per line. Format: &quot;Service Name: Price&quot;</small>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1rem', borderTop: '1px solid hsl(var(--border))' }}>
+                <span style={{ color: '#64748b', fontSize: '0.75rem' }}>
+                  {(clinicData.source_pages || []).length} pages scraped from {chatbot.sourceUrl}
+                </span>
+                <button type="submit" className={styles.primaryBtn} disabled={savingClinicData}>
+                  {savingClinicData ? 'Saving...' : 'Save Knowledge Base'}
+                </button>
+              </div>
+            </form>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  const getSuccessState = (sectionId: string) => {
+    switch (sectionId) {
+      case 'ai': return settingsSuccess;
+      case 'communication': return communicationSuccess;
+      case 'booking': return bookingSuccess;
+      case 'notifications': return notificationsSuccess;
+      case 'knowledge': return clinicDataSuccess;
+      default: return false;
+    }
+  };
+
+  const getSectionBadge = (sectionId: string) => {
+    switch (sectionId) {
+      case 'apikeys': return apiKeys.length > 0 ? `${apiKeys.length} keys` : null;
+      case 'booking': return bookingEnabled ? 'Enabled' : 'Disabled';
+      case 'notifications': return notifyOnBooking ? 'Active' : null;
+      default: return null;
+    }
+  };
+
   return (
     <div>
+      {/* Header */}
       <div className={styles.pageHeader}>
         <div>
           <Link href="/dashboard/chatbots" style={{ color: '#64748b', fontSize: '0.875rem', textDecoration: 'none' }}>
@@ -317,439 +912,69 @@ export default function ChatbotDetailPage() {
         </div>
       </div>
 
-      {/* Embed Code Section */}
-      <div className={styles.card} style={{ marginTop: '2rem' }}>
-        <h2 style={{ fontSize: '1.125rem', marginBottom: '1rem' }}>Embed Code</h2>
-
-        {apiKeys.length === 0 ? (
-          <div>
-            <p style={{ color: '#64748b', marginBottom: '1rem' }}>
-              Create an API key to get your embed code.
-            </p>
-            <button onClick={() => setShowApiKeyModal(true)} className={styles.primaryBtn}>
-              Create API Key
-            </button>
-          </div>
-        ) : (
-          <div>
-            <p style={{ color: '#64748b', marginBottom: '1rem', fontSize: '0.875rem' }}>
-              Add this code to your website to embed the chatbot widget.
-            </p>
-            <div className={styles.snippetCode}>
-              {generateEmbedCode(apiKeys[0].keyPrefix.replace('...', '••••••••'))}
-            </div>
-            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem' }}>
-              <button
-                onClick={() => copyToClipboard(generateEmbedCode('YOUR_API_KEY'))}
-                className={styles.secondaryBtn}
-              >
-                {copied ? 'Copied!' : 'Copy Code'}
-              </button>
-              <button onClick={() => setShowApiKeyModal(true)} className={styles.secondaryBtn}>
-                Create New API Key
-              </button>
-            </div>
-          </div>
-        )}
+      {/* Search Bar */}
+      <div className={styles.settingsSearch}>
+        <span className={styles.searchIcon}>
+          <SearchIcon />
+        </span>
+        <input
+          type="text"
+          placeholder="Search settings..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
       </div>
 
-      {/* API Keys Table */}
-      {apiKeys.length > 0 && (
-        <div style={{ marginTop: '2rem' }}>
-          <h2 style={{ fontSize: '1.125rem', marginBottom: '1rem' }}>API Keys</h2>
-          <div className={styles.table}>
-            <table>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Key</th>
-                  <th>Allowed Domains</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {apiKeys.map((key) => (
-                  <tr key={key.id}>
-                    <td>{key.name}</td>
-                    <td><code className={styles.keyPrefix}>{key.keyPrefix}</code></td>
-                    <td>
-                      <div className={styles.domainsList}>
-                        {key.allowedDomains.length === 0 ? (
-                          <span style={{ color: '#94a3b8' }}>All domains</span>
-                        ) : (
-                          key.allowedDomains.map((d, i) => (
-                            <span key={i} className={styles.domainTag}>{d}</span>
-                          ))
-                        )}
-                      </div>
-                    </td>
-                    <td>
-                      <span className={`${styles.cardBadge} ${key.isActive ? styles.active : styles.paused}`}>
-                        {key.isActive ? 'Active' : 'Revoked'}
+      {/* Collapsible Settings Sections */}
+      {filteredSections.length === 0 ? (
+        <div className={styles.noResults}>
+          <SearchEmptyIcon />
+          <p>No settings found for &quot;{searchQuery}&quot;</p>
+          <span>Try searching for something else</span>
+        </div>
+      ) : (
+        <div className={styles.settingsContainer}>
+          {filteredSections.map((section) => {
+            const Icon = section.icon;
+            const isOpen = openSections.has(section.id);
+            const showSuccess = getSuccessState(section.id);
+            const badge = getSectionBadge(section.id);
+
+            return (
+              <div key={section.id} className={styles.settingsSection}>
+                <div
+                  className={styles.sectionHeader}
+                  onClick={() => toggleSection(section.id)}
+                >
+                  <div className={styles.sectionHeaderLeft}>
+                    <div className={styles.sectionIcon}>
+                      <Icon />
+                    </div>
+                    <div className={styles.sectionTitle}>
+                      <h3>{section.title}</h3>
+                      <span>{section.description}</span>
+                    </div>
+                  </div>
+                  <div className={styles.sectionHeaderRight}>
+                    {showSuccess && (
+                      <span className={styles.successIndicator}>
+                        <CheckIcon /> Saved
                       </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* AI Settings Section */}
-      <div className={styles.card} style={{ marginTop: '2rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h2 style={{ fontSize: '1.125rem', margin: 0 }}>AI Settings</h2>
-          {settingsSuccess && (
-            <span style={{ color: '#22c55e', fontSize: '0.875rem' }}>Settings saved!</span>
-          )}
-        </div>
-        <form onSubmit={handleSaveSettings}>
-          <div className={styles.formGroup} style={{ marginBottom: '1.5rem' }}>
-            <label htmlFor="welcomeMessage">Welcome Message</label>
-            <input
-              type="text"
-              id="welcomeMessage"
-              value={welcomeMessage}
-              onChange={(e) => setWelcomeMessage(e.target.value)}
-              placeholder="Welcome! How can I help you today?"
-              style={{ width: '100%' }}
-            />
-            <small style={{ color: '#64748b' }}>The first message shown to users when they open the chat.</small>
-          </div>
-
-          <div className={styles.formGroup} style={{ marginBottom: '1.5rem' }}>
-            <label htmlFor="systemPrompt">Custom System Prompt (optional)</label>
-            <textarea
-              id="systemPrompt"
-              value={systemPrompt}
-              onChange={(e) => setSystemPrompt(e.target.value)}
-              placeholder="Override the default AI behavior. Leave empty to use the default prompt that works well for most websites."
-              rows={6}
-              style={{ width: '100%', fontFamily: 'inherit', resize: 'vertical' }}
-            />
-            <small style={{ color: '#64748b' }}>
-              Advanced: Customize how the AI responds. This replaces the default system prompt.
-            </small>
-          </div>
-
-          <div className={styles.formGroup} style={{ marginBottom: '1.5rem' }}>
-            <label htmlFor="customKnowledge">Additional Knowledge Base</label>
-            <textarea
-              id="customKnowledge"
-              value={customKnowledge}
-              onChange={(e) => setCustomKnowledge(e.target.value)}
-              placeholder="Add information that wasn't captured by the scraper, such as:&#10;- Special promotions or discounts&#10;- FAQs and their answers&#10;- Policies (return policy, cancellation, etc.)&#10;- Any corrections to scraped data"
-              rows={8}
-              style={{ width: '100%', fontFamily: 'inherit', resize: 'vertical' }}
-            />
-            <small style={{ color: '#64748b' }}>
-              Add extra information the chatbot should know. This supplements the scraped website data.
-            </small>
-          </div>
-
-          <button type="submit" className={styles.primaryBtn} disabled={savingSettings}>
-            {savingSettings ? 'Saving...' : 'Save Settings'}
-          </button>
-        </form>
-      </div>
-
-      {/* Communication & Notification Settings */}
-      <div className={styles.card} style={{ marginTop: '2rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <div>
-            <h2 style={{ fontSize: '1.125rem', margin: 0 }}>Communication & Notifications</h2>
-            <p style={{ color: '#64748b', fontSize: '0.75rem', marginTop: '0.25rem' }}>
-              Configure how the chatbot communicates and how you receive booking notifications.
-            </p>
-          </div>
-          {notificationsSuccess && (
-            <span style={{ color: '#22c55e', fontSize: '0.875rem' }}>Settings saved!</span>
-          )}
-        </div>
-        <form onSubmit={handleSaveNotifications}>
-          {/* Communication Style */}
-          <div style={{ marginBottom: '1.5rem', padding: '1rem', background: '#f8fafc', borderRadius: '8px' }}>
-            <h3 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '1rem', color: '#334155' }}>Communication Style</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
-              <div className={styles.formGroup}>
-                <label htmlFor="communicationStyle">Tone</label>
-                <select
-                  id="communicationStyle"
-                  value={communicationStyle}
-                  onChange={(e) => setCommunicationStyle(e.target.value as typeof communicationStyle)}
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #e2e8f0' }}
-                >
-                  <option value="PROFESSIONAL">Professional - Formal, business-like</option>
-                  <option value="FRIENDLY">Friendly - Warm, conversational</option>
-                  <option value="CASUAL">Casual - Relaxed, informal</option>
-                  <option value="CONCISE">Concise - Brief, to-the-point</option>
-                </select>
-              </div>
-              <div className={styles.formGroup}>
-                <label htmlFor="language">Response Language</label>
-                <select
-                  id="language"
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #e2e8f0' }}
-                >
-                  <option value="auto">Auto-detect (match user)</option>
-                  <option value="sk">Slovak</option>
-                  <option value="cs">Czech</option>
-                  <option value="en">English</option>
-                  <option value="de">German</option>
-                  <option value="hu">Hungarian</option>
-                  <option value="pl">Polish</option>
-                </select>
-              </div>
-            </div>
-            <div className={styles.formGroup} style={{ marginTop: '1rem' }}>
-              <label htmlFor="customGreeting">Custom Greeting (optional)</label>
-              <input
-                type="text"
-                id="customGreeting"
-                value={customGreeting}
-                onChange={(e) => setCustomGreeting(e.target.value)}
-                placeholder="e.g., Ahoj! Ako ti mozem pomoct?"
-                style={{ width: '100%' }}
-              />
-              <small style={{ color: '#64748b' }}>Custom greeting the AI will use when starting conversations.</small>
-            </div>
-          </div>
-
-          {/* Booking Settings */}
-          <div style={{ marginBottom: '1.5rem', padding: '1rem', background: '#f8fafc', borderRadius: '8px' }}>
-            <h3 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '1rem', color: '#334155' }}>Booking & Appointments</h3>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', marginBottom: '1rem' }}>
-              <input
-                type="checkbox"
-                checked={bookingEnabled}
-                onChange={(e) => setBookingEnabled(e.target.checked)}
-                style={{ width: '18px', height: '18px', accentColor: '#0ea5e9' }}
-              />
-              <div>
-                <span style={{ fontWeight: 500 }}>Enable booking requests</span>
-                <p style={{ color: '#64748b', fontSize: '0.75rem', margin: 0 }}>
-                  Allow customers to request appointments through the chatbot
-                </p>
-              </div>
-            </label>
-
-            {bookingEnabled && (
-              <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #e2e8f0' }}>
-                {/* Required Fields */}
-                <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.5rem', fontSize: '0.875rem' }}>
-                    Information to Collect
-                  </label>
-                  <p style={{ color: '#64748b', fontSize: '0.75rem', marginBottom: '0.75rem' }}>
-                    Select which information the chatbot should ask for when booking
-                  </p>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
-                    {availableBookingFields.map((field) => (
-                      <label
-                        key={field.id}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5rem',
-                          padding: '0.5rem 0.75rem',
-                          background: bookingFields.includes(field.id) ? '#e0f2fe' : '#fff',
-                          border: '1px solid',
-                          borderColor: bookingFields.includes(field.id) ? '#0ea5e9' : '#e2e8f0',
-                          borderRadius: '6px',
-                          cursor: field.required ? 'not-allowed' : 'pointer',
-                          opacity: field.required ? 0.7 : 1,
-                          fontSize: '0.875rem'
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={bookingFields.includes(field.id)}
-                          disabled={field.required}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setBookingFields([...bookingFields, field.id]);
-                            } else {
-                              setBookingFields(bookingFields.filter(f => f !== field.id));
-                            }
-                          }}
-                          style={{ accentColor: '#0ea5e9' }}
-                        />
-                        <span>{field.label}</span>
-                        {field.required && (
-                          <span style={{ fontSize: '0.625rem', color: '#64748b', marginLeft: 'auto' }}>Required</span>
-                        )}
-                      </label>
-                    ))}
+                    )}
+                    {badge && !showSuccess && (
+                      <span className={styles.sectionBadge}>{badge}</span>
+                    )}
+                    <ChevronIcon className={`${styles.chevron} ${isOpen ? styles.open : ''}`} />
                   </div>
                 </div>
-
-                {/* Custom Booking Prompt */}
-                <div className={styles.formGroup} style={{ marginTop: '1rem' }}>
-                  <label htmlFor="bookingPromptMessage">Booking Prompt Message</label>
-                  <textarea
-                    id="bookingPromptMessage"
-                    value={bookingPromptMessage}
-                    onChange={(e) => setBookingPromptMessage(e.target.value)}
-                    placeholder="e.g., To book an appointment, I'll need a few details from you..."
-                    rows={3}
-                    style={{ width: '100%', fontFamily: 'inherit', resize: 'vertical' }}
-                  />
-                  <small style={{ color: '#64748b' }}>
-                    The message the chatbot uses when asking for booking information. Leave empty to use default.
-                  </small>
+                <div className={`${styles.sectionContent} ${isOpen ? styles.open : ''}`}>
+                  {renderSectionContent(section.id)}
                 </div>
               </div>
-            )}
-          </div>
-
-          {/* Notification Settings */}
-          <div style={{ marginBottom: '1.5rem', padding: '1rem', background: '#f8fafc', borderRadius: '8px' }}>
-            <h3 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '1rem', color: '#334155' }}>Notifications</h3>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', marginBottom: '1rem' }}>
-              <input
-                type="checkbox"
-                checked={notifyOnBooking}
-                onChange={(e) => setNotifyOnBooking(e.target.checked)}
-                style={{ width: '18px', height: '18px', accentColor: '#0ea5e9' }}
-              />
-              <div>
-                <span style={{ fontWeight: 500 }}>Notify on new bookings</span>
-                <p style={{ color: '#64748b', fontSize: '0.75rem', margin: 0 }}>
-                  Send email/webhook when a customer submits a booking request
-                </p>
-              </div>
-            </label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
-              <div className={styles.formGroup}>
-                <label htmlFor="notificationEmail">Notification Email</label>
-                <input
-                  type="email"
-                  id="notificationEmail"
-                  value={notificationEmail}
-                  onChange={(e) => setNotificationEmail(e.target.value)}
-                  placeholder="bookings@yourcompany.com"
-                  style={{ width: '100%' }}
-                />
-                <small style={{ color: '#64748b' }}>Email to receive booking notifications</small>
-              </div>
-              <div className={styles.formGroup}>
-                <label htmlFor="notificationWebhook">Webhook URL (optional)</label>
-                <input
-                  type="url"
-                  id="notificationWebhook"
-                  value={notificationWebhook}
-                  onChange={(e) => setNotificationWebhook(e.target.value)}
-                  placeholder="https://your-crm.com/webhook"
-                  style={{ width: '100%' }}
-                />
-                <small style={{ color: '#64748b' }}>For CRM/calendar integrations</small>
-              </div>
-            </div>
-          </div>
-
-          <button type="submit" className={styles.primaryBtn} disabled={savingNotifications}>
-            {savingNotifications ? 'Saving...' : 'Save Communication & Notification Settings'}
-          </button>
-        </form>
-      </div>
-
-      {/* Knowledge Base - Editable Scraped Data */}
-      <div className={styles.card} style={{ marginTop: '2rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <div>
-            <h2 style={{ fontSize: '1.125rem', margin: 0 }}>Knowledge Base</h2>
-            <p style={{ color: '#64748b', fontSize: '0.75rem', marginTop: '0.25rem' }}>
-              This is the information the chatbot uses to answer questions. Edit any incorrect data.
-            </p>
-          </div>
-          {clinicDataSuccess && (
-            <span style={{ color: '#22c55e', fontSize: '0.875rem' }}>Saved!</span>
-          )}
+            );
+          })}
         </div>
-        <form onSubmit={handleSaveClinicData}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
-            <div className={styles.formGroup}>
-              <label htmlFor="editClinicName">Business Name</label>
-              <input
-                type="text"
-                id="editClinicName"
-                value={editClinicName}
-                onChange={(e) => setEditClinicName(e.target.value)}
-                placeholder="Business name"
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label htmlFor="editPhone">Phone</label>
-              <input
-                type="text"
-                id="editPhone"
-                value={editPhone}
-                onChange={(e) => setEditPhone(e.target.value)}
-                placeholder="Phone number"
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label htmlFor="editEmail">Email</label>
-              <input
-                type="text"
-                id="editEmail"
-                value={editEmail}
-                onChange={(e) => setEditEmail(e.target.value)}
-                placeholder="Email address"
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label htmlFor="editAddress">Address</label>
-              <input
-                type="text"
-                id="editAddress"
-                value={editAddress}
-                onChange={(e) => setEditAddress(e.target.value)}
-                placeholder="Business address"
-              />
-            </div>
-          </div>
-
-          <div className={styles.formGroup} style={{ marginTop: '1rem' }}>
-            <label htmlFor="editOpeningHours">Opening Hours</label>
-            <textarea
-              id="editOpeningHours"
-              value={editOpeningHours}
-              onChange={(e) => setEditOpeningHours(e.target.value)}
-              placeholder="Mon-Fri: 9:00-17:00&#10;Sat: 10:00-14:00&#10;Sun: Closed"
-              rows={3}
-              style={{ width: '100%', fontFamily: 'inherit', resize: 'vertical' }}
-            />
-          </div>
-
-          <div className={styles.formGroup} style={{ marginTop: '1rem' }}>
-            <label htmlFor="editServices">Services & Prices</label>
-            <textarea
-              id="editServices"
-              value={editServices}
-              onChange={(e) => setEditServices(e.target.value)}
-              placeholder="Service Name: Price&#10;Another Service: €50&#10;Third Service: Free consultation"
-              rows={10}
-              style={{ width: '100%', fontFamily: 'monospace', fontSize: '0.875rem', resize: 'vertical' }}
-            />
-            <small style={{ color: '#64748b' }}>
-              One service per line. Format: &quot;Service Name: Price&quot;
-            </small>
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
-            <span style={{ color: '#64748b', fontSize: '0.75rem' }}>
-              {(clinicData.source_pages || []).length} pages were scraped from {chatbot.sourceUrl}
-            </span>
-            <button type="submit" className={styles.primaryBtn} disabled={savingClinicData}>
-              {savingClinicData ? 'Saving...' : 'Save Knowledge Base'}
-            </button>
-          </div>
-        </form>
-      </div>
+      )}
 
       {/* Delete Modal */}
       {showDeleteModal && (
