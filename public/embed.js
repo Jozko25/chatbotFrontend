@@ -905,12 +905,22 @@
         throw new Error(error.error || 'Booking failed');
       }
 
-      // Show success message in chat
+      const result = await res.json();
+
+      // Show success message in chat with calendar link if available
       hideBookingForm();
       clearBookingForm();
-      messages.push({ 
-        role: 'assistant', 
-        content: 'Your booking request has been submitted successfully! We will contact you shortly to confirm.' 
+
+      let successMsg = 'Your booking request has been submitted successfully!';
+      if (result.calendarEvent && result.calendarEvent.eventLink) {
+        successMsg += ' A calendar invite has been created. We will contact you shortly to confirm.';
+      } else {
+        successMsg += ' We will contact you shortly to confirm.';
+      }
+
+      messages.push({
+        role: 'assistant',
+        content: successMsg
       });
       renderMessages();
 
@@ -1216,8 +1226,8 @@
             if (data.content) {
               assistantText += data.content;
             }
-            // Check if booking intent was detected - show the booking button
-            if (data.bookingIntent && bookingEnabled) {
+            // Check if the assistant called the booking tool - show the booking button
+            if (data.toolCall === 'show_booking_form' && bookingEnabled) {
               setTimeout(addBookingButton, 100);
             }
             // Check if booking was auto-submitted

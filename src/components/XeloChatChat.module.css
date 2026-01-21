@@ -364,6 +364,183 @@
   transform: scale(0.96);
 }
 
+/* Booking Button */
+.bookingButtonWrapper {
+  display: flex;
+  padding: 8px 0 4px;
+}
+
+.bookingButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.bookingButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+}
+
+.bookingButton svg {
+  flex-shrink: 0;
+}
+
+/* Booking Form Modal */
+.bookingOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 100;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.bookingForm {
+  background: white;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 360px;
+  max-height: calc(100% - 32px);
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.25s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bookingHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.bookingHeader h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.bookingClose {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.bookingClose:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.bookingFields {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.bookingField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bookingField label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.bookingField input,
+.bookingField textarea {
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1e293b;
+  background: #f8fafc;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+.bookingField input:focus,
+.bookingField textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.bookingField textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.bookingRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.bookingSubmit {
+  margin: 0 20px 20px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.bookingSubmit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+}
+
+.bookingSubmit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Responsive */
 @media (max-width: 480px) {
   .floating {

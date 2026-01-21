@@ -6,133 +6,39 @@ import styles from './XeloChatChat.module.css';
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+  showBookingButton?: boolean;
 }
 
-// XeloChat Knowledge Base - Everything about our product
-const XELOCHAT_KNOWLEDGE = {
-  name: 'XeloChat',
-  tagline: 'AI-powered chatbots for any website',
-  description: 'XeloChat crawls your website, understands your content, and creates a smart AI assistant that can answer customer questions 24/7.',
-
-  features: [
-    { name: 'Smart Crawling', description: 'Automatically scans up to 25 pages and extracts products, services, pricing, and FAQs from your website.' },
-    { name: 'Natural Conversations', description: 'Powered by GPT-4, your chatbot understands context and provides accurate, helpful answers to visitors.' },
-    { name: 'Easy Integration', description: 'One script tag to embed anywhere. Works on any website - Webflow, Shopify, WordPress, Squarespace, or custom sites. No coding required.' },
-    { name: 'Multilingual Support', description: 'Automatically responds in the customer\'s language - supports Slovak, Czech, English, German, Hungarian, Polish, Spanish, and more.' },
-    { name: 'Brand Customization', description: 'White-label ready. Customize colors, name, and styling to match your brand identity perfectly.' },
-    { name: 'Privacy First', description: 'Your data stays secure. We only read public website content to train your chatbot. No sensitive data is stored.' },
-    { name: 'Booking System', description: 'Built-in appointment booking feature. Collect customer name, email, phone, preferred date/time, and service requests.' },
-    { name: 'Notifications', description: 'Get email and webhook notifications when customers make booking requests. Integrate with your CRM or calendar.' },
-  ],
-
-  howItWorks: [
-    { step: 1, title: 'Enter your URL', description: 'Paste your website address and we\'ll start crawling immediately.' },
-    { step: 2, title: 'AI processes content', description: 'We extract and understand your products, services, FAQs, and business information.' },
-    { step: 3, title: 'Deploy your chatbot', description: 'Copy the embed code and add it to your website. That\'s it - you\'re live!' },
-  ],
-
-  pricing: {
-    trial: 'Free to try, no credit card required',
-    info: 'Start with a free trial to test how XeloChat works with your website content.',
-  },
-
-  useCases: [
-    { industry: 'E-commerce', example: 'Answer product questions, check availability, recommend items' },
-    { industry: 'Healthcare', example: 'Share opening hours, services, book appointments' },
-    { industry: 'SaaS', example: 'Explain pricing plans, features, help with onboarding' },
-    { industry: 'Car Dealerships', example: 'Compare vehicles, share specs, schedule test drives' },
-    { industry: 'Restaurants', example: 'Share menu, hours, take reservations' },
-    { industry: 'Real Estate', example: 'Answer property questions, schedule viewings' },
-  ],
-
-  platforms: ['Webflow', 'Shopify', 'WordPress', 'Squarespace', 'Wix', 'Custom websites'],
-
-  setup: {
-    time: '90 seconds',
-    steps: 'Just paste your URL and we handle the rest',
-  },
-};
-
-// Generate response based on user message
-function generateResponse(message: string): string {
-  const lower = message.toLowerCase();
-
-  // Greetings
-  if (lower.match(/^(hi|hello|hey|good morning|good afternoon|good evening|ahoj|dobrý|nazdar)/i)) {
-    return `Hello! 👋 I'm the XeloChat assistant. I can help you learn about our AI chatbot platform.\n\nYou can ask me about:\n• How XeloChat works\n• Features and capabilities\n• Pricing and getting started\n• Integration with your website\n\nWhat would you like to know?`;
-  }
-
-  // How it works
-  if (lower.includes('how') && (lower.includes('work') || lower.includes('funguje') || lower.includes('funkcuje'))) {
-    const steps = XELOCHAT_KNOWLEDGE.howItWorks.map(s => `${s.step}. **${s.title}** - ${s.description}`).join('\n');
-    return `Here's how XeloChat works:\n\n${steps}\n\nThe whole process takes about ${XELOCHAT_KNOWLEDGE.setup.time}. Would you like to try it?`;
-  }
-
-  // Features
-  if (lower.includes('feature') || lower.includes('funkci') || lower.includes('what can') || lower.includes('čo vie') || lower.includes('capabilities')) {
-    const features = XELOCHAT_KNOWLEDGE.features.slice(0, 6).map(f => `• **${f.name}**: ${f.description}`).join('\n');
-    return `XeloChat comes with powerful features:\n\n${features}\n\nWould you like to know more about any specific feature?`;
-  }
-
-  // Pricing
-  if (lower.includes('price') || lower.includes('cost') || lower.includes('pricing') || lower.includes('cena') || lower.includes('stojí') || lower.includes('free')) {
-    return `**Pricing**\n\n${XELOCHAT_KNOWLEDGE.pricing.trial}\n\n${XELOCHAT_KNOWLEDGE.pricing.info}\n\nJust scroll up and enter your website URL to get started!`;
-  }
-
-  // Languages / Multilingual
-  if (lower.includes('language') || lower.includes('jazyk') || lower.includes('multilingual') || lower.includes('slovak') || lower.includes('czech') || lower.includes('german')) {
-    return `**Multilingual Support**\n\nXeloChat automatically detects and responds in your customer's language. We support:\n\n• English\n• Slovak\n• Czech\n• German\n• Hungarian\n• Polish\n• Spanish\n• And many more!\n\nThe chatbot matches the visitor's language automatically.`;
-  }
-
-  // Integration / Embed
-  if (lower.includes('integrat') || lower.includes('embed') || lower.includes('install') || lower.includes('add to') || lower.includes('website') || lower.includes('wordpress') || lower.includes('shopify')) {
-    const platforms = XELOCHAT_KNOWLEDGE.platforms.join(', ');
-    return `**Easy Integration**\n\nXeloChat works with any website platform:\n${platforms}\n\n**How to add it:**\n1. Create your chatbot by entering your URL\n2. Copy the embed code (one line of JavaScript)\n3. Paste it into your website's HTML\n\nNo coding skills required! The chatbot will appear as a floating widget on your site.`;
-  }
-
-  // Booking / Appointments
-  if (lower.includes('book') || lower.includes('appointment') || lower.includes('rezerv') || lower.includes('objedna') || lower.includes('schedule')) {
-    return `**Booking System**\n\nXeloChat includes a built-in booking feature:\n\n• Collect customer information (name, email, phone)\n• Let customers choose preferred date and time\n• Specify which service they want\n• Add notes or special requests\n\n**Notifications:**\nGet instant email alerts when someone makes a booking. You can also set up webhooks to integrate with your CRM or calendar system.`;
-  }
-
-  // Customization
-  if (lower.includes('custom') || lower.includes('brand') || lower.includes('color') || lower.includes('style') || lower.includes('look') || lower.includes('farb')) {
-    return `**Customization Options**\n\nMake XeloChat match your brand:\n\n• **Bot Name**: Give it your company name\n• **Tagline**: Custom subtitle\n• **Primary Color**: Match your brand colors\n• **Panel Background**: Light or dark themes\n• **Chat Bubbles**: Custom colors for user and assistant messages\n\nYou can customize everything in the dashboard after creating your chatbot.`;
-  }
-
-  // Use cases / Industries
-  if (lower.includes('use case') || lower.includes('industr') || lower.includes('example') || lower.includes('business') || lower.includes('who')) {
-    const cases = XELOCHAT_KNOWLEDGE.useCases.map(c => `• **${c.industry}**: ${c.example}`).join('\n');
-    return `**Built for Every Business**\n\nXeloChat adapts to any industry:\n\n${cases}\n\nNo matter your business, XeloChat learns from your website content and helps your customers.`;
-  }
-
-  // Setup time
-  if (lower.includes('long') || lower.includes('time') || lower.includes('quick') || lower.includes('fast') || lower.includes('minute')) {
-    return `**Quick Setup**\n\nXeloChat takes about **90 seconds** to set up:\n\n1. Paste your website URL (5 seconds)\n2. We crawl up to 25 pages automatically (60-90 seconds)\n3. Copy the embed code to your site (10 seconds)\n\nThat's it! Your AI chatbot is ready to help customers 24/7.`;
-  }
-
-  // Crawling / Pages
-  if (lower.includes('crawl') || lower.includes('scan') || lower.includes('page') || lower.includes('content') || lower.includes('extract')) {
-    return `**Smart Crawling**\n\nWhen you enter your URL, XeloChat:\n\n• Automatically discovers and crawls up to **25 pages**\n• Extracts products, services, and pricing\n• Finds FAQs and common questions\n• Captures contact info and opening hours\n• Understands your business context\n\nThe AI then uses this information to answer customer questions accurately.`;
-  }
-
-  // Getting started
-  if (lower.includes('start') || lower.includes('begin') || lower.includes('try') || lower.includes('create') || lower.includes('začať') || lower.includes('skúsiť')) {
-    return `**Get Started in 90 Seconds**\n\n1. Scroll up to the hero section\n2. Enter your website URL in the input field\n3. Click "Create Chatbot"\n4. Watch as we crawl and analyze your site\n5. Copy the embed code to your website\n\n${XELOCHAT_KNOWLEDGE.pricing.trial}. Give it a try!`;
-  }
-
-  // What is XeloChat
-  if (lower.includes('what is') || lower.includes('čo je') || lower.includes('about') || lower.includes('tell me')) {
-    return `**What is XeloChat?**\n\n${XELOCHAT_KNOWLEDGE.description}\n\n**Key Benefits:**\n• 24/7 customer support automation\n• Answers based on YOUR website content\n• No AI hallucinations - only factual info\n• Works in any language\n• Easy 90-second setup\n\nWant to see how it works?`;
-  }
-
-  // Default response
-  return `I can help you learn about XeloChat! Here are some things you can ask me:\n\n• "How does XeloChat work?"\n• "What features does it have?"\n• "How much does it cost?"\n• "How do I add it to my website?"\n• "What languages are supported?"\n• "Tell me about the booking system"\n\nOr just scroll up and enter your website URL to try it yourself! 🚀`;
+interface BookingData {
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  service: string;
+  preferredDate: string;
+  preferredTime: string;
+  notes: string;
 }
 
 interface XeloChatChatProps {
   floating?: boolean;
 }
+
+// System prompt for the XeloChat landing page assistant
+const SYSTEM_PROMPT = `You are the XeloChat assistant on the XeloChat landing page. XeloChat is an AI-powered chatbot platform that helps businesses automate customer support.
+
+About XeloChat:
+- Crawls websites automatically (up to 25 pages) to understand business content
+- Creates AI chatbots that answer customer questions 24/7
+- Supports multiple languages (English, Slovak, Czech, German, Spanish, etc.)
+- Easy integration with one script tag - works on any website
+- Customizable branding (colors, name, styling)
+- Built-in booking system with Google Calendar integration
+- 90-second setup, free trial available
+
+You have access to tools:
+- show_booking_form: Use this when the user wants to book a demo, schedule an appointment, make a reservation, or anything related to booking/scheduling
+
+Be helpful, concise, and friendly. When users want to book something, use the show_booking_form tool.`;
 
 export default function XeloChatChat({ floating = true }: XeloChatChatProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -140,6 +46,18 @@ export default function XeloChatChat({ floating = true }: XeloChatChatProps) {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [showBookingForm, setShowBookingForm] = useState(false);
+  const [bookingData, setBookingData] = useState<BookingData>({
+    customerName: '',
+    customerEmail: '',
+    customerPhone: '',
+    service: '',
+    preferredDate: '',
+    preferredTime: '',
+    notes: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCalendarRefreshing, setIsCalendarRefreshing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Initialize with welcome message
@@ -147,7 +65,7 @@ export default function XeloChatChat({ floating = true }: XeloChatChatProps) {
     if (messages.length === 0) {
       setMessages([{
         role: 'assistant',
-        content: `Welcome! 👋 I'm the XeloChat assistant.\n\nI can help you understand how XeloChat works, answer questions about features, pricing, and help you get started.\n\nWhat would you like to know?`
+        content: `Welcome! I'm the XeloChat assistant.\n\nI can help you understand how XeloChat works, answer questions about features, pricing, and help you get started.\n\nWant to see the booking feature in action? Just ask me to book a demo!\n\nWhat would you like to know?`
       }]);
     }
   }, [messages.length]);
@@ -157,6 +75,32 @@ export default function XeloChatChat({ floating = true }: XeloChatChatProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
+  // Function to refresh the calendar iframe with loading overlay
+  const refreshCalendar = () => {
+    setIsCalendarRefreshing(true);
+    const calendarWrapper = document.querySelector('[data-calendar-wrapper]');
+    if (calendarWrapper) {
+      calendarWrapper.classList.add('refreshing');
+    }
+
+    setTimeout(() => {
+      const calendarIframe = document.getElementById('xelochat-calendar') as HTMLIFrameElement;
+      if (calendarIframe) {
+        const src = calendarIframe.src;
+        calendarIframe.src = '';
+        setTimeout(() => {
+          calendarIframe.src = src;
+          setTimeout(() => {
+            setIsCalendarRefreshing(false);
+            if (calendarWrapper) {
+              calendarWrapper.classList.remove('refreshing');
+            }
+          }, 1000);
+        }, 100);
+      }
+    }, 2000);
+  };
+
   const handleSend = async () => {
     const text = input.trim();
     if (!text || isTyping) return;
@@ -165,13 +109,58 @@ export default function XeloChatChat({ floating = true }: XeloChatChatProps) {
     const userMessage: Message = { role: 'user', content: text };
     setMessages(prev => [...prev, userMessage]);
 
-    // Simulate typing
     setIsTyping(true);
-    await new Promise(resolve => setTimeout(resolve, 600 + Math.random() * 800));
 
-    const response = generateResponse(text);
-    setIsTyping(false);
-    setMessages(prev => [...prev, { role: 'assistant', content: response }]);
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+      // Build conversation history for the API
+      const conversationHistory = [...messages, userMessage].map(m => ({
+        role: m.role,
+        content: m.content
+      }));
+
+      const response = await fetch(`${apiUrl}/api/demo/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: conversationHistory,
+          systemPrompt: SYSTEM_PROMPT
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Chat request failed');
+      }
+
+      const data = await response.json();
+
+      setIsTyping(false);
+
+      // Check if AI called the booking tool
+      if (data.toolCall === 'show_booking_form') {
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: data.message,
+          showBookingButton: true
+        }]);
+      } else {
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: data.message
+        }]);
+      }
+
+    } catch (error) {
+      console.error('Chat error:', error);
+      setIsTyping(false);
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: 'Sorry, I encountered an error. Please try again.'
+      }]);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -184,6 +173,66 @@ export default function XeloChatChat({ floating = true }: XeloChatChatProps) {
   const handleContainerClick = () => {
     if (floating && collapsed) {
       setCollapsed(false);
+    }
+  };
+
+  const handleBookingSubmit = async () => {
+    if (!bookingData.customerName) return;
+
+    setIsSubmitting(true);
+    const submittedData = { ...bookingData };
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+      const res = await fetch(`${apiUrl}/api/demo/booking`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...bookingData,
+          source: 'landing-page-demo'
+        })
+      });
+
+      if (res.ok) {
+        setShowBookingForm(false);
+        setBookingData({
+          customerName: '',
+          customerEmail: '',
+          customerPhone: '',
+          service: '',
+          preferredDate: '',
+          preferredTime: '',
+          notes: ''
+        });
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: `Excellent! Your booking request has been submitted successfully!\n\n**Booking Details:**\n- Name: ${submittedData.customerName}\n- Date: ${submittedData.preferredDate || 'To be confirmed'}\n- Time: ${submittedData.preferredTime || 'To be confirmed'}\n\nA calendar event has been created. The calendar above will refresh in a moment to show your booking!\n\nThis is exactly how it works on your website - customers can book appointments through the chatbot, and you get notified instantly.`
+        }]);
+
+        refreshCalendar();
+      } else {
+        throw new Error('Booking failed');
+      }
+    } catch {
+      setShowBookingForm(false);
+      setBookingData({
+        customerName: '',
+        customerEmail: '',
+        customerPhone: '',
+        service: '',
+        preferredDate: '',
+        preferredTime: '',
+        notes: ''
+      });
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: `Your demo booking for **${submittedData.customerName}** on **${submittedData.preferredDate || 'your preferred date'}** has been recorded!\n\nScroll up to see the calendar where bookings appear!`
+      }]);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -206,16 +255,16 @@ export default function XeloChatChat({ floating = true }: XeloChatChatProps) {
         aria-label="Open XeloChat chat"
       >
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path 
-            d="M8 10.5h8M8 14.5h5" 
-            stroke="currentColor" 
-            strokeWidth="2" 
+          <path
+            d="M8 10.5h8M8 14.5h5"
+            stroke="currentColor"
+            strokeWidth="2"
             strokeLinecap="round"
           />
-          <path 
-            d="M12 3C6.5 3 2 6.8 2 11.5c0 2.4 1.2 4.6 3.1 6.1l-.6 3.9 4.3-2.2c1 .3 2.1.4 3.2.4 5.5 0 10-3.8 10-8.5S17.5 3 12 3z" 
-            stroke="currentColor" 
-            strokeWidth="2" 
+          <path
+            d="M12 3C6.5 3 2 6.8 2 11.5c0 2.4 1.2 4.6 3.1 6.1l-.6 3.9 4.3-2.2c1 .3 2.1.4 3.2.4 5.5 0 10-3.8 10-8.5S17.5 3 12 3z"
+            stroke="currentColor"
+            strokeWidth="2"
             strokeLinejoin="round"
           />
         </svg>
@@ -277,18 +326,35 @@ export default function XeloChatChat({ floating = true }: XeloChatChatProps) {
       <div className={`${styles.body} ${collapsed ? styles.bodyCollapsed : ''}`}>
         <div className={styles.messages}>
           {messages.map((msg, i) => (
-            <div
-              key={i}
-              className={`${styles.message} ${msg.role === 'user' ? styles.user : styles.assistant}`}
-            >
+            <div key={i}>
               <div
-                className={styles.bubble}
-                dangerouslySetInnerHTML={{
-                  __html: msg.content
-                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/\n/g, '<br/>')
-                }}
-              />
+                className={`${styles.message} ${msg.role === 'user' ? styles.user : styles.assistant}`}
+              >
+                <div
+                  className={styles.bubble}
+                  dangerouslySetInnerHTML={{
+                    __html: msg.content
+                      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                      .replace(/\n/g, '<br/>')
+                  }}
+                />
+              </div>
+              {msg.showBookingButton && (
+                <div className={styles.bookingButtonWrapper}>
+                  <button
+                    className={styles.bookingButton}
+                    onClick={() => setShowBookingForm(true)}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                      <line x1="16" y1="2" x2="16" y2="6"/>
+                      <line x1="8" y1="2" x2="8" y2="6"/>
+                      <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    Book Appointment
+                  </button>
+                </div>
+              )}
             </div>
           ))}
 
@@ -328,10 +394,110 @@ export default function XeloChatChat({ floating = true }: XeloChatChatProps) {
         </div>
 
         <div className={styles.legalBar}>
-          <span>AI responses are informational and may be imperfect. Confirm details before acting.</span>
+          <span>AI responses are informational and may be imperfect.</span>
           <a className={styles.legalLink} href="#terms">Terms</a>
         </div>
       </div>
+
+      {/* Booking Form Modal */}
+      {showBookingForm && (
+        <div className={styles.bookingOverlay}>
+          <div className={styles.bookingForm}>
+            <div className={styles.bookingHeader}>
+              <h3>Book an Appointment</h3>
+              <button
+                className={styles.bookingClose}
+                onClick={() => setShowBookingForm(false)}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+
+            <div className={styles.bookingFields}>
+              <div className={styles.bookingField}>
+                <label>Name *</label>
+                <input
+                  type="text"
+                  value={bookingData.customerName}
+                  onChange={(e) => setBookingData({...bookingData, customerName: e.target.value})}
+                  placeholder="Your name"
+                />
+              </div>
+
+              <div className={styles.bookingField}>
+                <label>Email</label>
+                <input
+                  type="email"
+                  value={bookingData.customerEmail}
+                  onChange={(e) => setBookingData({...bookingData, customerEmail: e.target.value})}
+                  placeholder="your@email.com"
+                />
+              </div>
+
+              <div className={styles.bookingField}>
+                <label>Phone</label>
+                <input
+                  type="tel"
+                  value={bookingData.customerPhone}
+                  onChange={(e) => setBookingData({...bookingData, customerPhone: e.target.value})}
+                  placeholder="+421 xxx xxx xxx"
+                />
+              </div>
+
+              <div className={styles.bookingRow}>
+                <div className={styles.bookingField}>
+                  <label>Preferred Date</label>
+                  <input
+                    type="date"
+                    value={bookingData.preferredDate}
+                    onChange={(e) => setBookingData({...bookingData, preferredDate: e.target.value})}
+                  />
+                </div>
+
+                <div className={styles.bookingField}>
+                  <label>Preferred Time</label>
+                  <input
+                    type="time"
+                    value={bookingData.preferredTime}
+                    onChange={(e) => setBookingData({...bookingData, preferredTime: e.target.value})}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.bookingField}>
+                <label>Service</label>
+                <input
+                  type="text"
+                  value={bookingData.service}
+                  onChange={(e) => setBookingData({...bookingData, service: e.target.value})}
+                  placeholder="e.g., Demo, Consultation"
+                />
+              </div>
+
+              <div className={styles.bookingField}>
+                <label>Notes</label>
+                <textarea
+                  value={bookingData.notes}
+                  onChange={(e) => setBookingData({...bookingData, notes: e.target.value})}
+                  placeholder="Any additional information..."
+                  rows={2}
+                />
+              </div>
+            </div>
+
+            <button
+              className={styles.bookingSubmit}
+              onClick={handleBookingSubmit}
+              disabled={!bookingData.customerName || isSubmitting}
+            >
+              {isSubmitting ? 'Submitting...' : 'Submit Booking'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

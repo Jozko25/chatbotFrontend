@@ -201,6 +201,32 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Live Bookings Calendar Demo */}
+        <section className={styles.calendarSection}>
+          <div className={styles.badge}>Live Demo</div>
+          <h2 className={styles.sectionTitle}>AI-Powered Booking System</h2>
+          <p className={styles.sectionSub}>
+            Try the chatbot widget in the bottom-right corner. Ask to book an appointment and watch
+            the AI create a calendar event in real-time. Google Calendar integration is live —
+            more integrations like Calendly, Cal.com, and CRM webhooks are coming soon.
+          </p>
+          <div className={styles.calendarWrapper} data-calendar-wrapper>
+            <div className={styles.calendarLoader}>
+              <div className={styles.spinner} />
+              <span>Refreshing calendar...</span>
+            </div>
+            <iframe
+              id="xelochat-calendar"
+              src="https://calendar.google.com/calendar/embed?src=18f28ab12e61762fbccb2124e396d399078f9bd1bcc80b635852d932b7b1a12b%40group.calendar.google.com&ctz=Europe%2FPrague&mode=WEEK&showTitle=0&showNav=1&showPrint=0&showTabs=0&showCalendars=0"
+              style={{ border: 0 }}
+              width="100%"
+              height="500"
+              frameBorder="0"
+              scrolling="no"
+            />
+          </div>
+        </section>
+
         {/* Features */}
         <section id="features" className={styles.features}>
           <h2 className={styles.sectionTitle}>Everything you need</h2>

@@ -659,6 +659,68 @@
   height: 26px;
 }
 
+/* Calendar Section */
+.calendarSection {
+  padding: 80px 0;
+  text-align: center;
+}
+
+.calendarWrapper {
+  margin-top: 40px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--background));
+  box-shadow: 0 8px 32px hsl(var(--blue-500) / 0.08);
+  position: relative;
+}
+
+.calendarWrapper iframe {
+  display: block;
+}
+
+.calendarLoader {
+  position: absolute;
+  inset: 0;
+  background: hsl(var(--blue-50) / 0.95);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 10;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.calendarWrapper:global(.refreshing) .calendarLoader {
+  opacity: 1;
+  visibility: visible;
+}
+
+.calendarLoader span {
+  font-size: 14px;
+  font-weight: 500;
+  color: hsl(var(--blue-600));
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid hsl(var(--blue-100));
+  border-top-color: hsl(var(--blue-600));
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Hidden elements - customizer moved to dashboard */
 .customizer,
 .customizerHeader,
