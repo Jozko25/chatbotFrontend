@@ -5,9 +5,6 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'XeloChat - AI Chatbots for Any Website',
   description: 'Turn any website into a deployable, bottom-right chatbot widget.',
-  icons: {
-    icon: '/favicon.ico',
-  },
 };
 
 export default function RootLayout({
