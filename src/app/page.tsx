@@ -29,6 +29,7 @@ export default function Home() {
   const [isHydrated, setIsHydrated] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [embedCode, setEmbedCode] = useState('');
+  const [chatMode, setChatMode] = useState<'assistant' | 'demo'>('assistant'); // Toggle between SiteBot assistant and demo chatbot
   const [showCustomizerModal, setShowCustomizerModal] = useState(false);
   const [draftTheme, setDraftTheme] = useState<ChatTheme | null>(null);
 
@@ -465,33 +466,46 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Chat widget - Show demo chatbot if clinicData exists, otherwise show SiteBot Assistant */}
-      {clinicData ? (
-        <>
-          {!showChat && (
-            <button className={styles.fab} onClick={() => setShowChat(true)} aria-label="Open chatbot">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M7 11h6M7 15h4" strokeLinecap="round" />
-                <path d="M5 20v-3H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3.5" />
-                <path d="M17 15.5V22l3.5-2H22a2 2 0 0 0 2-2v-4.5a2 2 0 0 0-2-2h-3a2 2 0 0 0-2 2Z" />
-              </svg>
-            </button>
-          )}
-          {showChat && (
-            <ChatInterface
-              clinicData={clinicData}
-              theme={theme}
-              messages={messages}
-              onMessagesUpdate={handleMessagesUpdate}
-              onReset={handleReset}
-              floating
-              showMeta={false}
-              onClose={() => setShowChat(false)}
-            />
-          )}
-        </>
+      {/* Chat widget - Always show SiteBot Assistant by default, with toggle to demo chatbot if available */}
+      {chatMode === 'assistant' ? (
+        <SiteBotAssistant
+          mode="landing"
+          hasDemoChatbot={!!clinicData}
+          onSwitchToDemo={() => {
+            setChatMode('demo');
+            setShowChat(true);
+          }}
+        />
       ) : (
-        <SiteBotAssistant mode="landing" />
+        clinicData && (
+          <>
+            {!showChat && (
+              <button className={styles.fab} onClick={() => setShowChat(true)} aria-label="Open chatbot">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M7 11h6M7 15h4" strokeLinecap="round" />
+                  <path d="M5 20v-3H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3.5" />
+                  <path d="M17 15.5V22l3.5-2H22a2 2 0 0 0 2-2v-4.5a2 2 0 0 0-2-2h-3a2 2 0 0 0-2 2Z" />
+                </svg>
+              </button>
+            )}
+            {showChat && (
+              <ChatInterface
+                clinicData={clinicData}
+                theme={theme}
+                messages={messages}
+                onMessagesUpdate={handleMessagesUpdate}
+                onReset={handleReset}
+                floating
+                showMeta={false}
+                onClose={() => setShowChat(false)}
+                onSwitchToAssistant={() => {
+                  setChatMode('assistant');
+                  setShowChat(false);
+                }}
+              />
+            )}
+          </>
+        )
       )}
 
       {/* Customizer modal */}

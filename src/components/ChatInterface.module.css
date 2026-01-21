@@ -114,6 +114,26 @@
   flex-shrink: 0;
 }
 
+.switchButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--blue-50));
+  color: hsl(var(--blue-700));
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.switchButton:hover {
+  background: hsl(var(--blue-100));
+  border-color: hsl(var(--blue-200));
+}
+
 .actionButton {
   width: 32px;
   height: 32px;

@@ -13,7 +13,7 @@
 
 /* Hero */
 .hero {
-  padding: 140px 0 90px;
+  padding: 100px 0 70px;
   text-align: center;
   position: relative;
 }
@@ -232,104 +232,195 @@
 
 /* How it works */
 .howSection {
-  padding: 90px 0;
-  background: linear-gradient(120deg, hsl(var(--blue-50)), white);
+  padding: 80px 0;
+  background: linear-gradient(180deg, hsl(var(--blue-50) / 0.5) 0%, white 100%);
   margin: 0 -24px;
   padding-left: 24px;
   padding-right: 24px;
-  border-top: 1px solid hsl(var(--border) / 0.6);
+  position: relative;
+  overflow: hidden;
+}
+
+.howSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsl(var(--blue-200)), transparent);
 }
 
 .steps {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 32px;
-  max-width: 900px;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0;
+  max-width: 1000px;
   margin: 0 auto;
   position: relative;
 }
 
 .step {
+  flex: 1;
   text-align: center;
-  padding: 24px 18px;
+  padding: 32px 28px;
   background: white;
-  border-radius: 14px;
+  position: relative;
   border: 1px solid hsl(var(--border));
-  box-shadow: 0 18px 40px hsl(var(--blue-900) / 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.step:first-child {
+  border-radius: 16px 0 0 16px;
+  border-right: none;
+}
+
+.step:last-child {
+  border-radius: 0 16px 16px 0;
+  border-left: none;
+}
+
+.step:nth-child(3) {
+  border-radius: 0;
+}
+
+.step:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px hsl(var(--blue-900) / 0.1);
+  z-index: 1;
 }
 
 .stepNum {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: hsl(var(--blue-600));
+  background: linear-gradient(135deg, hsl(var(--blue-500)), hsl(var(--blue-700)));
   color: white;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 16px;
-  box-shadow: var(--shadow-blue);
+  border-radius: 50%;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 24px hsl(var(--blue-600) / 0.3);
 }
 
 .step h3 {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 600;
   color: hsl(var(--foreground));
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .step p {
   font-size: 14px;
   color: hsl(var(--muted-foreground));
-  line-height: 1.5;
+  line-height: 1.6;
   margin: 0;
+  max-width: 220px;
+  margin: 0 auto;
 }
 
 .stepLine {
-  display: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  flex-shrink: 0;
+  background: white;
+  border-top: 1px solid hsl(var(--border));
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.stepLine::after {
+  content: '';
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, hsl(var(--blue-300)), hsl(var(--blue-500)));
+  border-radius: 1px;
 }
 
 /* Use cases */
 .useCases {
-  padding: 90px 0;
-  border-top: 1px solid hsl(var(--border) / 0.6);
+  padding: 80px 0;
+  position: relative;
+}
+
+.useCases::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsl(var(--border)), transparent);
 }
 
 .caseGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: 20px;
 }
 
 .caseCard {
-  padding: 26px 20px;
+  padding: 28px 24px;
   border: 1px solid hsl(var(--border));
-  border-radius: 14px;
-  text-align: center;
+  border-radius: 16px;
+  text-align: left;
   background: white;
-  box-shadow: 0 18px 38px hsl(var(--blue-900) / 0.06);
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.caseCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, hsl(var(--blue-400)), hsl(var(--blue-600)));
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.caseCard:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 50px hsl(var(--blue-900) / 0.12);
+  border-color: hsl(var(--blue-200));
+}
+
+.caseCard:hover::before {
+  opacity: 1;
 }
 
 .caseIcon {
-  font-size: 30px;
-  margin-bottom: 14px;
-  display: block;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 16px;
+  background: hsl(var(--blue-50));
+  border-radius: 12px;
 }
 
 .caseCard h4 {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   color: hsl(var(--foreground));
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .caseCard p {
   font-size: 13px;
   color: hsl(var(--muted-foreground));
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.5;
+  font-style: italic;
 }
 
 /* CTA */
@@ -577,8 +668,27 @@
   }
 
   .steps {
-    grid-template-columns: 1fr;
-    gap: 24px;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .step {
+    border-radius: 0 !important;
+    border: 1px solid hsl(var(--border)) !important;
+    border-bottom: none !important;
+  }
+
+  .step:first-child {
+    border-radius: 16px 16px 0 0 !important;
+  }
+
+  .step:last-child {
+    border-radius: 0 0 16px 16px !important;
+    border-bottom: 1px solid hsl(var(--border)) !important;
+  }
+
+  .stepLine {
+    display: none;
   }
 }
 
@@ -635,12 +745,20 @@
 
   .howSection {
     margin: 0 -16px;
-    padding: 60px 16px;
+    padding: 50px 16px;
   }
 
   .features,
   .useCases {
-    padding: 60px 0;
+    padding: 50px 0;
+  }
+
+  .caseCard {
+    text-align: center;
+  }
+
+  .caseIcon {
+    margin: 0 auto 16px;
   }
 
   .footerContent {
