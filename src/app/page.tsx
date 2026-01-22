@@ -52,7 +52,9 @@ export default function Home() {
       setClinicData(saved.clinicData);
       setMessages(saved.messages);
       setTheme(saved.theme || createDefaultTheme(saved.clinicData?.clinic_name));
-      setActiveWidget(saved.clinicData ? 'demo' : 'xelochat');
+      if (saved.clinicData) {
+        setShowDemoToast(true);
+      }
     }
     setIsHydrated(true);
   }, []);
