@@ -225,36 +225,37 @@ const styles = `
 
 .sb-message {
   display: flex;
-  max-width: 85%;
+  width: 100%;
 }
 
 .sb-message.user {
-  align-self: flex-end;
+  justify-content: flex-end;
 }
 
 .sb-message.assistant {
-  align-self: flex-start;
+  justify-content: flex-start;
 }
 
 .sb-bubble {
   padding: 12px 16px;
-  border-radius: 16px;
+  border-radius: 20px;
   font-size: 14px;
   line-height: 1.5;
+  max-width: 85%;
   word-break: break-word;
 }
 
 .sb-message.user .sb-bubble {
   background: var(--sb-user-bg);
   color: var(--sb-user-text);
-  border-bottom-right-radius: 4px;
+  border-bottom-right-radius: 12px;
 }
 
 .sb-message.assistant .sb-bubble {
   background: var(--sb-assistant-bg);
   color: var(--sb-text);
   border: 1px solid var(--sb-border);
-  border-bottom-left-radius: 4px;
+  border-bottom-left-radius: 12px;
 }
 
 .sb-bubble strong {
