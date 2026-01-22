@@ -125,8 +125,7 @@
         transform 0.2s ease,
         box-shadow 0.2s ease,
         background 0.2s ease;
-      animation: fabEnter 0.35s ease-out forwards,
-                 fabPulse 3s ease-in-out 0.35s infinite;
+      animation: fabEnter 0.35s ease-out forwards;
     }
 
     @keyframes fabEnter {
@@ -140,15 +139,6 @@
       }
     }
 
-    @keyframes fabPulse {
-      0%, 100% { 
-        box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
-      }
-      50% { 
-        box-shadow: 0 4px 18px rgba(59, 130, 246, 0.5);
-      }
-    }
-    
     .fab.hidden {
       opacity: 0;
       transform: scale(0.8);
@@ -161,8 +151,7 @@
       box-shadow: 
         0 6px 20px rgba(59, 130, 246, 0.5),
         0 0 0 4px rgba(59, 130, 246, 0.15);
-      transform: scale(1.08);
-      animation: none;
+      transform: translateY(-1px);
     }
 
     .fab:active {
