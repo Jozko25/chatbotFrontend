@@ -21,6 +21,9 @@ interface BookingData {
 
 interface XeloChatChatProps {
   floating?: boolean;
+  onSwitchToDemo?: () => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 // System prompt for the XeloChat landing page assistant
@@ -40,8 +43,13 @@ You have access to tools:
 
 Be helpful, concise, and friendly. When users want to book something, use the show_booking_form tool.`;
 
-export default function XeloChatChat({ floating = true }: XeloChatChatProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export default function XeloChatChat({
+  floating = true,
+  onSwitchToDemo,
+  open,
+  onOpenChange,
+}: XeloChatChatProps) {
+  const [isOpen, setIsOpen] = useState(open ?? false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -59,6 +67,17 @@ export default function XeloChatChat({ floating = true }: XeloChatChatProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCalendarRefreshing, setIsCalendarRefreshing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (open !== undefined) {
+      setIsOpen(open);
+    }
+  }, [open]);
+
+  const setOpen = (next: boolean) => {
+    setIsOpen(next);
+    onOpenChange?.(next);
+  };
 
   // Initialize with welcome message
   useEffect(() => {
@@ -251,7 +270,7 @@ export default function XeloChatChat({ floating = true }: XeloChatChatProps) {
     return (
       <button
         className={styles.fab}
-        onClick={() => setIsOpen(true)}
+        onClick={() => setOpen(true)}
         aria-label="Open XeloChat chat"
       >
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -291,6 +310,24 @@ export default function XeloChatChat({ floating = true }: XeloChatChatProps) {
         <div className={styles.headerActions}>
           {floating && (
             <>
+              {onSwitchToDemo && (
+                <button
+                  className={styles.actionButton}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSwitchToDemo();
+                  }}
+                  aria-label="Switch to your chatbot"
+                  title="Switch to your chatbot"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M7 23l-4-4 4-4"/>
+                    <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+                    <path d="M17 1l4 4-4 4"/>
+                    <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+                  </svg>
+                </button>
+              )}
               <button
                 className={styles.actionButton}
                 onClick={(e) => {
@@ -308,7 +345,7 @@ export default function XeloChatChat({ floating = true }: XeloChatChatProps) {
                 className={styles.actionButton}
                 onClick={(e) => {
                   e.stopPropagation();
-                  setIsOpen(false);
+                  setOpen(false);
                 }}
                 aria-label="Close chat"
                 title="Close"
@@ -395,7 +432,9 @@ export default function XeloChatChat({ floating = true }: XeloChatChatProps) {
 
         <div className={styles.legalBar}>
           <span>AI responses are informational and may be imperfect.</span>
-          <a className={styles.legalLink} href="#terms">Terms</a>
+          <a className={styles.legalLink} href="/terms">Terms</a>
+          <span className={styles.legalSeparator}>•</span>
+          <a className={styles.legalLink} href="/privacy">Privacy</a>
         </div>
       </div>
 

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, CSSProperties } from 'react';
 import { ChatTheme, ClinicData, Message } from '@/types/clinic';
-import { sendChatMessageStreamLegacy } from '@/lib/api';
+import { sendChatMessageStreamLegacy, sendDemoChatMessageStream } from '@/lib/api';
 import styles from './ChatInterface.module.css';
 
 interface ChatInterfaceProps {
@@ -16,6 +16,8 @@ interface ChatInterfaceProps {
   showMeta?: boolean;
   onClose?: () => void;
   onSwitchToAssistant?: () => void;
+  mode?: 'demo' | 'authenticated';
+  onUseWidget?: () => void;
 }
 
 export default function ChatInterface({
@@ -29,12 +31,15 @@ export default function ChatInterface({
   showMeta = true,
   onClose,
   onSwitchToAssistant,
+  mode = 'authenticated',
+  onUseWidget,
 }: ChatInterfaceProps) {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showAllPages, setShowAllPages] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const showUseBadge = mode === 'demo' && onUseWidget;
   const containerClass = `${styles.container} ${embedded ? styles.embedded : ''} ${floating ? styles.floating : ''} ${collapsed ? styles.collapsed : ''}`;
   const themeVars: CSSProperties = {
     ['--chat-primary' as any]: theme.primaryColor,
@@ -68,7 +73,9 @@ export default function ChatInterface({
 
     let accumulated = '';
 
-    await sendChatMessageStreamLegacy(
+    const sendStream = mode === 'demo' ? sendDemoChatMessageStream : sendChatMessageStreamLegacy;
+
+    await sendStream(
       clinicData,
       messages,
       message,
@@ -103,8 +110,13 @@ export default function ChatInterface({
 
   return (
     <div className={containerClass} onClick={handleContainerClick} style={themeVars}>
-      <header className={styles.header}>
+      <header className={`${styles.header} ${showUseBadge ? styles.headerWithBadge : ''}`}>
         <div className={styles.headerInfo}>
+          <div className={styles.headerAvatar}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </div>
           <div>
             <h1>{theme.name || clinicData.clinic_name || 'Assistant'}</h1>
             <p className={styles.headerSub}>{theme.tagline || 'AI-powered assistant'}</p>
@@ -115,17 +127,17 @@ export default function ChatInterface({
             <>
               {onSwitchToAssistant && (
                 <button
-                  className={styles.switchButton}
+                  className={styles.actionButton}
                   onClick={onSwitchToAssistant}
+                  aria-label="Switch to XeloChat Assistant"
                   title="Switch to XeloChat Assistant"
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M7 23l-4-4 4-4"/>
                     <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
                     <path d="M17 1l4 4-4 4"/>
                     <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
                   </svg>
-                  Help
                 </button>
               )}
               <button
@@ -161,6 +173,16 @@ export default function ChatInterface({
             </>
           )}
         </div>
+        {showUseBadge && (
+          <div className={styles.headerBadge}>
+            <button
+              className={styles.headerCta}
+              onClick={onUseWidget}
+            >
+              Use on my website
+            </button>
+          </div>
+        )}
       </header>
 
       <div className={`${styles.body} ${collapsed ? styles.bodyCollapsed : ''}`}>
@@ -255,7 +277,9 @@ export default function ChatInterface({
           <span>
             AI responses are informational and may be imperfect. Confirm details before acting.
           </span>
-          <a className={styles.legalLink} href="#terms">Terms</a>
+          <a className={styles.legalLink} href="/terms">Terms</a>
+          <span className={styles.legalSeparator}>•</span>
+          <a className={styles.legalLink} href="/privacy">Privacy</a>
         </div>
       </div>
     </div>

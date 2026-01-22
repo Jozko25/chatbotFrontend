@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { getChatbots, scrapeClinicStream, ChatbotSummary, ScrapeProgressEvent } from '@/lib/api';
+import { getChatbots, scrapeClinicStream, importDemoChatbot, ChatbotSummary, ScrapeProgressEvent } from '@/lib/api';
+import { loadSession, clearSession } from '@/lib/storage';
+import { ChatState } from '@/types/clinic';
 import styles from '../dashboard.module.css';
 
 interface ScrapedPage {
@@ -20,6 +22,10 @@ export default function ChatbotsPage() {
   const [createUrl, setCreateUrl] = useState('');
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+  const [demoImport, setDemoImport] = useState<ChatState | null>(null);
+  const [demoImportPending, setDemoImportPending] = useState(false);
+  const [demoImporting, setDemoImporting] = useState(false);
+  const [demoImportError, setDemoImportError] = useState<string | null>(null);
 
   // Scraping progress state
   const [scrapeProgress, setScrapeProgress] = useState<{
@@ -36,6 +42,17 @@ export default function ChatbotsPage() {
     loadChatbots();
   }, []);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const pending = localStorage.getItem('xelochat-demo-import-pending');
+    if (!pending) return;
+    const saved = loadSession();
+    if (saved?.clinicData) {
+      setDemoImport(saved);
+      setDemoImportPending(true);
+    }
+  }, []);
+
   async function loadChatbots() {
     try {
       const data = await getChatbots();
@@ -45,6 +62,33 @@ export default function ChatbotsPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleImportDemo() {
+    if (!demoImport?.clinicData) return;
+    setDemoImporting(true);
+    setDemoImportError(null);
+
+    try {
+      const sourceUrl =
+        demoImport.clinicData.sourceUrl ||
+        demoImport.clinicData.source_pages?.[0] ||
+        undefined;
+      const result = await importDemoChatbot(demoImport.clinicData, demoImport.theme, sourceUrl);
+      localStorage.removeItem('xelochat-demo-import-pending');
+      clearSession();
+      setDemoImportPending(false);
+      window.location.href = `/dashboard/chatbots/${result.chatbotId}`;
+    } catch (err) {
+      setDemoImportError(err instanceof Error ? err.message : 'Failed to import demo chatbot');
+    } finally {
+      setDemoImporting(false);
+    }
+  }
+
+  function handleDismissDemo() {
+    localStorage.removeItem('xelochat-demo-import-pending');
+    setDemoImportPending(false);
   }
 
   async function handleCreate(e: React.FormEvent) {
@@ -166,6 +210,34 @@ export default function ChatbotsPage() {
           Create Chatbot
         </button>
       </div>
+
+      {demoImportPending && demoImport && (
+        <div className={styles.demoBanner}>
+          <div>
+            <h3>Import your demo chatbot</h3>
+            <p>We saved your demo chatbot. Import it to generate API keys and embed it on your site.</p>
+          </div>
+          <div className={styles.demoActions}>
+            <button
+              type="button"
+              className={styles.primaryBtn}
+              onClick={handleImportDemo}
+              disabled={demoImporting}
+            >
+              {demoImporting ? 'Importing...' : 'Import demo bot'}
+            </button>
+            <button
+              type="button"
+              className={styles.secondaryBtn}
+              onClick={handleDismissDemo}
+              disabled={demoImporting}
+            >
+              Dismiss
+            </button>
+          </div>
+          {demoImportError && <div className={styles.warning}>{demoImportError}</div>}
+        </div>
+      )}
 
       {error && (
         <div className={styles.warning}>{error}</div>
@@ -396,11 +468,11 @@ export default function ChatbotsPage() {
                   <div className={styles.formGroup}>
                     <label htmlFor="url">Website URL</label>
                     <input
-                      type="url"
+                      type="text"
                       id="url"
                       value={createUrl}
                       onChange={(e) => setCreateUrl(e.target.value)}
-                      placeholder="https://example.com"
+                      placeholder="example.com"
                       required
                       disabled={creating}
                     />

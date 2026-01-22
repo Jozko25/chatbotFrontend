@@ -107,8 +107,8 @@
       position: fixed;
       bottom: 24px;
       right: 24px;
-      width: 56px;
-      height: 56px;
+      width: 52px;
+      height: 52px;
       border-radius: 50%;
       background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
       border: none;
@@ -173,8 +173,8 @@
     }
 
     .fab svg {
-      width: 22px;
-      height: 22px;
+      width: 20px;
+      height: 20px;
       transition: transform 0.2s ease;
     }
 
@@ -243,17 +243,47 @@
       flex-shrink: 0;
     }
 
+    .headerInfo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .headerAvatar {
+      width: 34px;
+      height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: #ffffff;
+      flex-shrink: 0;
+    }
+
+    .headerTitle {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
     .headerInfo h3 {
       font-size: 15px;
       font-weight: 600;
       color: var(--chat-text);
       margin: 0;
+      line-height: 1.2;
+      word-break: normal;
+      overflow-wrap: break-word;
     }
 
     .headerSub {
       margin: 2px 0 0;
       color: var(--chat-muted);
       font-size: 12px;
+      line-height: 1.2;
     }
 
     .headerActions {
@@ -440,8 +470,8 @@
       .fab {
         bottom: 16px;
         right: 16px;
-        width: 56px;
-        height: 56px;
+        width: 52px;
+        height: 52px;
         border-radius: 16px;
       }
     }
@@ -669,8 +699,15 @@
   panel.innerHTML = `
     <header class="header">
       <div class="headerInfo">
-        <h3 class="header-name">Loading...</h3>
-        <p class="headerSub header-tagline">AI-powered assistant</p>
+        <div class="headerAvatar" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+        </div>
+        <div class="headerTitle">
+          <h3 class="header-name">Loading...</h3>
+          <p class="headerSub header-tagline">AI-powered assistant</p>
+        </div>
       </div>
       <div class="headerActions">
         <button class="actionBtn minimize" aria-label="Minimize" title="Minimize">

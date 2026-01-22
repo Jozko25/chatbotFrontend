@@ -54,10 +54,10 @@ export default function SetupForm({ onSubmit, isLoading, error, embedded, info, 
             <span className={styles.inputIcon}>🔗</span>
             <input
               id="url"
-              type="url"
+              type="text"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://your-website.com"
+              placeholder="your-website.com"
               required
               disabled={isLoading}
             />
@@ -109,7 +109,7 @@ export default function SetupForm({ onSubmit, isLoading, error, embedded, info, 
         )}
 
         <p className={styles.legal}>
-          By continuing you agree to our <a href="#terms">Terms</a> and confirm the chatbot responses are informational only and not legal, financial, or medical advice.
+          By continuing you agree to our <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a> and confirm the chatbot responses are informational only and not legal, financial, or medical advice.
         </p>
       </div>
     </div>

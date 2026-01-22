@@ -1,7 +1,14 @@
-import { ClinicData, Message } from '@/types/clinic';
+import { ClinicData, ChatTheme, Message } from '@/types/clinic';
 
 // Normalize to avoid double slashes like https://api.example.com//api/...
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001').replace(/\/+$/, '');
+
+const normalizeWebsiteUrl = (input: string): string => {
+  const trimmed = input.trim();
+  if (!trimmed) return trimmed;
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed.replace(/^\/+/, '')}`;
+};
 
 // Helper to get auth headers
 async function getAuthHeaders(): Promise<HeadersInit> {
@@ -92,6 +99,26 @@ export interface UsageStats {
   conversationCount: number;
   limitResetAt: string;
   percentageUsed: number;
+}
+
+export async function importDemoChatbot(
+  clinicData: ClinicData,
+  theme: ChatTheme,
+  sourceUrl?: string
+): Promise<{ chatbotId: string }> {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_URL}/api/chatbots/import`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ clinicData, theme, sourceUrl }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Failed to import chatbot' }));
+    throw new Error(error.error || 'Failed to import chatbot');
+  }
+
+  return response.json();
 }
 
 // Get all chatbots
@@ -281,10 +308,11 @@ export async function getUsageStats(): Promise<UsageStats> {
 
 export async function scrapeClinic(url: string): Promise<ClinicData & { chatbotId: string }> {
   const headers = await getAuthHeaders();
+  const normalizedUrl = normalizeWebsiteUrl(url);
   const response = await fetch(`${API_URL}/api/scrape`, {
     method: 'POST',
     headers,
-    body: JSON.stringify({ url }),
+    body: JSON.stringify({ url: normalizedUrl }),
   });
 
   if (!response.ok) {
@@ -298,6 +326,74 @@ export async function scrapeClinic(url: string): Promise<ClinicData & { chatbotI
   }
 
   return response.json();
+}
+
+// Demo scrape with streaming (public)
+export async function scrapeClinicDemoStream(
+  url: string,
+  onProgress?: (event: ScrapeProgressEvent) => void
+): Promise<ClinicData> {
+  const normalizedUrl = normalizeWebsiteUrl(url);
+  const response = await fetch(`${API_URL}/api/demo/scrape/stream`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url: normalizedUrl }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Failed to scrape website' }));
+    throw new Error(error.error || 'Failed to scrape website');
+  }
+
+  const reader = response.body?.getReader();
+  if (!reader) {
+    throw new Error('No response body');
+  }
+
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let result: ClinicData | null = null;
+
+  while (true) {
+    const { done, value } = await reader.read();
+
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+
+    const lines = buffer.split('\n\n');
+    buffer = lines.pop() || '';
+
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+
+      try {
+        const data = JSON.parse(line.slice(6));
+
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        if (data.type && onProgress) {
+          onProgress(data as ScrapeProgressEvent);
+        }
+
+        if (data.type === 'complete' && data.clinicData) {
+          result = data.clinicData as ClinicData;
+        }
+      } catch (err) {
+        if (err instanceof Error) {
+          throw err;
+        }
+      }
+    }
+  }
+
+  if (!result) {
+    throw new Error('Scrape completed without data');
+  }
+
+  return result;
 }
 
 // Scrape progress event types
@@ -328,10 +424,11 @@ export async function scrapeClinicStream(
   onProgress: (event: ScrapeProgressEvent) => void
 ): Promise<{ chatbotId: string; name: string }> {
   const headers = await getAuthHeaders();
+  const normalizedUrl = normalizeWebsiteUrl(url);
   const response = await fetch(`${API_URL}/api/scrape/stream`, {
     method: 'POST',
     headers,
-    body: JSON.stringify({ url }),
+    body: JSON.stringify({ url: normalizedUrl }),
   });
 
   if (!response.ok) {
@@ -489,6 +586,88 @@ export async function sendChatMessageStreamLegacy(
 ): Promise<void> {
   try {
     const response = await fetch(`${API_URL}/api/chat/stream`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        clinicData,
+        conversationHistory,
+        message,
+      }),
+    });
+
+    if (!response.ok) {
+      try {
+        const error = await response.json();
+        onError(error.error || 'Stream failed');
+      } catch {
+        const text = await response.text();
+        onError(text || 'Stream failed');
+      }
+      return;
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) {
+      onError('No response body');
+      return;
+    }
+
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+
+      if (done) {
+        onComplete();
+        break;
+      }
+
+      buffer += decoder.decode(value, { stream: true });
+
+      const lines = buffer.split('\n\n');
+      buffer = lines.pop() || '';
+
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          try {
+            const data = JSON.parse(line.slice(6));
+
+            if (data.error) {
+              onError(data.error);
+              return;
+            }
+
+            if (data.done) {
+              onComplete();
+              return;
+            }
+
+            if (data.content) {
+              onChunk(data.content);
+            }
+          } catch {
+            console.error('Failed to parse SSE data');
+          }
+        }
+      }
+    }
+  } catch (error) {
+    onError(error instanceof Error ? error.message : 'Connection error');
+  }
+}
+
+// Public demo chat stream (custom bot on landing page)
+export async function sendDemoChatMessageStream(
+  clinicData: ClinicData,
+  conversationHistory: Message[],
+  message: string,
+  onChunk: (chunk: string) => void,
+  onComplete: () => void,
+  onError: (error: string) => void
+): Promise<void> {
+  try {
+    const response = await fetch(`${API_URL}/api/demo/chatbot/stream`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

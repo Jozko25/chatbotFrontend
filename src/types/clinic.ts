@@ -32,6 +32,7 @@ export interface ClinicData {
   raw_content: string;
   welcomeMessage?: string;
   theme?: ChatTheme;
+  sourceUrl?: string;
 }
 
 export interface Message {

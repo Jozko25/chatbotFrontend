@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { ChatTheme, ClinicData, Message } from '@/types/clinic';
-import { scrapeClinic } from '@/lib/api';
+import { scrapeClinicDemoStream } from '@/lib/api';
 import { saveSession, loadSession, clearSession } from '@/lib/storage';
 import Navbar from '@/components/Navbar';
 import SetupForm from '@/components/SetupForm';
+import ChatInterface from '@/components/ChatInterface';
 import XeloChatChat from '@/components/XeloChatChat';
 import styles from './page.module.css';
 
@@ -26,9 +27,11 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
-  const [embedCode, setEmbedCode] = useState('');
   const [showCustomizerModal, setShowCustomizerModal] = useState(false);
   const [draftTheme, setDraftTheme] = useState<ChatTheme | null>(null);
+  const [activeWidget, setActiveWidget] = useState<'xelochat' | 'demo'>('xelochat');
+  const [showDemoToast, setShowDemoToast] = useState(false);
+  const [isXeloChatOpen, setIsXeloChatOpen] = useState(false);
 
   useEffect(() => {
     const saved = loadSession();
@@ -36,6 +39,7 @@ export default function Home() {
       setClinicData(saved.clinicData);
       setMessages(saved.messages);
       setTheme(saved.theme || createDefaultTheme(saved.clinicData?.clinic_name));
+      setActiveWidget(saved.clinicData ? 'demo' : 'xelochat');
     }
     setIsHydrated(true);
   }, []);
@@ -46,48 +50,17 @@ export default function Home() {
     }
   }, [clinicData, messages, theme]);
 
-  useEffect(() => {
-    if (!clinicData || !isHydrated) {
-      setEmbedCode('');
-      return;
-    }
-
-    const safeData = {
-      ...clinicData,
-      theme,
-      raw_content: clinicData.raw_content?.slice(0, 24000) || ''
-    };
-
-    const encode = (obj: unknown) =>
-      typeof window === 'undefined'
-        ? ''
-        : window.btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
-
-    const encoded = encode(safeData);
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
-    const apiHost = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001').replace(/\/+$/, '');
-
-    if (!origin || !encoded) {
-      setEmbedCode('');
-      return;
-    }
-
-    const snippet = `<script src="${origin}/embed.js"
-  data-api-url="${apiHost}"
-  data-clinic="${encoded}"
-  defer></script>`;
-
-    setEmbedCode(snippet);
-  }, [clinicData, isHydrated, theme]);
-
   const handleSetup = async (url: string) => {
     setError(null);
     setIsLoading(true);
 
     try {
-      const data = await scrapeClinic(url);
+      const data = await scrapeClinicDemoStream(url);
       setClinicData(data);
       setTheme(createDefaultTheme(data.clinic_name));
+      setActiveWidget('demo');
+      setIsXeloChatOpen(false);
+      setShowDemoToast(true);
 
       if (data.welcomeMessage) {
         setMessages([{ role: 'assistant', content: data.welcomeMessage }]);
@@ -109,6 +82,8 @@ export default function Home() {
     setMessages([]);
     setTheme(createDefaultTheme());
     setError(null);
+    setActiveWidget('xelochat');
+    setIsXeloChatOpen(false);
   };
 
   const openCustomizer = () => {
@@ -121,6 +96,28 @@ export default function Home() {
     setShowCustomizerModal(false);
     setDraftTheme(null);
   };
+
+  const handleSwitchToAssistant = () => {
+    setActiveWidget('xelochat');
+    setIsXeloChatOpen(true);
+  };
+
+  const handleSwitchToDemo = () => {
+    setActiveWidget('demo');
+    setIsXeloChatOpen(false);
+  };
+
+  const handleSignupToEmbed = () => {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem('xelochat-demo-import-pending', '1');
+    window.location.href = '/auth/login';
+  };
+
+  useEffect(() => {
+    if (!showDemoToast) return;
+    const id = setTimeout(() => setShowDemoToast(false), 7000);
+    return () => clearTimeout(id);
+  }, [showDemoToast]);
 
   const applyCustomizer = () => {
     if (draftTheme) {
@@ -445,22 +442,17 @@ export default function Home() {
         </section>
 
         {/* Embed code section */}
-        {clinicData && embedCode && (
+        {clinicData && (
           <section id="embed" className={styles.embedSection}>
             <div className={styles.embedHeader}>
               <div>
-                <h3>Your Embed Code</h3>
-                <p>Add this script to any page where you want the chatbot</p>
+                <h3>Ready to embed?</h3>
+                <p>Sign up to generate your API key and embed script.</p>
               </div>
-              <button
-                type="button"
-                className={styles.copyBtn}
-                onClick={() => navigator.clipboard.writeText(embedCode)}
-              >
-                Copy Code
-              </button>
+              <a href="/auth/login" className={styles.copyBtn}>
+                Sign up to embed
+              </a>
             </div>
-            <pre className={styles.code}><code>{embedCode}</code></pre>
           </section>
         )}
 
@@ -475,18 +467,101 @@ export default function Home() {
       {/* Footer */}
       <footer className={styles.footer}>
         <div className={styles.footerContent}>
-          <div className={styles.footerBrand}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            </svg>
-            <span>XeloChat</span>
+          <div className={styles.footerGrid}>
+            {/* Brand Section */}
+            <div className={styles.footerSection}>
+              <div className={styles.footerBrand}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                <span>XeloChat</span>
+              </div>
+              <p className={styles.footerDescription}>
+                AI-powered chatbots that turn any website into an intelligent customer support solution.
+              </p>
+            </div>
+
+            {/* Product Section */}
+            <div className={styles.footerSection}>
+              <h4 className={styles.footerHeading}>Product</h4>
+              <ul className={styles.footerList}>
+                <li><a href="#features" className={styles.footerLink}>Features</a></li>
+                <li><a href="#how" className={styles.footerLink}>How it Works</a></li>
+                <li><a href="#cta" className={styles.footerLink}>Pricing</a></li>
+                <li><a href="/dashboard" className={styles.footerLink}>Dashboard</a></li>
+              </ul>
+            </div>
+
+            {/* Resources Section */}
+            <div className={styles.footerSection}>
+              <h4 className={styles.footerHeading}>Resources</h4>
+              <ul className={styles.footerList}>
+                <li><a href="#embed" className={styles.footerLink}>Documentation</a></li>
+                <li><a href="#cta" className={styles.footerLink}>API Reference</a></li>
+                <li><a href="#cta" className={styles.footerLink}>Integrations</a></li>
+                <li><a href="#cta" className={styles.footerLink}>Support</a></li>
+              </ul>
+            </div>
+
+            {/* Company Section */}
+            <div className={styles.footerSection}>
+              <h4 className={styles.footerHeading}>Company</h4>
+              <ul className={styles.footerList}>
+                <li><a href="#cta" className={styles.footerLink}>About</a></li>
+                <li><a href="#cta" className={styles.footerLink}>Contact</a></li>
+                <li><a href="#cta" className={styles.footerLink}>Blog</a></li>
+                <li><a href="#cta" className={styles.footerLink}>Careers</a></li>
+              </ul>
+            </div>
           </div>
-          <p className={styles.footerText}>AI-powered chatbots for any website</p>
+
+          {/* Bottom Bar */}
+          <div className={styles.footerBottom}>
+            <p className={styles.footerCopyright}>
+              © {new Date().getFullYear()} XeloChat. All rights reserved.
+            </p>
+            <div className={styles.footerLegal}>
+              <a href="/terms" className={styles.footerLink}>Terms</a>
+              <span className={styles.footerSeparator}>•</span>
+              <a href="/privacy" className={styles.footerLink}>Privacy</a>
+            </div>
+          </div>
         </div>
       </footer>
 
       {/* XeloChat Chat - Our own chatbot for this website */}
-      <XeloChatChat />
+      {activeWidget === 'xelochat' && (
+        <XeloChatChat
+          onSwitchToDemo={clinicData ? handleSwitchToDemo : undefined}
+          open={isXeloChatOpen}
+          onOpenChange={setIsXeloChatOpen}
+        />
+      )}
+
+      {activeWidget === 'demo' && clinicData && (
+        <ChatInterface
+          clinicData={clinicData}
+          theme={theme}
+          messages={messages}
+          onMessagesUpdate={handleMessagesUpdate}
+          onReset={handleReset}
+          floating
+          showMeta={false}
+          mode="demo"
+          onSwitchToAssistant={handleSwitchToAssistant}
+          onClose={handleSwitchToAssistant}
+          onUseWidget={handleSignupToEmbed}
+        />
+      )}
+
+      {showDemoToast && clinicData && (
+        <div className={styles.demoToast} onClick={handleSwitchToDemo} role="button" tabIndex={0}>
+          <span>Your chatbot is live here</span>
+          <button type="button" className={styles.demoToastBtn} onClick={handleSwitchToDemo}>
+            Open my bot
+          </button>
+        </div>
+      )}
 
       {/* Customizer modal */}
       {showCustomizerModal && draftTheme && clinicData && (
