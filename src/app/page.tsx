@@ -134,7 +134,6 @@ export default function Home() {
       setClinicData(data);
       setTheme(createDefaultTheme(data.clinic_name));
       setActiveWidget('demo');
-      setIsXeloChatOpen(false);
       setShowDemoToast(true);
 
       if (data.welcomeMessage) {
@@ -160,7 +159,6 @@ export default function Home() {
     setTheme(createDefaultTheme());
     setError(null);
     setActiveWidget('xelochat');
-    setIsXeloChatOpen(false);
     setScrapeProgress(null);
   };
 
@@ -181,7 +179,6 @@ export default function Home() {
 
   const handleSwitchToDemo = () => {
     setActiveWidget('demo');
-    setIsXeloChatOpen(false);
   };
 
   const handleSignupToEmbed = () => {
