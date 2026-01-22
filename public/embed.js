@@ -89,11 +89,11 @@
 
   const style = document.createElement('style');
   style.textContent = `
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
     :host {
       all: initial;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       -webkit-font-smoothing: antialiased;
     }
 
@@ -200,15 +200,16 @@
       position: fixed;
       bottom: 24px;
       right: 24px;
-      width: 400px;
+      width: 420px;
       max-width: calc(100vw - 48px);
-      height: min(560px, 75vh);
+      height: min(640px, 78vh);
       max-height: calc(100vh - 48px);
       background: var(--chat-surface);
       border-radius: 24px;
       box-shadow: 
-        0 25px 50px -12px rgba(0, 0, 0, 0.15),
-        0 0 0 1px rgba(0, 0, 0, 0.05);
+        0 28px 60px -18px rgba(15, 23, 42, 0.28),
+        0 10px 24px -12px rgba(15, 23, 42, 0.18),
+        0 0 0 1px rgba(15, 23, 42, 0.04);
       border: none;
       display: flex;
       flex-direction: column;
@@ -233,8 +234,9 @@
       filter: blur(0);
       animation: panelPop 0.45s cubic-bezier(0.2, 0.9, 0.2, 1);
       box-shadow: 
-        0 25px 50px -12px rgba(0, 0, 0, 0.2),
-        0 0 0 1px rgba(0, 0, 0, 0.05);
+        0 28px 60px -18px rgba(15, 23, 42, 0.28),
+        0 10px 24px -12px rgba(15, 23, 42, 0.18),
+        0 0 0 1px rgba(15, 23, 42, 0.04);
     }
 
     @keyframes panelPop {
@@ -256,7 +258,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 18px 20px;
+      padding: 20px 22px;
       background: #ffffff;
       border-bottom: 1px solid #e2e8f0;
       flex-shrink: 0;
@@ -271,8 +273,8 @@
     }
 
     .headerAvatar {
-      width: 34px;
-      height: 34px;
+      width: 36px;
+      height: 36px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -290,7 +292,7 @@
     }
 
     .headerInfo h3 {
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 600;
       color: var(--chat-text);
       margin: 0;
@@ -306,7 +308,7 @@
     .headerSub {
       margin: 2px 0 0;
       color: var(--chat-muted);
-      font-size: 12px;
+      font-size: 13px;
       line-height: 1.2;
     }
 
@@ -350,11 +352,11 @@
     .messages {
       flex: 1;
       overflow-y: auto;
-      padding: 20px;
-      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+      padding: 22px;
+      background: #ffffff;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 12px;
     }
 
     .messages::-webkit-scrollbar {
@@ -373,10 +375,10 @@
 
     .msg {
       max-width: 85%;
-      padding: 14px 18px;
-      border-radius: 16px;
-      font-size: 14px;
-      line-height: 1.6;
+      padding: 13px 18px;
+      border-radius: 20px;
+      font-size: 15px;
+      line-height: 1.5;
       white-space: pre-wrap;
       word-wrap: break-word;
     }
@@ -385,7 +387,7 @@
       align-self: flex-end;
       background: var(--chat-user);
       color: var(--chat-user-text);
-      border-bottom-right-radius: 4px;
+      border-bottom-right-radius: 12px;
     }
 
     .assistant {
@@ -393,7 +395,7 @@
       background: var(--chat-assistant);
       color: var(--chat-text);
       border: 1px solid var(--chat-assistant-border);
-      border-bottom-left-radius: 4px;
+      border-bottom-left-radius: 12px;
     }
 
     .error {
@@ -408,8 +410,8 @@
 
     .inputBar {
       display: flex;
-      gap: 12px;
-      padding: 18px 20px;
+      gap: 10px;
+      padding: 18px 22px;
       background: var(--chat-surface);
       border-top: 1px solid var(--chat-assistant-border);
       flex-shrink: 0;
@@ -417,13 +419,12 @@
 
     .inputBar input {
       flex: 1;
-      height: 44px;
-      padding: 0 18px;
+      padding: 13px 18px;
       border: 1px solid var(--chat-assistant-border);
-      border-radius: 100px;
-      font-size: 14px;
+      border-radius: 12px;
+      font-size: 15px;
       font-family: inherit;
-      background: #f8fafc;
+      background: hsl(214 32% 98%);
       color: var(--chat-text);
       transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
     }
@@ -436,15 +437,15 @@
       outline: none;
       border-color: #3b82f6;
       background: var(--chat-surface);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+      box-shadow: 0 0 0 3px hsl(217 91% 60% / 0.1);
     }
 
     .send {
-      width: 44px;
-      height: 44px;
-      border-radius: 100px;
-      background: var(--chat-user);
-      border: 1px solid var(--chat-user);
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      border: none;
       color: white;
       cursor: pointer;
       display: flex;
@@ -455,10 +456,8 @@
     }
 
     .send:hover:not(:disabled) {
-      background: #2563eb;
-      border-color: #2563eb;
       transform: translateY(-1px);
-      box-shadow: 0 6px 14px rgba(37, 99, 235, 0.25);
+      box-shadow: 0 4px 12px hsl(217 91% 45% / 0.3);
     }
 
     .send:disabled {
@@ -470,6 +469,32 @@
     .send svg {
       width: 18px;
       height: 18px;
+    }
+
+    .legalBar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background: hsl(214 32% 98%);
+      border-top: 1px solid hsl(214 32% 93%);
+      font-size: 11px;
+      color: var(--chat-muted);
+    }
+
+    .legalBar a {
+      color: var(--chat-primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .legalBar a:hover {
+      text-decoration: underline;
+    }
+
+    .legalSeparator {
+      color: var(--chat-muted);
+      margin: 0 6px;
     }
 
     .typing {
@@ -781,6 +806,14 @@
           <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
         </svg>
       </button>
+    </div>
+    <div class="legalBar">
+      <span>AI responses are informational and may be imperfect.</span>
+      <div>
+        <a href="#" target="_blank" rel="noopener noreferrer">Terms</a>
+        <span class="legalSeparator">•</span>
+        <a href="#" target="_blank" rel="noopener noreferrer">Privacy</a>
+      </div>
     </div>
     
     <!-- Booking Form Overlay -->

@@ -39,12 +39,14 @@ const styles = `
   --sb-bg: #ffffff;
   --sb-text: #1e293b;
   --sb-muted: #64748b;
-  --sb-border: #e2e8f0;
+  --sb-border: hsl(214 32% 91%);
   --sb-user-bg: var(--sb-primary);
   --sb-user-text: #ffffff;
   --sb-assistant-bg: #f8fafc;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
 * {
   box-sizing: border-box;
@@ -100,17 +102,21 @@ const styles = `
 /* Chat Panel */
 .sb-panel {
   position: absolute;
-  width: 400px;
+  width: 420px;
   max-width: calc(100vw - 48px);
-  height: min(560px, 75vh);
+  height: min(640px, 78vh);
   max-height: calc(100vh - 48px);
   background: var(--sb-bg);
   border-radius: 24px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 28px 60px -18px rgba(15, 23, 42, 0.28),
+    0 10px 24px -12px rgba(15, 23, 42, 0.18),
+    0 0 0 1px rgba(15, 23, 42, 0.04);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: sb-slide-up 0.25s ease-out;
+  transform-origin: bottom right;
+  animation: sb-slide-up 0.45s cubic-bezier(0.2, 0.9, 0.2, 1);
 }
 
 .sb-widget.bottom-right .sb-panel {
@@ -124,11 +130,15 @@ const styles = `
 }
 
 @keyframes sb-slide-up {
-  from {
+  0% {
     opacity: 0;
-    transform: translateY(20px) scale(0.96);
+    transform: translateY(28px) scale(0.94);
   }
-  to {
+  60% {
+    opacity: 1;
+    transform: translateY(-6px) scale(1.02);
+  }
+  100% {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
@@ -143,9 +153,9 @@ const styles = `
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 18px 20px;
+  padding: 20px 22px;
   background: var(--sb-bg);
-  border-bottom: 1px solid var(--sb-border);
+  border-bottom: 1px solid hsl(214 32% 91%);
   flex-shrink: 0;
 }
 
@@ -173,13 +183,14 @@ const styles = `
 }
 
 .sb-bot-name {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--sb-text);
+  line-height: 1.2;
 }
 
 .sb-tagline {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--sb-muted);
   margin-top: 2px;
 }
@@ -195,7 +206,7 @@ const styles = `
   border-radius: 10px;
   border: none;
   background: transparent;
-  color: var(--sb-muted);
+  color: #64748b;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -205,7 +216,7 @@ const styles = `
 
 .sb-action-btn:hover {
   background: #eff6ff;
-  color: var(--sb-primary);
+  color: #3b82f6;
 }
 
 .sb-action-btn svg {
@@ -217,7 +228,7 @@ const styles = `
 .sb-messages {
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
+  padding: 22px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -237,9 +248,9 @@ const styles = `
 }
 
 .sb-bubble {
-  padding: 12px 16px;
+  padding: 13px 18px;
   border-radius: 20px;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.5;
   max-width: 85%;
   word-break: break-word;
@@ -254,7 +265,7 @@ const styles = `
 .sb-message.assistant .sb-bubble {
   background: var(--sb-assistant-bg);
   color: var(--sb-text);
-  border: 1px solid var(--sb-border);
+  border: 1px solid hsl(214 32% 91%);
   border-bottom-left-radius: 12px;
 }
 
@@ -289,18 +300,18 @@ const styles = `
 .sb-input-area {
   display: flex;
   gap: 10px;
-  padding: 16px 20px;
+  padding: 18px 22px;
   background: var(--sb-bg);
-  border-top: 1px solid var(--sb-border);
+  border-top: 1px solid hsl(214 32% 91%);
 }
 
 .sb-input {
   flex: 1;
-  padding: 12px 16px;
-  border: 1px solid var(--sb-border);
+  padding: 13px 18px;
+  border: 1px solid hsl(214 32% 91%);
   border-radius: 12px;
-  font-size: 14px;
-  background: #f8fafc;
+  font-size: 15px;
+  background: hsl(214 32% 98%);
   color: var(--sb-text);
   outline: none;
   transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
@@ -310,7 +321,7 @@ const styles = `
 .sb-input:focus {
   border-color: var(--sb-primary);
   background: var(--sb-bg);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px hsl(217 91% 60% / 0.1);
 }
 
 .sb-input::placeholder {
@@ -318,10 +329,10 @@ const styles = `
 }
 
 .sb-send-btn {
-  width: 46px;
-  height: 46px;
+  width: 50px;
+  height: 50px;
   border: none;
-  background: linear-gradient(135deg, var(--sb-primary) 0%, var(--sb-primary-dark) 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
   color: white;
   border-radius: 12px;
   cursor: pointer;
@@ -334,7 +345,7 @@ const styles = `
 
 .sb-send-btn:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 12px hsl(217 91% 45% / 0.3);
 }
 
 .sb-send-btn:disabled {
@@ -353,8 +364,8 @@ const styles = `
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
-  background: #f8fafc;
-  border-top: 1px solid #e2e8f0;
+  background: hsl(214 32% 98%);
+  border-top: 1px solid hsl(214 32% 93%);
   font-size: 11px;
   color: var(--sb-muted);
 }
@@ -363,6 +374,11 @@ const styles = `
   color: var(--sb-primary);
   text-decoration: none;
   font-weight: 500;
+}
+
+.sb-legal .sb-legal-separator {
+  margin: 0 6px;
+  color: var(--sb-muted);
 }
 
 .sb-legal a:hover {
@@ -534,8 +550,12 @@ class SiteBotWidget {
         <button class="sb-send-btn" ${this.isTyping ? 'disabled' : ''}>${icons.send}</button>
       </div>
       <div class="sb-legal">
-        <span>AI responses may be imperfect. Confirm details before acting.</span>
-        <a href="#" target="_blank">Terms</a>
+        <span>AI responses are informational and may be imperfect.</span>
+        <div>
+          <a href="#" target="_blank">Terms</a>
+          <span class="sb-legal-separator">•</span>
+          <a href="#" target="_blank">Privacy</a>
+        </div>
       </div>
     `;
     }

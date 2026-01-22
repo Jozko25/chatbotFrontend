@@ -19,6 +19,13 @@ export default function RootLayout({
           {children}
         </Auth0Provider>
       </body>
+      <script
+      src="http://localhost:3000/embed.js"
+      data-chatbot-id="cmkps7qu300010ylyjyu1k3bv"
+      data-api-key="sb_live_gzO6BoH2IHczG7xAZlTRd2kHZ2x8ehml"
+      data-api-url="http://localhost:3001"
+      defer
+></script>
     </html>
   );
 }

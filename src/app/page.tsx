@@ -7,7 +7,7 @@ import { saveSession, loadSession, clearSession } from '@/lib/storage';
 import Navbar from '@/components/Navbar';
 import SetupForm from '@/components/SetupForm';
 import ChatInterface from '@/components/ChatInterface';
-import XeloChatChat from '@/components/XeloChatChat';
+import EmbedWidgetLoader from '@/components/EmbedWidgetLoader';
 import styles from './page.module.css';
 
 const createDefaultTheme = (name?: string): ChatTheme => ({
@@ -31,7 +31,6 @@ export default function Home() {
   const [draftTheme, setDraftTheme] = useState<ChatTheme | null>(null);
   const [activeWidget, setActiveWidget] = useState<'xelochat' | 'demo'>('xelochat');
   const [showDemoToast, setShowDemoToast] = useState(false);
-  const [isXeloChatOpen, setIsXeloChatOpen] = useState(false);
   const [scrapeProgress, setScrapeProgress] = useState<{
     status: string;
     pagesScraped: number;
@@ -178,7 +177,6 @@ export default function Home() {
 
   const handleSwitchToAssistant = () => {
     setActiveWidget('xelochat');
-    setIsXeloChatOpen(true);
   };
 
   const handleSwitchToDemo = () => {
@@ -189,7 +187,7 @@ export default function Home() {
   const handleSignupToEmbed = () => {
     if (typeof window === 'undefined') return;
     localStorage.setItem('xelochat-demo-import-pending', '1');
-    window.location.href = '/auth/login';
+    window.location.href = '/auth/login?returnTo=/dashboard/chatbots';
   };
 
   useEffect(() => {
@@ -529,7 +527,7 @@ export default function Home() {
                 <h3>Ready to embed?</h3>
                 <p>Sign up to generate your API key and embed script.</p>
               </div>
-              <a href="/auth/login" className={styles.copyBtn}>
+              <a href="/auth/login?returnTo=/dashboard/chatbots" className={styles.copyBtn}>
                 Sign up to embed
               </a>
             </div>
@@ -609,14 +607,13 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* XeloChat Chat - Our own chatbot for this website */}
-      {activeWidget === 'xelochat' && (
-        <XeloChatChat
-          onSwitchToDemo={clinicData ? handleSwitchToDemo : undefined}
-          open={isXeloChatOpen}
-          onOpenChange={setIsXeloChatOpen}
-        />
-      )}
+      {/* Shared widget for the marketing site (same as customer embed) */}
+      <EmbedWidgetLoader
+        enabled={activeWidget === 'xelochat'}
+        chatbotId={process.env.NEXT_PUBLIC_WIDGET_CHATBOT_ID || ''}
+        apiKey={process.env.NEXT_PUBLIC_WIDGET_API_KEY || ''}
+        apiUrl={process.env.NEXT_PUBLIC_API_URL || ''}
+      />
 
       {activeWidget === 'demo' && clinicData && (
         <ChatInterface
