@@ -20,12 +20,12 @@ export default function RootLayout({
         </Auth0Provider>
       </body>
       <script
-      src="http://localhost:3000/embed.js"
-      data-chatbot-id="cmkps7qu300010ylyjyu1k3bv"
-      data-api-key="sb_live_gzO6BoH2IHczG7xAZlTRd2kHZ2x8ehml"
-      data-api-url="http://localhost:3001"
-      defer
-></script>
+        src="https://chatbotfrontend-production-6ff3.up.railway.app/embed.js"
+        data-chatbot-id="cmkps7qu300010ylyjyu1k3bv"
+        data-api-key="sb_live_dD-A3wNu-UDT2fzGdxF_CsE720r_sLu3"
+        data-api-url="https://chatbotbackend-production-814f.up.railway.app"
+        defer
+      />
     </html>
   );
 }
