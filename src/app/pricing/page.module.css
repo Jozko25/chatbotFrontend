@@ -1,0 +1,166 @@
+.page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 12% 10%, hsl(var(--blue-50) / 0.9), transparent 45%),
+    radial-gradient(circle at 88% 12%, hsl(var(--blue-100) / 0.65), transparent 40%),
+    linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--blue-50) / 0.22) 55%, hsl(var(--background)) 100%);
+  position: relative;
+}
+
+.main {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+.hero {
+  text-align: center;
+  padding: 80px 0 50px;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: hsl(var(--blue-700));
+  background: hsl(var(--blue-100) / 0.6);
+  border: 1px solid hsl(var(--blue-200));
+  border-radius: 999px;
+  padding: 6px 14px;
+  margin-bottom: 18px;
+}
+
+.title {
+  font-size: clamp(2.4rem, 4vw, 3.6rem);
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  margin-bottom: 16px;
+  letter-spacing: -0.03em;
+}
+
+.description {
+  font-size: 1.05rem;
+  color: hsl(var(--muted-foreground));
+  max-width: 640px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.plans {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.planCard {
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1.25rem;
+  padding: 1.75rem;
+  box-shadow: 0 20px 50px -40px hsl(var(--blue-600) / 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.highlight {
+  border-color: hsl(var(--blue-400));
+  box-shadow: 0 30px 70px -45px hsl(var(--blue-600) / 0.6);
+  background: linear-gradient(180deg, hsl(var(--background)), hsl(var(--blue-50) / 0.6));
+}
+
+.planHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.planHeader h2 {
+  font-size: 1.4rem;
+  color: hsl(var(--foreground));
+  margin-bottom: 0.4rem;
+}
+
+.planSubtitle {
+  color: hsl(var(--muted-foreground));
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.planBadge {
+  background: hsl(var(--blue-600));
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+.planPrice {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+}
+
+.planPrice small {
+  font-size: 0.85rem;
+  color: hsl(var(--muted-foreground));
+  font-weight: 500;
+}
+
+.planFeatures {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  color: hsl(var(--foreground));
+  font-size: 0.95rem;
+}
+
+.planFeatures li::before {
+  content: "•";
+  color: hsl(var(--blue-600));
+  margin-right: 8px;
+}
+
+.planCta {
+  margin-top: auto;
+  text-decoration: none;
+  text-align: center;
+  background: hsl(var(--blue-600));
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.85rem;
+  border: 1px solid hsl(var(--blue-600));
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.planCta:hover {
+  background: hsl(var(--blue-700));
+  border-color: hsl(var(--blue-700));
+}
+
+.footerNote {
+  margin-top: 2.5rem;
+  text-align: center;
+  color: hsl(var(--muted-foreground));
+}
+
+@media (max-width: 720px) {
+  .hero {
+    padding: 60px 0 40px;
+  }
+
+  .planHeader {
+    flex-direction: column;
+  }
+}

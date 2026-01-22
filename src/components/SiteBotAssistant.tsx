@@ -61,7 +61,7 @@ const APP_KNOWLEDGE = {
     'Customize the chatbot appearance',
     'Copy the embed code to your website',
   ],
-  pricing: 'Free to try, no credit card required',
+  pricing: 'Free plan includes 50 messages and 1 chatbot. Paid plans remove branding and unlock bookings. See /pricing for details.',
 };
 
 // Simple intent detection for the assistant

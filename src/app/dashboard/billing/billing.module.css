@@ -1,0 +1,184 @@
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.intro {
+  color: hsl(var(--muted-foreground));
+  max-width: 720px;
+  line-height: 1.6;
+}
+
+.section {
+  margin-top: 2rem;
+}
+
+.statusCard {
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem;
+  padding: 1.5rem;
+  background: hsl(var(--background));
+}
+
+.statusRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2.5rem;
+  margin-top: 1rem;
+}
+
+.statusItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.statusLabel {
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: hsl(var(--muted-foreground));
+}
+
+.plansGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.planCard {
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem;
+  padding: 1.5rem;
+  background: hsl(var(--background));
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.planTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+}
+
+.planMeta {
+  color: hsl(var(--muted-foreground));
+  font-size: 0.9rem;
+}
+
+.planFeatures {
+  color: hsl(var(--foreground));
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.planActions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.currencyPicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.select {
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+.note {
+  margin-top: 1rem;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.85rem;
+}
+
+.dangerCard {
+  border: 1px solid hsl(0 84% 60% / 0.2);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  background: hsl(0 84% 60% / 0.04);
+}
+
+.dangerHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.dangerText {
+  margin-top: 0.35rem;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.9rem;
+}
+
+.dangerToggle {
+  border: 1px solid hsl(0 84% 60% / 0.3);
+  background: hsl(0 84% 60% / 0.08);
+  color: hsl(0 84% 40%);
+  padding: 0.6rem 1.1rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dangerActions {
+  margin-top: 1.25rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.dangerLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: hsl(var(--foreground));
+}
+
+.dangerInput {
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.6rem;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.dangerBtn {
+  width: fit-content;
+  border: none;
+  background: hsl(0 84% 50%);
+  color: white;
+  padding: 0.65rem 1.4rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dangerBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.dangerWarning {
+  color: hsl(0 84% 40%);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.dangerNote {
+  font-size: 0.78rem;
+  color: hsl(var(--muted-foreground));
+}

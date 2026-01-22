@@ -174,10 +174,52 @@
   border-radius: 0.5rem;
 }
 
+
 .main {
   flex: 1;
   margin-left: 280px;
   padding: 2rem;
+}
+
+.chatFab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 4px 14px rgba(59, 130, 246, 0.4),
+    0 0 0 0 rgba(59, 130, 246, 0);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  z-index: 1001;
+}
+
+.chatFab:hover {
+  transform: scale(1.06);
+  box-shadow:
+    0 6px 20px rgba(59, 130, 246, 0.5),
+    0 0 0 4px rgba(59, 130, 246, 0.15);
+}
+
+.chatFab:active {
+  transform: scale(0.96);
+}
+
+@media (max-width: 640px) {
+  .chatFab {
+    bottom: 16px;
+    right: 16px;
+    width: 52px;
+    height: 52px;
+  }
 }
 
 /* Page styles */

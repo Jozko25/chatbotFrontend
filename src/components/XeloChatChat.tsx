@@ -54,6 +54,7 @@ export default function XeloChatChat({
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [bookingData, setBookingData] = useState<BookingData>({
     customerName: '',
@@ -67,12 +68,27 @@ export default function XeloChatChat({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCalendarRefreshing, setIsCalendarRefreshing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const closeTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (open !== undefined) {
       setIsOpen(open);
     }
   }, [open]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsClosing(false);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) {
+        window.clearTimeout(closeTimerRef.current);
+      }
+    };
+  }, []);
 
   const setOpen = (next: boolean) => {
     setIsOpen(next);
@@ -195,6 +211,16 @@ export default function XeloChatChat({
     }
   };
 
+  const triggerClose = (callback?: () => void) => {
+    if (isClosing) return;
+    setIsClosing(true);
+    closeTimerRef.current = window.setTimeout(() => {
+      setIsClosing(false);
+      setOpen(false);
+      callback?.();
+    }, 240);
+  };
+
   const handleBookingSubmit = async () => {
     if (!bookingData.customerName) return;
 
@@ -292,9 +318,10 @@ export default function XeloChatChat({
   }
 
   const containerClass = `${styles.container} ${floating ? styles.floating : ''} ${collapsed ? styles.collapsed : ''}`;
+  const animatedClass = `${containerClass} ${isClosing ? styles.closing : ''}`;
 
   return (
-    <div className={containerClass} onClick={handleContainerClick} style={themeVars}>
+    <div className={animatedClass} onClick={handleContainerClick} style={themeVars}>
       <header className={styles.header}>
         <div className={styles.headerInfo}>
           <div className={styles.headerAvatar}>
@@ -312,10 +339,10 @@ export default function XeloChatChat({
             <>
               {onSwitchToDemo && (
                 <button
-                  className={styles.actionButton}
+                  className={styles.switchButton}
                   onClick={(e) => {
                     e.stopPropagation();
-                    onSwitchToDemo();
+                    triggerClose(onSwitchToDemo);
                   }}
                   aria-label="Switch to your chatbot"
                   title="Switch to your chatbot"
@@ -326,6 +353,7 @@ export default function XeloChatChat({
                     <path d="M17 1l4 4-4 4"/>
                     <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
                   </svg>
+                  <span>My chatbot</span>
                 </button>
               )}
               <button
@@ -339,20 +367,6 @@ export default function XeloChatChat({
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="5" y1="12" x2="19" y2="12"/>
-                </svg>
-              </button>
-              <button
-                className={styles.actionButton}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setOpen(false);
-                }}
-                aria-label="Close chat"
-                title="Close"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="18" y1="6" x2="6" y2="18"/>
-                  <line x1="6" y1="6" x2="18" y2="18"/>
                 </svg>
               </button>
             </>

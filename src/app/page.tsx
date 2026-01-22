@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ChatTheme, ClinicData, Message } from '@/types/clinic';
-import { scrapeClinicDemoStream } from '@/lib/api';
+import { scrapeClinicDemoStream, ScrapeProgressEvent } from '@/lib/api';
 import { saveSession, loadSession, clearSession } from '@/lib/storage';
 import Navbar from '@/components/Navbar';
 import SetupForm from '@/components/SetupForm';
@@ -32,6 +32,20 @@ export default function Home() {
   const [activeWidget, setActiveWidget] = useState<'xelochat' | 'demo'>('xelochat');
   const [showDemoToast, setShowDemoToast] = useState(false);
   const [isXeloChatOpen, setIsXeloChatOpen] = useState(false);
+  const [scrapeProgress, setScrapeProgress] = useState<{
+    status: string;
+    pagesScraped: number;
+    maxPages: number;
+    totalLinksFound: number;
+    currentUrl: string;
+    scrapedPages: Array<{
+      url: string;
+      title?: string;
+      contentLength?: number;
+      status: 'scraping' | 'done' | 'error';
+    }>;
+    phase: 'scraping' | 'extracting' | 'saving' | 'complete';
+  } | null>(null);
 
   useEffect(() => {
     const saved = loadSession();
@@ -53,9 +67,71 @@ export default function Home() {
   const handleSetup = async (url: string) => {
     setError(null);
     setIsLoading(true);
+    setScrapeProgress({
+      status: 'Connecting to website...',
+      pagesScraped: 0,
+      maxPages: 50,
+      totalLinksFound: 0,
+      currentUrl: url,
+      scrapedPages: [],
+      phase: 'scraping',
+    });
 
     try {
-      const data = await scrapeClinicDemoStream(url);
+      const data = await scrapeClinicDemoStream(url, (event: ScrapeProgressEvent) => {
+        setScrapeProgress(prev => {
+          if (!prev) return prev;
+
+          const next = { ...prev };
+
+          switch (event.type) {
+            case 'start':
+              next.status = 'Connecting to website...';
+              next.maxPages = event.maxPages || 50;
+              break;
+            case 'scraping':
+              next.currentUrl = event.url || '';
+              next.status = `Scraping page ${(event.pagesScraped || 0) + 1}...`;
+              if (event.url && !next.scrapedPages.find(p => p.url === event.url)) {
+                next.scrapedPages = [...next.scrapedPages, { url: event.url, status: 'scraping' }];
+              }
+              break;
+            case 'page_done':
+              next.pagesScraped = event.pagesScraped || 0;
+              next.totalLinksFound = event.totalLinksFound || 0;
+              next.status = `Scraped ${event.pagesScraped}/${event.maxPages} pages`;
+              next.scrapedPages = next.scrapedPages.map(p =>
+                p.url === event.url
+                  ? { ...p, status: 'done' as const, title: event.title, contentLength: event.contentLength }
+                  : p
+              );
+              break;
+            case 'page_error':
+              next.scrapedPages = next.scrapedPages.map(p =>
+                p.url === event.url ? { ...p, status: 'error' as const } : p
+              );
+              break;
+            case 'scrape_complete':
+              next.status = 'Processing content...';
+              next.phase = 'extracting';
+              break;
+            case 'extracting':
+              next.phase = 'extracting';
+              next.status = event.message || 'Extracting data...';
+              break;
+            case 'saving':
+              next.phase = 'saving';
+              next.status = event.message || 'Saving chatbot...';
+              break;
+            case 'complete':
+              next.phase = 'complete';
+              next.status = 'Complete!';
+              break;
+          }
+
+          return next;
+        });
+      });
       setClinicData(data);
       setTheme(createDefaultTheme(data.clinic_name));
       setActiveWidget('demo');
@@ -67,8 +143,10 @@ export default function Home() {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to scrape website');
+      setScrapeProgress(null);
     } finally {
       setIsLoading(false);
+      setScrapeProgress(null);
     }
   };
 
@@ -84,6 +162,7 @@ export default function Home() {
     setError(null);
     setActiveWidget('xelochat');
     setIsXeloChatOpen(false);
+    setScrapeProgress(null);
   };
 
   const openCustomizer = () => {
@@ -154,6 +233,7 @@ export default function Home() {
                 error={error}
                 embedded
                 onReset={clinicData ? handleReset : undefined}
+                progress={scrapeProgress}
               />
               <div className={styles.heroHighlights}>
                 <div className={styles.heroHighlight}>

@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:widget": "node widget/build.js",
+    "build:widget:prod": "node widget/build.js --production",
     "start": "next start",
     "lint": "next lint"
   },
@@ -19,6 +21,7 @@
     "@types/node": "^22",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "esbuild": "^0.20.0",
     "typescript": "^5"
   }
 }

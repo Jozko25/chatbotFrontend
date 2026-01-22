@@ -217,20 +217,39 @@
       opacity: 0;
       pointer-events: none;
       transform: translateY(20px) scale(0.96);
+      filter: blur(8px);
       transform-origin: bottom right;
       transition: 
-        opacity 0.25s ease,
-        transform 0.25s ease,
-        box-shadow 0.25s ease;
+        opacity 0.35s ease,
+        transform 0.35s cubic-bezier(0.2, 0.9, 0.2, 1),
+        box-shadow 0.3s ease,
+        filter 0.3s ease;
     }
 
     .panel.open {
       opacity: 1;
       pointer-events: auto;
       transform: translateY(0) scale(1);
+      filter: blur(0);
+      animation: panelPop 0.45s cubic-bezier(0.2, 0.9, 0.2, 1);
       box-shadow: 
         0 25px 50px -12px rgba(0, 0, 0, 0.2),
         0 0 0 1px rgba(0, 0, 0, 0.05);
+    }
+
+    @keyframes panelPop {
+      0% {
+        opacity: 0;
+        transform: translateY(28px) scale(0.94);
+      }
+      60% {
+        opacity: 1;
+        transform: translateY(-6px) scale(1.02);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
     }
 
     .header {
@@ -248,6 +267,7 @@
       align-items: center;
       gap: 12px;
       min-width: 0;
+      flex: 1;
     }
 
     .headerAvatar {
@@ -277,6 +297,10 @@
       line-height: 1.2;
       word-break: normal;
       overflow-wrap: break-word;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
     .headerSub {
@@ -290,25 +314,27 @@
       display: flex;
       align-items: center;
       gap: 6px;
+      flex-shrink: 0;
     }
 
     .actionBtn {
       width: 34px;
       height: 34px;
       border-radius: 10px;
-      border: none;
+      border: 1px solid transparent;
       background: transparent;
       color: #64748b;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.15s ease, color 0.15s ease;
+      transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
     }
 
     .actionBtn:hover {
       background: #eff6ff;
       color: #3b82f6;
+      transform: translateY(-1px);
     }
 
     .actionBtn:active {
@@ -325,7 +351,7 @@
       flex: 1;
       overflow-y: auto;
       padding: 20px;
-      background: #f8fafc;
+      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
       display: flex;
       flex-direction: column;
       gap: 16px;
@@ -399,6 +425,7 @@
       font-family: inherit;
       background: #f8fafc;
       color: var(--chat-text);
+      transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
     }
 
     .inputBar input::placeholder {
@@ -409,6 +436,7 @@
       outline: none;
       border-color: #3b82f6;
       background: var(--chat-surface);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
     }
 
     .send {
@@ -423,12 +451,14 @@
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      transition: background 0.15s ease, border-color 0.15s ease;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
     }
 
     .send:hover:not(:disabled) {
       background: #2563eb;
       border-color: #2563eb;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(37, 99, 235, 0.25);
     }
 
     .send:disabled {
@@ -454,6 +484,26 @@
       border-radius: 50%;
       background: #93c5fd;
       opacity: 0.9;
+      animation: typingBounce 1.2s infinite ease-in-out;
+    }
+
+    .dot:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+    .dot:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+    @keyframes typingBounce {
+      0%, 60%, 100% {
+        transform: scale(0.8);
+        opacity: 0.5;
+      }
+      30% {
+        transform: scale(1);
+        opacity: 1;
+      }
     }
 
     @media (max-width: 480px) {
@@ -484,13 +534,19 @@
       right: 0;
       bottom: 0;
       background: var(--chat-surface);
-      display: none;
+      display: flex;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
       flex-direction: column;
       z-index: 10;
+      transition: opacity 0.2s ease, transform 0.2s ease;
     }
 
     .booking-form.active {
-      display: flex;
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
     }
 
     .booking-header {
@@ -715,12 +771,6 @@
             <line x1="5" y1="12" x2="19" y2="12"></line>
           </svg>
         </button>
-        <button class="actionBtn close" aria-label="Close" title="Close">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
       </div>
     </header>
     <div class="messages"></div>
@@ -790,7 +840,6 @@
   const messagesEl = panel.querySelector('.messages');
   const inputEl = panel.querySelector('input');
   const sendBtn = panel.querySelector('.send');
-  const closeBtn = panel.querySelector('.close');
   const minimizeBtn = panel.querySelector('.minimize');
   const headerName = panel.querySelector('.header-name');
   const headerTagline = panel.querySelector('.header-tagline');
@@ -1200,7 +1249,6 @@
   };
 
   fab.addEventListener('click', openPanel);
-  closeBtn?.addEventListener('click', closePanel);
   minimizeBtn?.addEventListener('click', closePanel);
 
   const sendMessage = async () => {

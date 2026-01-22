@@ -16,7 +16,7 @@ export default function TermsPage() {
         <section>
           <h2>1. Acceptance of Terms</h2>
           <p>
-            By accessing and using XeloChat (&quot;Service&quot;), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
+            These Terms of Service (&quot;Terms&quot;) govern your access to and use of XeloChat, an AI-powered chatbot platform operated by Vivero s.r.o (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;). By accessing and using XeloChat (&quot;Service&quot;), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
           </p>
         </section>
 
@@ -59,10 +59,10 @@ export default function TermsPage() {
         <section>
           <h2>5. Content and Intellectual Property</h2>
           <p>
-            You retain all rights to the content you provide to the Service. By using the Service, you grant XeloChat a license to use, process, and store your content solely for the purpose of providing the Service. You represent and warrant that you have all necessary rights to the content you provide.
+            You retain all rights to the content you provide to the Service. By using the Service, you grant Vivero s.r.o (the operator of XeloChat) a license to use, process, and store your content solely for the purpose of providing the Service. You represent and warrant that you have all necessary rights to the content you provide.
           </p>
           <p>
-            The Service, including its original content, features, and functionality, is owned by XeloChat and is protected by international copyright, trademark, patent, trade secret, and other intellectual property laws.
+            The Service, including its original content, features, and functionality, is owned by Vivero s.r.o and is protected by international copyright, trademark, patent, trade secret, and other intellectual property laws.
           </p>
         </section>
 
@@ -75,7 +75,7 @@ export default function TermsPage() {
             <li>AI-generated content may contain errors or inaccuracies</li>
             <li>AI responses are informational only and not legal, financial, or medical advice</li>
             <li>You are responsible for reviewing and verifying all AI-generated content</li>
-            <li>XeloChat is not liable for any consequences resulting from reliance on AI-generated content</li>
+            <li>Vivero s.r.o (operator of XeloChat) is not liable for any consequences resulting from reliance on AI-generated content</li>
           </ul>
         </section>
 
@@ -96,14 +96,14 @@ export default function TermsPage() {
         <section>
           <h2>9. Limitation of Liability</h2>
           <p>
-            To the maximum extent permitted by law, XeloChat shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, or any loss of data, use, goodwill, or other intangible losses resulting from your use of the Service.
+            To the maximum extent permitted by law, Vivero s.r.o (operator of XeloChat) shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, or any loss of data, use, goodwill, or other intangible losses resulting from your use of the Service.
           </p>
         </section>
 
         <section>
           <h2>10. Indemnification</h2>
           <p>
-            You agree to indemnify and hold harmless XeloChat, its officers, directors, employees, and agents from any claims, damages, losses, liabilities, and expenses (including legal fees) arising out of your use of the Service, violation of these Terms, or infringement of any rights of another.
+            You agree to indemnify and hold harmless Vivero s.r.o, its officers, directors, employees, and agents from any claims, damages, losses, liabilities, and expenses (including legal fees) arising out of your use of the Service, violation of these Terms, or infringement of any rights of another.
           </p>
         </section>
 
@@ -131,7 +131,7 @@ export default function TermsPage() {
         <section>
           <h2>14. Contact Information</h2>
           <p>
-            If you have any questions about these Terms, please contact us through the Service or via the contact information provided in your account dashboard.
+            XeloChat is operated by Vivero s.r.o. If you have any questions about these Terms, please contact us through the Service or via the contact information provided in your account dashboard.
           </p>
         </section>
       </div>

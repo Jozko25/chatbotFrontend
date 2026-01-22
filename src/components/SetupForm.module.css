@@ -155,91 +155,198 @@
 }
 
 .loading {
-  padding: 24px;
+  padding: 20px;
   background: hsl(var(--blue-50) / 0.5);
   border-radius: 12px;
   margin-top: 16px;
   border: 1px solid hsl(var(--border));
 }
 
-.loading p {
-  font-size: 14px;
-  color: hsl(var(--muted-foreground));
+.loadingHeader {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
-.progress {
+.loadingSpinnerWrap {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 12px;
+  position: relative;
+}
+
+.loadingSpinner {
+  width: 100%;
+  height: 100%;
+  border: 3px solid #e2e8f0;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loadingCheck {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 30px;
+  height: 30px;
+  transform: translate(-50%, -50%);
+  color: #22c55e;
+}
+
+.loadingStatus {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 12px;
+}
+
+.loadingBar {
+  width: 100%;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.loadingBarFill {
+  height: 100%;
+  width: var(--progress, 0%);
+  background: #3b82f6;
+  border-radius: inherit;
+  transition: width 0.3s ease;
+}
+
+.loadingStats {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 12px;
+  font-size: 0.875rem;
+  color: #64748b;
+  flex-wrap: wrap;
 }
 
-.step {
+.loadingList {
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.loadingEmpty {
+  padding: 1rem;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.875rem;
+}
+
+.loadingRow {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  border-radius: 10px;
-  transition: all 0.2s;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.875rem;
 }
 
-.stepDot {
-  width: 10px;
-  height: 10px;
+.loadingRow:last-child {
+  border-bottom: none;
+}
+
+.loadingDot {
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: hsl(var(--border));
   flex-shrink: 0;
-  transition: all 0.2s;
+  background: #3b82f6;
 }
 
-.stepLabel {
-  font-size: 14px;
-  color: hsl(var(--muted-foreground));
-  font-weight: 500;
-  transition: color 0.2s;
+.dotDone {
+  background: #22c55e;
 }
 
-.step.done {
-  background: hsl(142 76% 36% / 0.08);
+.dotError {
+  background: #ef4444;
 }
 
-.step.done .stepDot {
-  background: hsl(142 76% 40%);
-  box-shadow: 0 0 0 3px hsl(142 76% 40% / 0.15);
+.dotActive {
+  background: #3b82f6;
+  animation: pulse 1s infinite;
 }
 
-.step.done .stepLabel {
-  color: hsl(142 76% 32%);
+.loadingRowInfo {
+  flex: 1;
+  min-width: 0;
 }
 
-.step.active {
-  background: hsl(var(--blue-50));
+.loadingRowTitle {
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.step.active .stepDot {
-  background: hsl(var(--blue-500));
-  box-shadow: 0 0 0 3px hsl(var(--blue-500) / 0.2);
-  animation: pulse 1.5s infinite;
+.loadingRowUrl {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.loadingRowSize {
+  color: #64748b;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.loadingPhases {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.phaseItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.phaseDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.phaseActive {
+  color: #3b82f6;
+}
+
+.phaseDone {
+  color: #22c55e;
+}
+
+.phaseTodo {
+  color: #94a3b8;
+}
+
+.progress,
+.step,
+.stepDot,
+.stepLabel,
+.spinner {
+  display: none;
 }
 
 @keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.15); }
-}
-
-.step.active .stepLabel {
-  color: hsl(var(--blue-700));
-}
-
-.spinner {
-  width: 24px;
-  height: 24px;
-  border: 2.5px solid hsl(var(--blue-100));
-  border-top-color: hsl(var(--blue-500));
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-  margin: 0 auto 16px;
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 .error {
@@ -300,5 +407,17 @@
   .button {
     height: 48px;
     font-size: 14px;
+  }
+
+  .loadingStats {
+    gap: 1rem;
+  }
+
+  .loadingRow {
+    padding: 0.65rem 0.75rem;
+  }
+
+  .loadingRowSize {
+    display: none;
   }
 }

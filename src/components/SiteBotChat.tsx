@@ -32,8 +32,8 @@ const SITEBOT_KNOWLEDGE = {
   ],
 
   pricing: {
-    trial: 'Free to try, no credit card required',
-    info: 'Start with a free trial to test how SiteBot works with your website content.',
+    trial: 'Free plan includes 50 messages and 1 chatbot',
+    info: 'Upgrade when you need bookings and higher limits. See /pricing for details.',
   },
 
   useCases: [

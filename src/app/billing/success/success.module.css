@@ -1,0 +1,176 @@
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 3.5rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 20%, hsl(var(--blue-100) / 0.75), transparent 45%),
+    radial-gradient(circle at 85% 10%, hsl(var(--blue-200) / 0.6), transparent 40%),
+    linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--blue-50) / 0.3) 55%, hsl(var(--background)) 100%);
+}
+
+.glowLayer {
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(circle at 30% 40%, hsl(var(--blue-200) / 0.35), transparent 50%),
+    radial-gradient(circle at 70% 60%, hsl(var(--blue-300) / 0.25), transparent 45%);
+  filter: blur(10px);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.confettiPiece {
+  position: absolute;
+  top: -12%;
+  left: var(--x);
+  width: var(--size);
+  height: calc(var(--size) * 1.2);
+  background: var(--color);
+  opacity: 0.95;
+  transform: translate3d(0, -12vh, 0) rotate(var(--rot));
+  animation: confetti-fall var(--dur) linear var(--delay) infinite;
+  box-shadow: 0 10px 22px hsl(var(--blue-700) / 0.22);
+}
+
+.square {
+  border-radius: 4px;
+}
+
+.circle {
+  border-radius: 999px;
+}
+
+.triangle {
+  width: 0;
+  height: 0;
+  border-left: calc(var(--size) * 0.6) solid transparent;
+  border-right: calc(var(--size) * 0.6) solid transparent;
+  border-bottom: calc(var(--size) * 1.1) solid var(--color);
+  background: transparent;
+  box-shadow: none;
+}
+
+.card {
+  position: relative;
+  z-index: 2;
+  max-width: 560px;
+  padding: 2.75rem;
+  text-align: center;
+  border-radius: 1.75rem;
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--blue-100));
+  box-shadow: 0 40px 90px -55px hsl(var(--blue-700) / 0.6);
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, hsl(var(--blue-200)), transparent 45%, hsl(var(--blue-200)));
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  background: hsl(var(--blue-100));
+  color: hsl(var(--blue-800));
+  margin-bottom: 1rem;
+}
+
+.card h1 {
+  font-size: 2.2rem;
+  margin-bottom: 0.9rem;
+  color: hsl(var(--foreground));
+}
+
+.card p {
+  color: hsl(var(--muted-foreground));
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.primaryBtn {
+  text-decoration: none;
+  background: hsl(var(--blue-600));
+  color: white;
+  border: 1px solid hsl(var(--blue-600));
+  padding: 0.8rem 1.7rem;
+  border-radius: 0.95rem;
+  font-weight: 600;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.primaryBtn:hover {
+  background: hsl(var(--blue-700));
+  border-color: hsl(var(--blue-700));
+}
+
+.secondaryBtn {
+  text-decoration: none;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  border: 1px solid hsl(var(--border));
+  padding: 0.8rem 1.7rem;
+  border-radius: 0.95rem;
+  font-weight: 600;
+}
+
+.footerNote {
+  margin-top: 1.75rem;
+  font-size: 0.85rem;
+  color: hsl(var(--muted-foreground));
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translate3d(0, -12vh, 0) rotate(var(--rot));
+  }
+  100% {
+    transform: translate3d(var(--drift), 115vh, 0) rotate(calc(var(--rot) + 220deg));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confettiPiece {
+    animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 2.2rem 1.6rem;
+  }
+
+  .card h1 {
+    font-size: 1.8rem;
+  }
+}

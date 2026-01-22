@@ -16,7 +16,7 @@ export default function PrivacyPage() {
         <section>
           <h2>1. Introduction</h2>
           <p>
-            XeloChat (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our AI chatbot platform and services.
+            XeloChat is operated by Vivero s.r.o (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;). We are committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our AI chatbot platform and services.
           </p>
         </section>
 
@@ -159,7 +159,7 @@ export default function PrivacyPage() {
         <section>
           <h2>14. Contact Us</h2>
           <p>
-            If you have any questions about this Privacy Policy or our data practices, please contact us through the Service or via the contact information provided in your account dashboard.
+            XeloChat is operated by Vivero s.r.o. If you have any questions about this Privacy Policy or our data practices, please contact us through the Service or via the contact information provided in your account dashboard.
           </p>
         </section>
       </div>

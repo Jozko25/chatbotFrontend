@@ -1,0 +1,132 @@
+.page {
+  min-height: calc(100vh - 32px);
+  display: grid;
+  place-items: center;
+  padding: 3rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 20% 10%, hsl(var(--blue-100) / 0.6), transparent 45%),
+    radial-gradient(circle at 80% 20%, hsl(var(--blue-200) / 0.45), transparent 40%),
+    linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--blue-50) / 0.25) 55%, hsl(var(--background)) 100%);
+}
+
+.confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.confettiPiece {
+  position: absolute;
+  top: -12%;
+  left: var(--x);
+  width: var(--size);
+  height: calc(var(--size) * 1.4);
+  background: var(--color);
+  border-radius: 3px;
+  opacity: 0.9;
+  transform: rotate(var(--rot));
+  animation: confetti-fall var(--dur) linear var(--delay) infinite;
+}
+
+.card {
+  position: relative;
+  z-index: 2;
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  max-width: 520px;
+  text-align: center;
+  box-shadow: 0 30px 70px -45px hsl(var(--blue-700) / 0.4);
+}
+
+.icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1rem;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  background: hsl(var(--blue-600));
+  color: white;
+  box-shadow: 0 20px 40px -25px hsl(var(--blue-600) / 0.8);
+}
+
+.card h1 {
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
+  color: hsl(var(--foreground));
+}
+
+.card p {
+  color: hsl(var(--muted-foreground));
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.primaryBtn {
+  text-decoration: none;
+  background: hsl(var(--blue-600));
+  color: white;
+  border: 1px solid hsl(var(--blue-600));
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.9rem;
+  font-weight: 600;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.primaryBtn:hover {
+  background: hsl(var(--blue-700));
+  border-color: hsl(var(--blue-700));
+}
+
+.secondaryBtn {
+  text-decoration: none;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  border: 1px solid hsl(var(--border));
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.9rem;
+  font-weight: 600;
+}
+
+.footerNote {
+  margin-top: 1.75rem;
+  font-size: 0.85rem;
+  color: hsl(var(--muted-foreground));
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-10vh) rotate(var(--rot));
+  }
+  100% {
+    transform: translateY(120vh) rotate(calc(var(--rot) + 160deg));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confettiPiece {
+    animation: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .card {
+    padding: 2rem 1.5rem;
+  }
+
+  .card h1 {
+    font-size: 1.6rem;
+  }
+}

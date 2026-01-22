@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, CSSProperties } from 'react';
 import { ChatTheme, ClinicData, Message } from '@/types/clinic';
-import { sendChatMessageStreamLegacy, sendDemoChatMessageStream } from '@/lib/api';
+import { sendChatMessageStream, sendChatMessageStreamLegacy, sendDemoChatMessageStream } from '@/lib/api';
 import styles from './ChatInterface.module.css';
 
 interface ChatInterfaceProps {
@@ -11,6 +11,7 @@ interface ChatInterfaceProps {
   messages: Message[];
   onMessagesUpdate: (messages: Message[]) => void;
   onReset: () => void;
+  chatbotId?: string;
   embedded?: boolean;
   floating?: boolean;
   showMeta?: boolean;
@@ -26,6 +27,7 @@ export default function ChatInterface({
   messages,
   onMessagesUpdate,
   onReset,
+  chatbotId,
   embedded,
   floating,
   showMeta = true,
@@ -38,9 +40,11 @@ export default function ChatInterface({
   const [isLoading, setIsLoading] = useState(false);
   const [showAllPages, setShowAllPages] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const closeTimerRef = useRef<number | null>(null);
   const showUseBadge = mode === 'demo' && onUseWidget;
-  const containerClass = `${styles.container} ${embedded ? styles.embedded : ''} ${floating ? styles.floating : ''} ${collapsed ? styles.collapsed : ''}`;
+  const containerClass = `${styles.container} ${embedded ? styles.embedded : ''} ${floating ? styles.floating : ''} ${collapsed ? styles.collapsed : ''} ${isClosing ? styles.closing : ''}`;
   const themeVars: CSSProperties = {
     ['--chat-primary' as any]: theme.primaryColor,
     ['--chat-bg' as any]: theme.backgroundColor,
@@ -58,8 +62,25 @@ export default function ChatInterface({
   };
 
   useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) {
+        window.clearTimeout(closeTimerRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
+
+  const triggerClose = (callback?: () => void) => {
+    if (isClosing) return;
+    setIsClosing(true);
+    closeTimerRef.current = window.setTimeout(() => {
+      setIsClosing(false);
+      callback?.();
+    }, 240);
+  };
 
   const handleSend = async () => {
     const message = input.trim();
@@ -73,9 +94,63 @@ export default function ChatInterface({
 
     let accumulated = '';
 
-    const sendStream = mode === 'demo' ? sendDemoChatMessageStream : sendChatMessageStreamLegacy;
+    if (mode === 'demo') {
+      await sendDemoChatMessageStream(
+        clinicData,
+        messages,
+        message,
+        (chunk: string) => {
+          accumulated += chunk;
+        },
+        () => {
+          if (accumulated) {
+            onMessagesUpdate([
+              ...newMessages,
+              { role: 'assistant', content: accumulated },
+            ]);
+          }
+          setIsLoading(false);
+        },
+        (error: string) => {
+          onMessagesUpdate([
+            ...newMessages,
+            { role: 'assistant', content: error || 'Sorry, something went wrong.' },
+          ]);
+          setIsLoading(false);
+        }
+      );
+      return;
+    }
 
-    await sendStream(
+    if (chatbotId) {
+      await sendChatMessageStream(
+        chatbotId,
+        messages,
+        message,
+        (chunk: string) => {
+          accumulated += chunk;
+        },
+        () => {
+          if (accumulated) {
+            onMessagesUpdate([
+              ...newMessages,
+              { role: 'assistant', content: accumulated },
+            ]);
+          }
+          setIsLoading(false);
+        },
+        (error: string) => {
+          onMessagesUpdate([
+            ...newMessages,
+            { role: 'assistant', content: error || 'Sorry, something went wrong.' },
+          ]);
+          setIsLoading(false);
+        }
+      );
+      return;
+    }
+
+    await sendChatMessageStreamLegacy(
       clinicData,
       messages,
       message,
@@ -110,7 +185,7 @@ export default function ChatInterface({
 
   return (
     <div className={containerClass} onClick={handleContainerClick} style={themeVars}>
-      <header className={`${styles.header} ${showUseBadge ? styles.headerWithBadge : ''}`}>
+      <header className={styles.header}>
         <div className={styles.headerInfo}>
           <div className={styles.headerAvatar}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -128,7 +203,7 @@ export default function ChatInterface({
               {onSwitchToAssistant && (
                 <button
                   className={styles.actionButton}
-                  onClick={onSwitchToAssistant}
+                  onClick={() => triggerClose(onSwitchToAssistant)}
                   aria-label="Switch to XeloChat Assistant"
                   title="Switch to XeloChat Assistant"
                 >
@@ -142,9 +217,15 @@ export default function ChatInterface({
               )}
               <button
                 className={styles.actionButton}
-                onClick={() => setCollapsed((prev) => !prev)}
-                aria-label={collapsed ? 'Expand chat' : 'Minimize chat'}
-                title={collapsed ? 'Expand' : 'Minimize'}
+                onClick={() => {
+                  if (onClose) {
+                    triggerClose(onClose);
+                    return;
+                  }
+                  setCollapsed((prev) => !prev);
+                }}
+                aria-label={onClose ? 'Hide chat' : collapsed ? 'Expand chat' : 'Minimize chat'}
+                title={onClose ? 'Hide' : collapsed ? 'Expand' : 'Minimize'}
               >
                 {collapsed ? (
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -159,30 +240,17 @@ export default function ChatInterface({
                   </svg>
                 )}
               </button>
-              <button
-                className={styles.actionButton}
-                onClick={onClose}
-                aria-label="Close chat"
-                title="Close"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </button>
             </>
           )}
-        </div>
-        {showUseBadge && (
-          <div className={styles.headerBadge}>
+          {showUseBadge && (
             <button
               className={styles.headerCta}
               onClick={onUseWidget}
             >
               Use on my website
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </header>
 
       <div className={`${styles.body} ${collapsed ? styles.bodyCollapsed : ''}`}>

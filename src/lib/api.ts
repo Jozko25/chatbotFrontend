@@ -101,6 +101,18 @@ export interface UsageStats {
   percentageUsed: number;
 }
 
+export interface BillingStatus {
+  plan: string;
+  stripeCustomerId: string | null;
+  subscription: {
+    id: string;
+    status: string;
+    priceId: string;
+    currentPeriodEnd: string | null;
+    cancelAtPeriodEnd: boolean;
+  } | null;
+}
+
 export async function importDemoChatbot(
   clinicData: ClinicData,
   theme: ChatTheme,
@@ -300,6 +312,62 @@ export async function getUsageStats(): Promise<UsageStats> {
     throw new Error(error.error || 'Failed to fetch usage stats');
   }
   return response.json();
+}
+
+// ============================================
+// BILLING API (authenticated)
+// ============================================
+
+export async function getBillingStatus(): Promise<BillingStatus> {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_URL}/api/billing/status`, { headers });
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Failed to fetch billing status' }));
+    throw new Error(error.error || 'Failed to fetch billing status');
+  }
+  return response.json();
+}
+
+export async function createCheckoutSession(data: {
+  plan: 'STARTER' | 'PRO' | 'ENTERPRISE';
+  currency: 'EUR';
+}): Promise<{ url: string | null }> {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_URL}/api/billing/checkout`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(data)
+  });
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Failed to create checkout session' }));
+    throw new Error(error.error || 'Failed to create checkout session');
+  }
+  return response.json();
+}
+
+export async function createBillingPortalSession(): Promise<{ url: string | null }> {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_URL}/api/billing/portal`, {
+    method: 'POST',
+    headers
+  });
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Failed to create billing portal session' }));
+    throw new Error(error.error || 'Failed to create billing portal session');
+  }
+  return response.json();
+}
+
+export async function deleteAccount(): Promise<void> {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_URL}/api/account`, {
+    method: 'DELETE',
+    headers
+  });
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Failed to delete account' }));
+    throw new Error(error.error || 'Failed to delete account');
+  }
 }
 
 // ============================================
@@ -511,11 +579,11 @@ export async function sendChatMessageStream(
     });
 
     if (!response.ok) {
+      const text = await response.text();
       try {
-        const error = await response.json();
-        onError(error.error || 'Stream failed');
+        const error = JSON.parse(text);
+        onError(error.error || text || 'Stream failed');
       } catch {
-        const text = await response.text();
         onError(text || 'Stream failed');
       }
       return;
@@ -596,11 +664,11 @@ export async function sendChatMessageStreamLegacy(
     });
 
     if (!response.ok) {
+      const text = await response.text();
       try {
-        const error = await response.json();
-        onError(error.error || 'Stream failed');
+        const error = JSON.parse(text);
+        onError(error.error || text || 'Stream failed');
       } catch {
-        const text = await response.text();
         onError(text || 'Stream failed');
       }
       return;
@@ -678,11 +746,11 @@ export async function sendDemoChatMessageStream(
     });
 
     if (!response.ok) {
+      const text = await response.text();
       try {
-        const error = await response.json();
-        onError(error.error || 'Stream failed');
+        const error = JSON.parse(text);
+        onError(error.error || text || 'Stream failed');
       } catch {
-        const text = await response.text();
         onError(text || 'Stream failed');
       }
       return;
