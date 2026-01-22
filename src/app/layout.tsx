@@ -19,13 +19,6 @@ export default function RootLayout({
           {children}
         </Auth0Provider>
       </body>
-      <script
-        src="https://chatbotfrontend-production-6ff3.up.railway.app/embed.js"
-        data-chatbot-id="cmkps7qu300010ylyjyu1k3bv"
-        data-api-key="sb_live_dD-A3wNu-UDT2fzGdxF_CsE720r_sLu3"
-        data-api-url="https://chatbotbackend-production-814f.up.railway.app"
-        defer
-      />
     </html>
   );
 }
