@@ -1031,6 +1031,7 @@
         content: successMsg
       });
       renderMessages();
+      window.dispatchEvent(new CustomEvent('xelochat-booking-submitted'));
 
     } catch (err) {
       console.error('[XeloChat] Booking failed:', err);

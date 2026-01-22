@@ -195,6 +195,38 @@ export default function Home() {
     return () => clearTimeout(id);
   }, [showDemoToast]);
 
+  useEffect(() => {
+    const refreshCalendar = () => {
+      const calendarWrapper = document.querySelector('[data-calendar-wrapper]');
+      if (calendarWrapper) {
+        calendarWrapper.classList.add('refreshing');
+      }
+
+      const calendarIframe = document.getElementById('xelochat-calendar') as HTMLIFrameElement | null;
+      if (!calendarIframe) {
+        if (calendarWrapper) {
+          calendarWrapper.classList.remove('refreshing');
+        }
+        return;
+      }
+
+      const src = calendarIframe.src;
+      calendarIframe.src = '';
+      setTimeout(() => {
+        calendarIframe.src = src;
+        setTimeout(() => {
+          if (calendarWrapper) {
+            calendarWrapper.classList.remove('refreshing');
+          }
+        }, 1000);
+      }, 100);
+    };
+
+    const handler = () => refreshCalendar();
+    window.addEventListener('xelochat-booking-submitted', handler);
+    return () => window.removeEventListener('xelochat-booking-submitted', handler);
+  }, []);
+
   const applyCustomizer = () => {
     if (draftTheme) {
       setTheme(draftTheme);
