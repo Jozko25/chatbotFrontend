@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Navbar from '@/components/Navbar';
 import styles from './page.module.css';
 
 export default function EmbedGuide() {
@@ -10,7 +11,6 @@ export default function EmbedGuide() {
     const embedCode = `<script 
   src="https://yourdomain.com/widget.js" 
   data-chatbot-id="YOUR_CHATBOT_ID"
-  data-api-url="https://your-backend.railway.app" 
   async>
 </script>`;
 
@@ -21,36 +21,31 @@ export default function EmbedGuide() {
     };
 
     return (
-        <div className={styles['guide-container']}>
-            <div className={styles['guide-content']}>
-                <a href="/" className={styles['back-button']}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M19 12H5M12 19l-7-7 7-7" />
-                    </svg>
-                    Back to Home
-                </a>
+        <div className={styles.page}>
+            <Navbar />
 
-                <div className={styles.header}>
-                    <h1 className={styles.title}>📚 Embedding Guide</h1>
-                    <p className={styles.subtitle}>
-                        Step-by-step instructions to add your chatbot to any website platform
+            <main className={styles.main}>
+                {/* Hero */}
+                <section className={styles.hero}>
+                    <div className={styles.badge}>Integration Guide</div>
+                    <h1 className={styles.title}>
+                        Add your chatbot to <span>any website</span>
+                    </h1>
+                    <p className={styles.description}>
+                        One line of code. Works on WordPress, Wix, Shopify, Squarespace, and any custom website.
                     </p>
-                </div>
+                </section>
 
                 {/* Quick Start */}
-                <div className={styles.card}>
-                    <h2>
-                        <span>⚡</span>
-                        Quick Start
-                    </h2>
-                    <p>
-                        Adding your chatbot is as simple as copying one line of code and pasting it into your website.
-                        The widget works on any platform and automatically adapts to your site's design.
+                <section className={styles.quickStart}>
+                    <h2 className={styles.sectionTitle}>Quick Start</h2>
+                    <p className={styles.sectionSub}>
+                        Copy this embed code and paste it into your website. That&apos;s it.
                     </p>
 
-                    <div className={styles['code-block']}>
+                    <div className={styles.codeBlock}>
                         <button
-                            className={`${styles['copy-button']} ${copied ? styles.copied : ''}`}
+                            className={`${styles.copyBtn} ${copied ? styles.copied : ''}`}
                             onClick={copyToClipboard}
                         >
                             {copied ? '✓ Copied!' : 'Copy'}
@@ -58,386 +53,279 @@ export default function EmbedGuide() {
                         <pre>{embedCode}</pre>
                     </div>
 
-                    <div className={`${styles.alert} ${styles.info}`}>
-                        <div className={styles['alert-icon']}>ℹ️</div>
-                        <p>
-                            <strong>Replace the placeholders:</strong> You'll get your unique chatbot ID and API URL from your dashboard after creating a chatbot.
-                        </p>
+                    <div className={styles.note}>
+                        <strong>Note:</strong> Replace <code>YOUR_CHATBOT_ID</code> with your actual chatbot ID from the dashboard.
                     </div>
-                </div>
+                </section>
 
-                {/* Platform Selection */}
-                <div className={styles.card}>
-                    <h2>
-                        <span>🌐</span>
-                        Choose Your Platform
-                    </h2>
-                    <p>Select your website platform for detailed instructions:</p>
+                {/* Platform Instructions */}
+                <section className={styles.platforms}>
+                    <h2 className={styles.sectionTitle}>Platform Instructions</h2>
+                    <p className={styles.sectionSub}>
+                        Select your platform for step-by-step instructions
+                    </p>
 
-                    <div className={styles['platform-grid']}>
-                        <div
-                            className={styles['platform-card']}
-                            onClick={() => setActiveTab('wordpress')}
-                            style={{ borderColor: activeTab === 'wordpress' ? '#667eea' : '#dee2e6' }}
-                        >
-                            <h4>WordPress</h4>
-                            <p>Most popular CMS platform</p>
-                        </div>
-
-                        <div
-                            className={styles['platform-card']}
-                            onClick={() => setActiveTab('wix')}
-                            style={{ borderColor: activeTab === 'wix' ? '#667eea' : '#dee2e6' }}
-                        >
-                            <h4>Wix</h4>
-                            <p>Drag-and-drop website builder</p>
-                        </div>
-
-                        <div
-                            className={styles['platform-card']}
-                            onClick={() => setActiveTab('shopify')}
-                            style={{ borderColor: activeTab === 'shopify' ? '#667eea' : '#dee2e6' }}
-                        >
-                            <h4>Shopify</h4>
-                            <p>E-commerce platform</p>
-                        </div>
-
-                        <div
-                            className={styles['platform-card']}
-                            onClick={() => setActiveTab('squarespace')}
-                            style={{ borderColor: activeTab === 'squarespace' ? '#667eea' : '#dee2e6' }}
-                        >
-                            <h4>Squarespace</h4>
-                            <p>All-in-one website builder</p>
-                        </div>
-
-                        <div
-                            className={styles['platform-card']}
-                            onClick={() => setActiveTab('custom')}
-                            style={{ borderColor: activeTab === 'custom' ? '#667eea' : '#dee2e6' }}
-                        >
-                            <h4>Custom HTML</h4>
-                            <p>Any other website</p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* WordPress Instructions */}
-                {activeTab === 'wordpress' && (
-                    <div className={styles.card}>
-                        <h2>WordPress Installation</h2>
-
-                        <h3>Method 1: Using a Plugin (Recommended)</h3>
-                        <ol className={styles.steps}>
-                            <li>
-                                <strong>Install "Insert Headers and Footers" plugin</strong><br />
-                                Go to Plugins → Add New → Search for "Insert Headers and Footers" → Install and Activate
-                            </li>
-                            <li>
-                                <strong>Navigate to Settings → Insert Headers and Footers</strong><br />
-                                In your WordPress admin dashboard
-                            </li>
-                            <li>
-                                <strong>Paste the embed code</strong><br />
-                                Paste your chatbot script into the "Scripts in Footer" section
-                            </li>
-                            <li>
-                                <strong>Save Changes</strong><br />
-                                Click "Save" and visit your website to see the chatbot appear!
-                            </li>
-                        </ol>
-
-                        <h3>Method 2: Edit Theme Files</h3>
-                        <ol className={styles.steps}>
-                            <li>
-                                <strong>Go to Appearance → Theme File Editor</strong><br />
-                                In your WordPress admin dashboard
-                            </li>
-                            <li>
-                                <strong>Select footer.php</strong><br />
-                                Find and click on "Theme Footer" (footer.php) in the right sidebar
-                            </li>
-                            <li>
-                                <strong>Add the script before &lt;/body&gt;</strong><br />
-                                Paste your embed code just before the closing &lt;/body&gt; tag
-                            </li>
-                            <li>
-                                <strong>Update File</strong><br />
-                                Click "Update File" to save your changes
-                            </li>
-                        </ol>
-
-                        <div className={`${styles.alert} ${styles.alert}`}>
-                            <div className={styles['alert-icon']}>⚠️</div>
-                            <p>
-                                <strong>Note:</strong> If you update your theme, you'll need to re-add the code. Using a plugin (Method 1) avoids this issue.
-                            </p>
-                        </div>
-                    </div>
-                )}
-
-                {/* Wix Instructions */}
-                {activeTab === 'wix' && (
-                    <div className={styles.card}>
-                        <h2>Wix Installation</h2>
-
-                        <ol className={styles.steps}>
-                            <li>
-                                <strong>Open your Wix Editor</strong><br />
-                                Log in to Wix and click "Edit Site" on your website
-                            </li>
-                            <li>
-                                <strong>Add an Embed Element</strong><br />
-                                Click the "+" button → Embed → Custom Embeds → "Embed a Widget"
-                            </li>
-                            <li>
-                                <strong>Click "Add Custom Code"</strong><br />
-                                In the settings panel that appears on the left
-                            </li>
-                            <li>
-                                <strong>Paste your embed code</strong><br />
-                                Paste the chatbot script into the code box
-                            </li>
-                            <li>
-                                <strong>Set code placement</strong><br />
-                                Choose "Body - end" for optimal performance
-                            </li>
-                            <li>
-                                <strong>Apply to all pages</strong><br />
-                                Select "All pages" so the chatbot appears site-wide
-                            </li>
-                            <li>
-                                <strong>Publish your site</strong><br />
-                                Click "Publish" in the top right to make your chatbot live
-                            </li>
-                        </ol>
-
-                        <div className={`${styles.alert} ${styles.success}`}>
-                            <div className={styles['alert-icon']}>✓</div>
-                            <p>
-                                <strong>Pro tip:</strong> The chatbot will automatically position itself in the bottom-right corner, so you don't need to worry about placement!
-                            </p>
-                        </div>
-                    </div>
-                )}
-
-                {/* Shopify Instructions */}
-                {activeTab === 'shopify' && (
-                    <div className={styles.card}>
-                        <h2>Shopify Installation</h2>
-
-                        <ol className={styles.steps}>
-                            <li>
-                                <strong>Go to Online Store → Themes</strong><br />
-                                In your Shopify admin dashboard
-                            </li>
-                            <li>
-                                <strong>Click "Actions" → "Edit code"</strong><br />
-                                On your current theme
-                            </li>
-                            <li>
-                                <strong>Find theme.liquid</strong><br />
-                                In the left sidebar under "Layout", click on "theme.liquid"
-                            </li>
-                            <li>
-                                <strong>Locate the &lt;/body&gt; tag</strong><br />
-                                Scroll down or use Ctrl+F (Cmd+F on Mac) to find the closing &lt;/body&gt; tag
-                            </li>
-                            <li>
-                                <strong>Paste the embed code</strong><br />
-                                Add your chatbot script just before the &lt;/body&gt; tag
-                            </li>
-                            <li>
-                                <strong>Save the file</strong><br />
-                                Click "Save" in the top right corner
-                            </li>
-                        </ol>
-
-                        <div className={`${styles.alert} ${styles.info}`}>
-                            <div className={styles['alert-icon']}>ℹ️</div>
-                            <p>
-                                <strong>E-commerce ready:</strong> Your chatbot can help customers with product questions, shipping info, and more!
-                            </p>
-                        </div>
-                    </div>
-                )}
-
-                {/* Squarespace Instructions */}
-                {activeTab === 'squarespace' && (
-                    <div className={styles.card}>
-                        <h2>Squarespace Installation</h2>
-
-                        <ol className={styles.steps}>
-                            <li>
-                                <strong>Go to Settings → Advanced → Code Injection</strong><br />
-                                In your Squarespace admin panel
-                            </li>
-                            <li>
-                                <strong>Scroll to "Footer" section</strong><br />
-                                This ensures the chatbot loads after your page content
-                            </li>
-                            <li>
-                                <strong>Paste the embed code</strong><br />
-                                Add your chatbot script in the Footer code box
-                            </li>
-                            <li>
-                                <strong>Save your changes</strong><br />
-                                Click "Save" at the top of the page
-                            </li>
-                            <li>
-                                <strong>View your site</strong><br />
-                                The chatbot should now appear on all pages of your website
-                            </li>
-                        </ol>
-
-                        <div className={`${styles.alert} ${styles.success}`}>
-                            <div className={styles['alert-icon']}>✓</div>
-                            <p>
-                                <strong>That's it!</strong> Squarespace makes it super easy with their Code Injection feature.
-                            </p>
-                        </div>
-                    </div>
-                )}
-
-                {/* Custom HTML Instructions */}
-                {activeTab === 'custom' && (
-                    <div className={styles.card}>
-                        <h2>Custom HTML / Other Platforms</h2>
-
-                        <p>
-                            For any website where you can edit HTML, simply add the embed code before the closing &lt;/body&gt; tag:
-                        </p>
-
-                        <ol className={styles.steps}>
-                            <li>
-                                <strong>Open your HTML file</strong><br />
-                                Or access your website's HTML editor
-                            </li>
-                            <li>
-                                <strong>Find the &lt;/body&gt; tag</strong><br />
-                                Usually near the end of your HTML file
-                            </li>
-                            <li>
-                                <strong>Paste the embed code</strong><br />
-                                Add your chatbot script just before &lt;/body&gt;
-                            </li>
-                            <li>
-                                <strong>Save and upload</strong><br />
-                                Save your file and upload it to your server if needed
-                            </li>
-                        </ol>
-
-                        <div className={styles['code-block']}>
-                            <pre>{`<!DOCTYPE html>
-<html>
-<head>
-  <title>Your Website</title>
-</head>
-<body>
-  <!-- Your website content -->
-  
-  <!-- SiteBot Widget -->
-  <script 
-    src="https://yourdomain.com/widget.js" 
-    data-chatbot-id="YOUR_CHATBOT_ID"
-    async>
-  </script>
-</body>
-</html>`}</pre>
-                        </div>
-
-                        <div className={`${styles.alert} ${styles.info}`}>
-                            <div className={styles['alert-icon']}>ℹ️</div>
-                            <p>
-                                <strong>Works everywhere:</strong> This method works on any platform that allows custom HTML, including Webflow, Carrd, Ghost, and more.
-                            </p>
-                        </div>
-                    </div>
-                )}
-
-                {/* Customization Options */}
-                <div className={styles.card}>
-                    <h2>
-                        <span>🎨</span>
-                        Customization Options
-                    </h2>
-                    <p>You can customize your chatbot's appearance using data attributes:</p>
-
-                    <div className={styles['code-block']}>
-                        <pre>{`<script 
-  src="https://yourdomain.com/widget.js" 
-  data-chatbot-id="YOUR_CHATBOT_ID"
-  data-bot-name="My Business"
-  data-tagline="How can we help?"
-  data-primary-color="#ff6b6b"
-  data-position="bottom-left"
-  async>
-</script>`}</pre>
+                    <div className={styles.platformGrid}>
+                        {['wordpress', 'wix', 'shopify', 'squarespace', 'custom'].map((platform) => (
+                            <button
+                                key={platform}
+                                className={`${styles.platformBtn} ${activeTab === platform ? styles.active : ''}`}
+                                onClick={() => setActiveTab(platform)}
+                            >
+                                <h4>{platform.charAt(0).toUpperCase() + platform.slice(1)}</h4>
+                                <p>{platform === 'custom' ? 'Any website' : 'Website builder'}</p>
+                            </button>
+                        ))}
                     </div>
 
-                    <h3>Available Options:</h3>
-                    <ul style={{ paddingLeft: '20px', lineHeight: '1.8' }}>
-                        <li><strong>data-bot-name</strong> - Custom name for your chatbot</li>
-                        <li><strong>data-tagline</strong> - Subtitle shown in the header</li>
-                        <li><strong>data-primary-color</strong> - Brand color (hex code)</li>
-                        <li><strong>data-position</strong> - "bottom-right" or "bottom-left"</li>
-                    </ul>
-                </div>
+                    <div className={styles.instructions}>
+                        {activeTab === 'wordpress' && (
+                            <>
+                                <h3>WordPress</h3>
+                                <p className={styles.instructionsSub}>Two easy methods to add the chatbot to your WordPress site</p>
+
+                                <h4 className={styles.methodTitle}>Method 1: Using a Plugin (Recommended)</h4>
+                                <ol className={styles.steps}>
+                                    <li>
+                                        <strong>Install &quot;Insert Headers and Footers&quot; plugin</strong>
+                                        <span>Go to Plugins → Add New → Search → Install and Activate</span>
+                                    </li>
+                                    <li>
+                                        <strong>Navigate to Settings → Insert Headers and Footers</strong>
+                                        <span>In your WordPress admin dashboard</span>
+                                    </li>
+                                    <li>
+                                        <strong>Paste the embed code in &quot;Scripts in Footer&quot;</strong>
+                                        <span>This ensures the widget loads after your page content</span>
+                                    </li>
+                                    <li>
+                                        <strong>Save Changes</strong>
+                                        <span>Visit your site to see the chatbot in action</span>
+                                    </li>
+                                </ol>
+
+                                <h4 className={styles.methodTitle}>Method 2: Edit Theme Files</h4>
+                                <ol className={styles.steps}>
+                                    <li>
+                                        <strong>Go to Appearance → Theme File Editor</strong>
+                                        <span>In your WordPress admin dashboard</span>
+                                    </li>
+                                    <li>
+                                        <strong>Select footer.php</strong>
+                                        <span>Find &quot;Theme Footer&quot; in the right sidebar</span>
+                                    </li>
+                                    <li>
+                                        <strong>Paste the code before &lt;/body&gt;</strong>
+                                        <span>Right before the closing body tag</span>
+                                    </li>
+                                    <li>
+                                        <strong>Update File</strong>
+                                        <span>Save your changes</span>
+                                    </li>
+                                </ol>
+
+                                <div className={styles.warning}>
+                                    <strong>Note:</strong> If you update your theme, you&apos;ll need to re-add the code. Using a plugin avoids this issue.
+                                </div>
+                            </>
+                        )}
+
+                        {activeTab === 'wix' && (
+                            <>
+                                <h3>Wix</h3>
+                                <p className={styles.instructionsSub}>Add the chatbot using Wix&apos;s custom code feature</p>
+
+                                <ol className={styles.steps}>
+                                    <li>
+                                        <strong>Open your Wix Editor</strong>
+                                        <span>Log in and click &quot;Edit Site&quot;</span>
+                                    </li>
+                                    <li>
+                                        <strong>Click Settings → Custom Code</strong>
+                                        <span>Or go to Marketing &amp; SEO → Custom Code</span>
+                                    </li>
+                                    <li>
+                                        <strong>Click &quot;+ Add Custom Code&quot;</strong>
+                                        <span>In the Body - end section</span>
+                                    </li>
+                                    <li>
+                                        <strong>Paste your embed code</strong>
+                                        <span>Give it a name like &quot;Chatbot Widget&quot;</span>
+                                    </li>
+                                    <li>
+                                        <strong>Apply to All Pages</strong>
+                                        <span>Select this option for site-wide coverage</span>
+                                    </li>
+                                    <li>
+                                        <strong>Publish your site</strong>
+                                        <span>Click Publish to make changes live</span>
+                                    </li>
+                                </ol>
+
+                                <div className={styles.tip}>
+                                    <strong>Pro tip:</strong> The chatbot automatically positions itself, so you don&apos;t need to worry about placement!
+                                </div>
+                            </>
+                        )}
+
+                        {activeTab === 'shopify' && (
+                            <>
+                                <h3>Shopify</h3>
+                                <p className={styles.instructionsSub}>Add the chatbot to your Shopify store theme</p>
+
+                                <ol className={styles.steps}>
+                                    <li>
+                                        <strong>Go to Online Store → Themes</strong>
+                                        <span>In your Shopify admin dashboard</span>
+                                    </li>
+                                    <li>
+                                        <strong>Click Actions → Edit code</strong>
+                                        <span>On your current active theme</span>
+                                    </li>
+                                    <li>
+                                        <strong>Find theme.liquid</strong>
+                                        <span>Under Layout in the left sidebar</span>
+                                    </li>
+                                    <li>
+                                        <strong>Locate the &lt;/body&gt; tag</strong>
+                                        <span>Use Ctrl+F (Cmd+F on Mac) to search</span>
+                                    </li>
+                                    <li>
+                                        <strong>Paste the embed code before &lt;/body&gt;</strong>
+                                        <span>Add it right before the closing tag</span>
+                                    </li>
+                                    <li>
+                                        <strong>Save</strong>
+                                        <span>Click Save in the top right corner</span>
+                                    </li>
+                                </ol>
+                            </>
+                        )}
+
+                        {activeTab === 'squarespace' && (
+                            <>
+                                <h3>Squarespace</h3>
+                                <p className={styles.instructionsSub}>Use Squarespace&apos;s Code Injection feature</p>
+
+                                <ol className={styles.steps}>
+                                    <li>
+                                        <strong>Go to Settings → Advanced → Code Injection</strong>
+                                        <span>In your Squarespace admin panel</span>
+                                    </li>
+                                    <li>
+                                        <strong>Scroll to the Footer section</strong>
+                                        <span>This loads the chatbot after your page content</span>
+                                    </li>
+                                    <li>
+                                        <strong>Paste the embed code</strong>
+                                        <span>Add it directly in the Footer code box</span>
+                                    </li>
+                                    <li>
+                                        <strong>Save</strong>
+                                        <span>Click Save at the top</span>
+                                    </li>
+                                </ol>
+
+                                <div className={styles.tip}>
+                                    <strong>That&apos;s it!</strong> Squarespace makes it super easy with Code Injection.
+                                </div>
+                            </>
+                        )}
+
+                        {activeTab === 'custom' && (
+                            <>
+                                <h3>Custom HTML / Any Website</h3>
+                                <p className={styles.instructionsSub}>Works on Webflow, Carrd, Ghost, and any custom site</p>
+
+                                <ol className={styles.steps}>
+                                    <li>
+                                        <strong>Open your HTML file</strong>
+                                        <span>Or access your website&apos;s HTML editor</span>
+                                    </li>
+                                    <li>
+                                        <strong>Find the &lt;/body&gt; tag</strong>
+                                        <span>Usually near the end of your HTML file</span>
+                                    </li>
+                                    <li>
+                                        <strong>Paste the embed code before &lt;/body&gt;</strong>
+                                        <span>Right before the closing tag</span>
+                                    </li>
+                                    <li>
+                                        <strong>Save and upload</strong>
+                                        <span>Deploy your updated file</span>
+                                    </li>
+                                </ol>
+                            </>
+                        )}
+                    </div>
+                </section>
+
+                {/* Customization */}
+                <section className={styles.customization}>
+                    <h2 className={styles.sectionTitle}>Customization</h2>
+                    <p className={styles.sectionSub}>
+                        Personalize your chatbot with these optional attributes
+                    </p>
+
+                    <div className={styles.optionsGrid}>
+                        <ul className={styles.optionsList}>
+                            <li><code>data-bot-name</code> — Custom name for your chatbot</li>
+                            <li><code>data-tagline</code> — Subtitle shown in the header</li>
+                        </ul>
+                        <ul className={styles.optionsList}>
+                            <li><code>data-primary-color</code> — Brand color (hex code)</li>
+                            <li><code>data-position</code> — &quot;bottom-right&quot; or &quot;bottom-left&quot;</li>
+                        </ul>
+                    </div>
+                </section>
 
                 {/* Troubleshooting */}
-                <div className={styles.card}>
-                    <h2>
-                        <span>🔧</span>
-                        Troubleshooting
-                    </h2>
+                <section className={styles.troubleshooting}>
+                    <h2 className={styles.sectionTitle}>Troubleshooting</h2>
+                    <p className={styles.sectionSub}>Common issues and solutions</p>
 
-                    <h3>Chatbot not appearing?</h3>
-                    <ul style={{ paddingLeft: '20px', lineHeight: '1.8' }}>
-                        <li>Clear your browser cache and refresh the page</li>
-                        <li>Check that you've replaced YOUR_CHATBOT_ID with your actual ID</li>
-                        <li>Make sure the script is placed before the &lt;/body&gt; tag</li>
-                        <li>Check browser console for any JavaScript errors (F12 → Console)</li>
-                    </ul>
+                    <div className={styles.troubleGrid}>
+                        <div className={styles.troubleItem}>
+                            <h4>Chatbot not appearing?</h4>
+                            <ul>
+                                <li>Clear your browser cache and refresh</li>
+                                <li>Check that you replaced YOUR_CHATBOT_ID</li>
+                                <li>Make sure the script is before &lt;/body&gt;</li>
+                                <li>Check browser console for errors (F12)</li>
+                            </ul>
+                        </div>
+                        <div className={styles.troubleItem}>
+                            <h4>Need help?</h4>
+                            <ul>
+                                <li>The widget uses Shadow DOM — no CSS conflicts</li>
+                                <li>Try changing position to &quot;bottom-left&quot;</li>
+                                <li>Contact support@xelochat.com for assistance</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
 
-                    <h3>Widget conflicts with my site?</h3>
-                    <ul style={{ paddingLeft: '20px', lineHeight: '1.8' }}>
-                        <li>The widget uses Shadow DOM for complete CSS isolation</li>
-                        <li>If you still see issues, try changing the position to "bottom-left"</li>
-                        <li>Contact support if problems persist</li>
-                    </ul>
+                {/* CTA */}
+                <section className={styles.ctaSection}>
+                    <h2>Ready to add your chatbot?</h2>
+                    <p>Create your first chatbot in under 90 seconds</p>
+                    <a href="/dashboard" className={styles.ctaButton}>Go to Dashboard</a>
+                </section>
+            </main>
 
-                    <h3>Need help?</h3>
-                    <p>
-                        Contact us at <strong>support@xelochat.com</strong> and we'll help you get set up!
+            {/* Footer */}
+            <footer className={styles.footer}>
+                <div className={styles.footerContent}>
+                    <p className={styles.footerCopyright}>
+                        © {new Date().getFullYear()} XeloChat. All rights reserved.
                     </p>
+                    <div className={styles.footerLinks}>
+                        <a href="/terms">Terms</a>
+                        <a href="/privacy">Privacy</a>
+                        <a href="/">Home</a>
+                    </div>
                 </div>
-
-                {/* Get Started CTA */}
-                <div className={styles.card} style={{ textAlign: 'center', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' }}>
-                    <h2 style={{ color: 'white' }}>Ready to add your chatbot?</h2>
-                    <p style={{ color: 'rgba(255,255,255,0.9)', marginBottom: '25px' }}>
-                        Create your first chatbot in under 90 seconds
-                    </p>
-                    <a
-                        href="/dashboard"
-                        style={{
-                            display: 'inline-block',
-                            background: 'white',
-                            color: '#667eea',
-                            padding: '14px 32px',
-                            borderRadius: '12px',
-                            textDecoration: 'none',
-                            fontWeight: '600',
-                            fontSize: '1.1rem',
-                            transition: 'transform 0.2s',
-                        }}
-                        onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                        onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                    >
-                        Go to Dashboard →
-                    </a>
-                </div>
-            </div>
+            </footer>
         </div>
     );
 }

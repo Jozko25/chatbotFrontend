@@ -19,6 +19,7 @@ const PLANS = [
       'Lead capture only',
       'No calendar integration'
     ],
+    highlight: false,
     cta: { label: 'Start Free', href: '/auth/login?screen_hint=signup' }
   },
   {
@@ -32,6 +33,7 @@ const PLANS = [
       'Remove branding',
       'Booking requests via email'
     ],
+    highlight: false,
     cta: { label: 'Choose Starter', href: '/auth/login?screen_hint=signup' }
   },
   {
