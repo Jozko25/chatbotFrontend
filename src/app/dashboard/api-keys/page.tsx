@@ -18,6 +18,9 @@ export default function ApiKeysPage() {
   const [creatingKey, setCreatingKey] = useState(false);
   const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [editingKey, setEditingKey] = useState<ApiKey | null>(null);
+  const [editDomains, setEditDomains] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -80,6 +83,37 @@ export default function ApiKeysPage() {
     await navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  function openEditDomains(key: ApiKey) {
+    setEditingKey(key);
+    setEditDomains(key.allowedDomains.join(', '));
+    setError(null);
+  }
+
+  async function handleUpdateDomains(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editingKey) return;
+    setIsUpdating(true);
+    setError(null);
+
+    try {
+      const domains = editDomains
+        .split(',')
+        .map(d => d.trim())
+        .filter(d => d.length > 0);
+
+      await updateApiKey(editingKey.id, { allowedDomains: domains });
+      setApiKeys(apiKeys.map(k => (
+        k.id === editingKey.id ? { ...k, allowedDomains: domains } : k
+      )));
+      setEditingKey(null);
+      setEditDomains('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update API key');
+    } finally {
+      setIsUpdating(false);
+    }
   }
 
   if (loading) {
@@ -172,6 +206,16 @@ export default function ApiKeysPage() {
                         </svg>
                       </button>
                     )}
+                    <button
+                      onClick={() => openEditDomains(key)}
+                      className={styles.iconBtn}
+                      title="Edit allowed domains"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M12 20h9"/>
+                        <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+                      </svg>
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -277,6 +321,52 @@ export default function ApiKeysPage() {
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {editingKey && (
+        <div className={styles.modalOverlay} onClick={() => {
+          if (!isUpdating) {
+            setEditingKey(null);
+            setEditDomains('');
+          }
+        }}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2>Edit Allowed Domains</h2>
+            </div>
+            <form onSubmit={handleUpdateDomains}>
+              <div className={styles.modalBody}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="editDomains">Domains (comma-separated)</label>
+                  <input
+                    id="editDomains"
+                    type="text"
+                    value={editDomains}
+                    onChange={(e) => setEditDomains(e.target.value)}
+                    placeholder="example.com, www.example.com"
+                  />
+                  <small>Leave empty to allow all domains.</small>
+                </div>
+              </div>
+              <div className={styles.modalFooter}>
+                <button
+                  type="button"
+                  className={styles.secondaryBtn}
+                  onClick={() => {
+                    setEditingKey(null);
+                    setEditDomains('');
+                  }}
+                  disabled={isUpdating}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className={styles.primaryBtn} disabled={isUpdating}>
+                  {isUpdating ? 'Saving...' : 'Save Domains'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
