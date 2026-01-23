@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getApiKeys, createApiKey, revokeApiKey, getChatbots, ApiKey, ChatbotSummary } from '@/lib/api';
+import { getApiKeys, createApiKey, revokeApiKey, updateApiKey, getChatbots, ApiKey, ChatbotSummary } from '@/lib/api';
 import styles from '../dashboard.module.css';
 
 export default function ApiKeysPage() {
