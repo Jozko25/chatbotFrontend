@@ -26,7 +26,7 @@ interface XeloChatAssistantProps {
   onSwitchToDemo?: () => void;
 }
 
-// App Knowledge Base
+// Comprehensive App Knowledge Base
 const APP_KNOWLEDGE = {
   name: 'XeloChat',
   description: 'AI-powered chatbot platform that turns any website into an intelligent assistant',
@@ -41,14 +41,62 @@ const APP_KNOWLEDGE = {
     { name: 'Notifications', description: 'Email and webhook notifications for bookings' },
   ],
   settings: {
-    embed: { name: 'Embed Code', description: 'Get the script to add chatbot to your website', keywords: ['embed', 'code', 'script', 'install', 'website', 'snippet'], path: 'Settings → Embed Code' },
-    apikeys: { name: 'API Keys', description: 'Manage authentication keys for your chatbot', keywords: ['api', 'key', 'authentication', 'access', 'token'], path: 'Settings → API Keys' },
-    ai: { name: 'AI Settings', description: 'Configure welcome message, system prompt, and custom knowledge', keywords: ['ai', 'prompt', 'welcome', 'message', 'custom knowledge', 'behavior'], path: 'Settings → AI Settings' },
-    communication: { name: 'Communication Style', description: 'Set tone (professional/friendly/casual) and language preferences', keywords: ['tone', 'style', 'language', 'greeting', 'friendly', 'professional', 'casual'], path: 'Settings → Communication Style' },
-    pages: { name: 'Page Restrictions', description: 'Control which pages display the widget (show/hide on specific URLs)', keywords: ['page', 'pages', 'restriction', 'url', 'display', 'show', 'hide', 'exclude', 'include', 'where'], path: 'Settings → Page Restrictions' },
-    booking: { name: 'Booking & Appointments', description: 'Enable/disable booking, choose what info to collect', keywords: ['booking', 'appointment', 'schedule', 'reservation', 'calendar'], path: 'Settings → Booking & Appointments' },
-    notifications: { name: 'Notifications', description: 'Set up email and webhook alerts for bookings', keywords: ['notification', 'email', 'webhook', 'alert', 'notify'], path: 'Settings → Notifications' },
-    knowledge: { name: 'Knowledge Base', description: 'Edit business info, services, prices, opening hours', keywords: ['knowledge', 'business', 'services', 'prices', 'hours', 'info', 'data', 'content'], path: 'Settings → Knowledge Base' },
+    embed: {
+      name: 'Embed Code',
+      description: 'Copy the script tag to add the chatbot widget to your website. Just paste it before the closing </body> tag.',
+      details: 'The embed code includes your chatbot ID and API key. Works on any website - WordPress, Shopify, Wix, custom sites, etc.',
+      keywords: ['embed', 'code', 'script', 'install', 'website', 'snippet', 'widget', 'add', 'put', 'place', 'integration', 'html', 'tag', 'copy', 'paste'],
+      path: 'Settings → Embed Code'
+    },
+    apikeys: {
+      name: 'API Keys',
+      description: 'Create and manage API keys for your chatbot. Each key can be restricted to specific domains for security.',
+      details: 'Allowed domains restrict which websites can use your API key. Leave empty to allow all domains, or add specific domains like "example.com, www.example.com" to restrict access. This prevents unauthorized use of your chatbot.',
+      keywords: ['api', 'key', 'keys', 'authentication', 'access', 'token', 'domain', 'domains', 'allowed', 'restrict', 'security', 'cors', 'origin', 'whitelist', 'authorize', 'permission', 'credentials'],
+      path: 'Settings → API Keys'
+    },
+    ai: {
+      name: 'AI Settings',
+      description: 'Customize how your chatbot behaves: welcome message, system prompt, and additional knowledge.',
+      details: 'Welcome message is what users see when they open the chat. System prompt (advanced) overrides the default AI behavior. Additional knowledge lets you add info not captured by the scraper - like current promotions, policies, or FAQs.',
+      keywords: ['ai', 'prompt', 'welcome', 'message', 'custom', 'knowledge', 'behavior', 'personality', 'instruction', 'system', 'greeting', 'first', 'response', 'train', 'teach', 'learn'],
+      path: 'Settings → AI Settings'
+    },
+    communication: {
+      name: 'Communication Style',
+      description: 'Set the chatbot\'s tone (professional, friendly, casual, or concise) and response language.',
+      details: 'Tone options: Professional (formal, business-like), Friendly (warm, conversational), Casual (relaxed, informal), Concise (brief, to-the-point). Language can auto-detect or be set to Slovak, Czech, English, German, Hungarian, or Polish.',
+      keywords: ['tone', 'style', 'language', 'greeting', 'friendly', 'professional', 'casual', 'concise', 'formal', 'informal', 'voice', 'personality', 'speak', 'respond', 'communication'],
+      path: 'Settings → Communication Style'
+    },
+    pages: {
+      name: 'Page Restrictions',
+      description: 'Control which pages on your website display the chatbot widget.',
+      details: 'Three modes: Show on all pages (default), Only show on specific pages (whitelist), Hide on specific pages (blacklist). Use URL patterns like /contact or /blog/* (wildcard matches any path).',
+      keywords: ['page', 'pages', 'restriction', 'url', 'display', 'show', 'hide', 'exclude', 'include', 'where', 'visible', 'appear', 'specific', 'certain', 'only', 'except', 'block', 'allow', 'path', 'route'],
+      path: 'Settings → Page Restrictions'
+    },
+    booking: {
+      name: 'Booking & Appointments',
+      description: 'Enable customers to book appointments through the chatbot. Choose which info to collect.',
+      details: 'When enabled, the chatbot can collect: customer name (required), email, phone, service type, preferred date/time, and notes. You can customize the booking prompt message too.',
+      keywords: ['booking', 'appointment', 'schedule', 'reservation', 'calendar', 'book', 'reserve', 'date', 'time', 'slot', 'availability', 'meeting', 'form', 'collect', 'customer', 'lead'],
+      path: 'Settings → Booking & Appointments'
+    },
+    notifications: {
+      name: 'Notifications',
+      description: 'Get notified when customers submit booking requests via email or webhook.',
+      details: 'Email notifications send you a formatted message with booking details. Webhook sends a POST request to your URL (great for CRM/calendar integrations like Zapier, Make, or custom systems).',
+      keywords: ['notification', 'notifications', 'email', 'webhook', 'alert', 'notify', 'send', 'receive', 'crm', 'integration', 'zapier', 'make', 'automate', 'trigger'],
+      path: 'Settings → Notifications'
+    },
+    knowledge: {
+      name: 'Knowledge Base',
+      description: 'Edit the business information the chatbot knows: name, contact details, services, prices, and hours.',
+      details: 'This is the core data your chatbot uses to answer questions. Edit business name, phone, email, address, opening hours, and services with prices. Changes take effect immediately.',
+      keywords: ['knowledge', 'business', 'services', 'prices', 'hours', 'info', 'data', 'content', 'edit', 'update', 'change', 'modify', 'scraped', 'contact', 'address', 'phone', 'email', 'opening', 'products', 'offerings'],
+      path: 'Settings → Knowledge Base'
+    },
   },
   dashboardPages: {
     dashboard: { path: '/dashboard', description: 'Overview with usage stats and recent chatbots' },
@@ -64,75 +112,130 @@ const APP_KNOWLEDGE = {
   pricing: 'Free plan includes 50 messages and 1 chatbot. Paid plans remove branding and unlock bookings. See /pricing for details.',
 };
 
-// Simple intent detection for the assistant
-function detectAssistantIntent(message: string): { intent: string; context: string } {
+// Smart intent detection - matches user queries to the right settings
+function detectAssistantIntent(message: string): { intent: string; context: string; confidence: 'high' | 'medium' | 'low' } {
   const lower = message.toLowerCase();
 
-  // Settings-related intents
-  if (lower.includes('embed') || lower.includes('script') || lower.includes('install')) {
-    return { intent: 'settings', context: 'embed' };
+  // Direct keyword matching for each setting (order matters - more specific first)
+
+  // API Keys - check for domain/security related queries
+  if (lower.includes('allowed domain') || lower.includes('domain restriction') || lower.includes('restrict domain') ||
+      lower.includes('whitelist') || lower.includes('cors') || lower.includes('origin')) {
+    return { intent: 'settings', context: 'apikeys', confidence: 'high' };
   }
-  if (lower.includes('api key') || lower.includes('authentication')) {
-    return { intent: 'settings', context: 'apikeys' };
+  if ((lower.includes('api') && lower.includes('key')) || lower.includes('authentication') || lower.includes('credentials')) {
+    return { intent: 'settings', context: 'apikeys', confidence: 'high' };
   }
-  if (lower.includes('ai setting') || lower.includes('prompt') || lower.includes('welcome message')) {
-    return { intent: 'settings', context: 'ai' };
+
+  // Embed code
+  if (lower.includes('embed') || lower.includes('script') || lower.includes('install') ||
+      lower.includes('add to website') || lower.includes('put on site') || lower.includes('widget code')) {
+    return { intent: 'settings', context: 'embed', confidence: 'high' };
   }
-  if (lower.includes('tone') || lower.includes('communication') || lower.includes('language') || lower.includes('greeting')) {
-    return { intent: 'settings', context: 'communication' };
+
+  // AI Settings
+  if (lower.includes('welcome message') || lower.includes('first message') || lower.includes('greeting message')) {
+    return { intent: 'settings', context: 'ai', confidence: 'high' };
   }
-  if (lower.includes('booking') || lower.includes('appointment') || lower.includes('schedule') || lower.includes('reservation')) {
-    return { intent: 'settings', context: 'booking' };
+  if (lower.includes('system prompt') || lower.includes('custom prompt') || lower.includes('ai behavior') ||
+      lower.includes('bot personality') || lower.includes('custom knowledge') || lower.includes('train')) {
+    return { intent: 'settings', context: 'ai', confidence: 'high' };
   }
-  if (lower.includes('page') && (lower.includes('restriction') || lower.includes('hide') || lower.includes('show') || lower.includes('display') || lower.includes('where') || lower.includes('which'))) {
-    return { intent: 'settings', context: 'pages' };
+  if (lower.includes('ai setting')) {
+    return { intent: 'settings', context: 'ai', confidence: 'high' };
   }
-  if (lower.includes('exclude') || lower.includes('include') || (lower.includes('url') && lower.includes('widget'))) {
-    return { intent: 'settings', context: 'pages' };
+
+  // Communication Style
+  if (lower.includes('tone') || lower.includes('communication style') || lower.includes('response language') ||
+      (lower.includes('language') && !lower.includes('programming'))) {
+    return { intent: 'settings', context: 'communication', confidence: 'high' };
   }
-  if (lower.includes('notification') || lower.includes('email alert') || lower.includes('webhook')) {
-    return { intent: 'settings', context: 'notifications' };
+  if ((lower.includes('professional') || lower.includes('friendly') || lower.includes('casual') || lower.includes('concise')) &&
+      (lower.includes('mode') || lower.includes('style') || lower.includes('tone') || lower.includes('respond'))) {
+    return { intent: 'settings', context: 'communication', confidence: 'high' };
   }
-  if (lower.includes('knowledge base') || lower.includes('business info') || lower.includes('services') || lower.includes('prices') || lower.includes('opening hours')) {
-    return { intent: 'settings', context: 'knowledge' };
+
+  // Page Restrictions
+  if ((lower.includes('page') || lower.includes('url') || lower.includes('path')) &&
+      (lower.includes('restriction') || lower.includes('hide') || lower.includes('show') ||
+       lower.includes('display') || lower.includes('appear') || lower.includes('visible') ||
+       lower.includes('exclude') || lower.includes('include') || lower.includes('only') || lower.includes('specific'))) {
+    return { intent: 'settings', context: 'pages', confidence: 'high' };
+  }
+  if (lower.includes('where') && (lower.includes('widget') || lower.includes('chatbot') || lower.includes('chat'))) {
+    return { intent: 'settings', context: 'pages', confidence: 'medium' };
+  }
+
+  // Booking
+  if (lower.includes('booking') || lower.includes('appointment') || lower.includes('schedule') ||
+      lower.includes('reservation') || lower.includes('book a') || lower.includes('lead capture')) {
+    return { intent: 'settings', context: 'booking', confidence: 'high' };
+  }
+
+  // Notifications
+  if (lower.includes('notification') || lower.includes('webhook') || lower.includes('email alert') ||
+      (lower.includes('email') && (lower.includes('when') || lower.includes('booking') || lower.includes('notify')))) {
+    return { intent: 'settings', context: 'notifications', confidence: 'high' };
+  }
+  if (lower.includes('zapier') || lower.includes('integration') || lower.includes('crm')) {
+    return { intent: 'settings', context: 'notifications', confidence: 'medium' };
+  }
+
+  // Knowledge Base
+  if (lower.includes('knowledge base') || lower.includes('business info') || lower.includes('scraped data') ||
+      lower.includes('edit services') || lower.includes('update prices') || lower.includes('opening hours') ||
+      lower.includes('edit data') || lower.includes('change info')) {
+    return { intent: 'settings', context: 'knowledge', confidence: 'high' };
   }
 
   // Navigation intents
-  if (lower.includes('dashboard') || lower.includes('overview') || lower.includes('stats')) {
-    return { intent: 'navigate', context: 'dashboard' };
+  if (lower.includes('dashboard') || lower.includes('overview') || lower.includes('stats') || lower.includes('analytics')) {
+    return { intent: 'navigate', context: 'dashboard', confidence: 'high' };
   }
-  if (lower.includes('chatbot') && (lower.includes('list') || lower.includes('manage') || lower.includes('all') || lower.includes('my'))) {
-    return { intent: 'navigate', context: 'chatbots' };
+  if (lower.includes('chatbot') && (lower.includes('list') || lower.includes('manage') || lower.includes('all') || lower.includes('my') || lower.includes('view'))) {
+    return { intent: 'navigate', context: 'chatbots', confidence: 'high' };
   }
-  if (lower.includes('create') && lower.includes('chatbot')) {
-    return { intent: 'navigate', context: 'chatbots' };
+  if (lower.includes('create') && (lower.includes('chatbot') || lower.includes('new') || lower.includes('bot'))) {
+    return { intent: 'navigate', context: 'chatbots', confidence: 'high' };
   }
 
   // Feature questions
-  if (lower.includes('feature') || lower.includes('what can') || lower.includes('capabilities')) {
-    return { intent: 'features', context: '' };
+  if (lower.includes('feature') || lower.includes('what can') || lower.includes('capabilities') || lower.includes('what does')) {
+    return { intent: 'features', context: '', confidence: 'high' };
   }
-  if (lower.includes('how') && (lower.includes('work') || lower.includes('use') || lower.includes('start'))) {
-    return { intent: 'howto', context: '' };
+
+  // How-to questions
+  if (lower.includes('how') && (lower.includes('work') || lower.includes('use') || lower.includes('start') || lower.includes('get started') || lower.includes('begin'))) {
+    return { intent: 'howto', context: '', confidence: 'high' };
   }
-  if (lower.includes('price') || lower.includes('cost') || lower.includes('free')) {
-    return { intent: 'pricing', context: '' };
+
+  // Pricing
+  if (lower.includes('price') || lower.includes('pricing') || lower.includes('cost') || lower.includes('free') || lower.includes('plan') || lower.includes('subscription')) {
+    return { intent: 'pricing', context: '', confidence: 'high' };
   }
-  if (lower.includes('help') || lower.includes('support') || lower.includes('stuck') || lower.includes('can\'t find') || lower.includes('cannot find') || lower.includes('where is')) {
-    return { intent: 'help', context: '' };
+
+  // Help/support
+  if (lower.includes('help') || lower.includes('support') || lower.includes('stuck') || lower.includes('can\'t find') ||
+      lower.includes('cannot find') || lower.includes('where is') || lower.includes('how do i')) {
+    return { intent: 'help', context: '', confidence: 'medium' };
   }
 
   // General greeting
-  if (lower.match(/^(hi|hello|hey|good morning|good afternoon)/)) {
-    return { intent: 'greeting', context: '' };
+  if (lower.match(/^(hi|hello|hey|good morning|good afternoon|good evening|yo|sup|hiya)/)) {
+    return { intent: 'greeting', context: '', confidence: 'high' };
   }
 
-  return { intent: 'general', context: '' };
+  // Thanks
+  if (lower.match(/^(thanks|thank you|thx|ty|cheers|appreciate)/)) {
+    return { intent: 'thanks', context: '', confidence: 'high' };
+  }
+
+  return { intent: 'general', context: '', confidence: 'low' };
 }
 
-// Generate assistant response
+// Generate natural, human-like responses
 function generateAssistantResponse(message: string, mode: 'landing' | 'dashboard', chatbotId?: string): Message {
-  const { intent, context } = detectAssistantIntent(message);
+  const { intent, context, confidence } = detectAssistantIntent(message);
 
   const baseResponse: Message = {
     role: 'assistant',
@@ -140,42 +243,51 @@ function generateAssistantResponse(message: string, mode: 'landing' | 'dashboard
     actions: [],
   };
 
+  // Helper to add action only when useful
+  const addNavigationAction = (settingKey: string, settingName: string) => {
+    if (mode === 'dashboard' && chatbotId) {
+      baseResponse.actions = [{ label: `Open ${settingName}`, action: 'openSection', target: settingKey, icon: 'arrow' }];
+    }
+  };
+
   switch (intent) {
     case 'greeting':
       if (mode === 'landing') {
-        baseResponse.content = `Hi there! I'm the XeloChat assistant. I can help you understand how XeloChat works and guide you through creating your AI chatbot.\n\nWould you like to know about our features, how to get started, or something else?`;
-        baseResponse.actions = [
-          { label: 'Show Features', action: 'link', target: '#features', icon: 'sparkle' },
-          { label: 'How It Works', action: 'link', target: '#how', icon: 'help' },
-          { label: 'Get Started', action: 'link', target: '#cta', icon: 'arrow' },
-        ];
+        baseResponse.content = `Hey! I'm here to help you learn about XeloChat. Ask me anything - how it works, what features we have, pricing, whatever you need.`;
       } else {
-        baseResponse.content = `Hello! I'm your XeloChat assistant. I can help you configure your chatbot, find settings, or navigate the dashboard.\n\nWhat would you like to do?`;
-        baseResponse.actions = [
-          { label: 'Go to Settings', action: 'navigate', target: chatbotId ? `/dashboard/chatbots/${chatbotId}` : '/dashboard/chatbots', icon: 'settings' },
-          { label: 'View All Chatbots', action: 'navigate', target: '/dashboard/chatbots', icon: 'list' },
-          { label: 'Dashboard Overview', action: 'navigate', target: '/dashboard', icon: 'home' },
-        ];
+        baseResponse.content = `Hey! I can help you find any setting or answer questions about configuring your chatbot. Just ask away.`;
       }
+      break;
+
+    case 'thanks':
+      const thanksResponses = [
+        `Happy to help! Let me know if you need anything else.`,
+        `You're welcome! I'm here if you have more questions.`,
+        `Anytime! Feel free to ask if something else comes up.`,
+      ];
+      baseResponse.content = thanksResponses[Math.floor(Math.random() * thanksResponses.length)];
       break;
 
     case 'settings':
       const setting = APP_KNOWLEDGE.settings[context as keyof typeof APP_KNOWLEDGE.settings];
       if (setting) {
-        const settingWithPath = setting as typeof setting & { path?: string };
+        // Build a natural response with full details
         baseResponse.content = `**${setting.name}**\n\n${setting.description}`;
-        if (settingWithPath.path) {
-          baseResponse.content += `\n\n📍 Location: **${settingWithPath.path}**`;
+
+        // Add the detailed info if available
+        if (setting.details) {
+          baseResponse.content += `\n\n${setting.details}`;
         }
+
+        // Add location at the end
+        baseResponse.content += `\n\n📍 **${setting.path}**`;
+
+        // Only add action button if we can actually navigate there
         if (mode === 'dashboard' && chatbotId) {
-          baseResponse.actions = [
-            { label: `Go to ${setting.name}`, action: 'openSection', target: context, icon: 'arrow' },
-          ];
+          addNavigationAction(context, setting.name);
         } else if (mode === 'dashboard') {
-          baseResponse.content += '\n\nFirst, select a chatbot to configure its settings.';
-          baseResponse.actions = [
-            { label: 'View My Chatbots', action: 'navigate', target: '/dashboard/chatbots', icon: 'list' },
-          ];
+          baseResponse.content += `\n\nSelect a chatbot first to access this setting.`;
+          baseResponse.actions = [{ label: 'View Chatbots', action: 'navigate', target: '/dashboard/chatbots', icon: 'list' }];
         }
       }
       break;
@@ -183,103 +295,79 @@ function generateAssistantResponse(message: string, mode: 'landing' | 'dashboard
     case 'navigate':
       const page = APP_KNOWLEDGE.dashboardPages[context as keyof typeof APP_KNOWLEDGE.dashboardPages];
       if (page) {
-        baseResponse.content = `Sure! The ${context} page shows ${page.description.toLowerCase()}.`;
-        baseResponse.actions = [
-          { label: `Go to ${context.charAt(0).toUpperCase() + context.slice(1)}`, action: 'navigate', target: page.path, icon: 'arrow' },
-        ];
+        baseResponse.content = `The ${context} page shows ${page.description.toLowerCase()}.`;
+        baseResponse.actions = [{ label: `Go to ${context.charAt(0).toUpperCase() + context.slice(1)}`, action: 'navigate', target: page.path, icon: 'arrow' }];
       }
       break;
 
     case 'features':
-      const featureList = APP_KNOWLEDGE.features.map(f => `- **${f.name}**: ${f.description}`).join('\n');
-      baseResponse.content = `Here are XeloChat's main features:\n\n${featureList}`;
+      const featureList = APP_KNOWLEDGE.features.map(f => `• **${f.name}** - ${f.description}`).join('\n');
+      baseResponse.content = `Here's what XeloChat can do:\n\n${featureList}`;
       if (mode === 'landing') {
-        baseResponse.actions = [
-          { label: 'Learn More', action: 'link', target: '#features', icon: 'sparkle' },
-          { label: 'Try It Free', action: 'link', target: '#cta', icon: 'arrow' },
-        ];
+        baseResponse.actions = [{ label: 'Get Started Free', action: 'link', target: '#cta', icon: 'arrow' }];
       }
       break;
 
     case 'howto':
       const steps = APP_KNOWLEDGE.howItWorks.map((s, i) => `${i + 1}. ${s}`).join('\n');
-      baseResponse.content = `Getting started with XeloChat is easy:\n\n${steps}\n\nThat's it! Your AI chatbot will be live on your website.`;
+      baseResponse.content = `Getting started is simple:\n\n${steps}\n\nThat's it - your AI chatbot will be live and answering questions.`;
       if (mode === 'landing') {
-        baseResponse.actions = [
-          { label: 'See How It Works', action: 'link', target: '#how', icon: 'help' },
-          { label: 'Start Now', action: 'link', target: '#cta', icon: 'arrow' },
-        ];
+        baseResponse.actions = [{ label: 'Try It Now', action: 'link', target: '#cta', icon: 'arrow' }];
       } else {
-        baseResponse.actions = [
-          { label: 'Create New Chatbot', action: 'navigate', target: '/dashboard/chatbots', icon: 'plus' },
-        ];
+        baseResponse.actions = [{ label: 'Create Chatbot', action: 'navigate', target: '/dashboard/chatbots', icon: 'plus' }];
       }
       break;
 
     case 'pricing':
-      baseResponse.content = `${APP_KNOWLEDGE.pricing}. You can create your first chatbot right now and see how it works with your website content.`;
+      baseResponse.content = `${APP_KNOWLEDGE.pricing}`;
       if (mode === 'landing') {
-        baseResponse.actions = [
-          { label: 'Start Free', action: 'link', target: '#cta', icon: 'arrow' },
-        ];
+        baseResponse.actions = [{ label: 'Start Free', action: 'link', target: '#cta', icon: 'arrow' }];
       }
       break;
 
     case 'help':
       if (mode === 'dashboard') {
-        baseResponse.content = `I can help you find what you're looking for! Here are the main settings:\n\n• **Embed Code** - Add chatbot to your website\n• **API Keys** - Authentication keys\n• **AI Settings** - Welcome message & prompts\n• **Communication Style** - Tone & language\n• **Page Restrictions** - Control where widget shows\n• **Booking** - Appointment settings\n• **Notifications** - Email/webhook alerts\n• **Knowledge Base** - Business info\n\nJust ask about any of these!`;
-        baseResponse.actions = [
-          { label: 'Embed Code', action: 'openSection', target: 'embed', icon: 'code' },
-          { label: 'AI Settings', action: 'openSection', target: 'ai', icon: 'brain' },
-          { label: 'Page Restrictions', action: 'openSection', target: 'pages', icon: 'settings' },
-        ];
+        baseResponse.content = `Here's a quick overview of all the settings:\n\n` +
+          `• **Embed Code** - Get the script to add the chatbot to your site\n` +
+          `• **API Keys** - Manage keys and allowed domains for security\n` +
+          `• **AI Settings** - Welcome message, system prompt, extra knowledge\n` +
+          `• **Communication Style** - Tone (professional/friendly/casual) and language\n` +
+          `• **Page Restrictions** - Control which pages show the widget\n` +
+          `• **Booking** - Let customers book appointments via chat\n` +
+          `• **Notifications** - Email/webhook alerts for bookings\n` +
+          `• **Knowledge Base** - Edit business info, services, prices, hours\n\n` +
+          `Just ask about any of these and I'll give you the details.`;
       } else {
-        baseResponse.content = `I'm here to help! What would you like to know about XeloChat?`;
-        baseResponse.actions = [
-          { label: 'Features', action: 'link', target: '#features', icon: 'sparkle' },
-          { label: 'How It Works', action: 'link', target: '#how', icon: 'help' },
-          { label: 'Get Started', action: 'link', target: '#cta', icon: 'arrow' },
-        ];
+        baseResponse.content = `I can help with anything about XeloChat - just ask! Common questions: How does it work? What features are included? How much does it cost?`;
       }
       break;
 
     default:
-      // Try to match against all settings keywords
+      // Fallback: try to match against all settings keywords
       const lower = message.toLowerCase();
       for (const [key, setting] of Object.entries(APP_KNOWLEDGE.settings)) {
         if (setting.keywords.some(kw => lower.includes(kw))) {
-          const settingWithPath = setting as typeof setting & { path?: string };
-          baseResponse.content = `It sounds like you're looking for **${setting.name}**.\n\n${setting.description}`;
-          if (settingWithPath.path) {
-            baseResponse.content += `\n\n📍 Location: **${settingWithPath.path}**`;
+          baseResponse.content = `That's in **${setting.name}**.\n\n${setting.description}`;
+          if (setting.details) {
+            baseResponse.content += `\n\n${setting.details}`;
           }
+          baseResponse.content += `\n\n📍 **${setting.path}**`;
+
           if (mode === 'dashboard' && chatbotId) {
-            baseResponse.actions = [
-              { label: `Go to ${setting.name}`, action: 'openSection', target: key, icon: 'arrow' },
-            ];
+            addNavigationAction(key, setting.name);
           } else if (mode === 'dashboard') {
-            baseResponse.content += '\n\nFirst, select a chatbot to configure.';
-            baseResponse.actions = [
-              { label: 'View My Chatbots', action: 'navigate', target: '/dashboard/chatbots', icon: 'list' },
-            ];
+            baseResponse.content += `\n\nSelect a chatbot first to access this.`;
+            baseResponse.actions = [{ label: 'View Chatbots', action: 'navigate', target: '/dashboard/chatbots', icon: 'list' }];
           }
           return baseResponse;
         }
       }
 
-      // Default response
+      // True fallback - didn't understand
       if (mode === 'dashboard') {
-        baseResponse.content = `I'm not sure I understood that. I can help you with:\n\n• Finding settings (embed code, AI settings, booking, page restrictions, etc.)\n• Navigating the dashboard\n• Explaining features\n\nTry asking something like "Where can I change the welcome message?" or "How do I hide the widget on certain pages?"`;
-        baseResponse.actions = [
-          { label: 'Show All Settings', action: 'navigate', target: chatbotId ? `/dashboard/chatbots/${chatbotId}` : '/dashboard/chatbots', icon: 'settings' },
-          { label: 'Dashboard Home', action: 'navigate', target: '/dashboard', icon: 'home' },
-        ];
+        baseResponse.content = `I'm not sure what you're looking for. Try asking about a specific setting like "allowed domains", "welcome message", "page restrictions", or "booking". You can also just say "help" to see all available settings.`;
       } else {
-        baseResponse.content = `I can help you learn about XeloChat! Try asking about features, how it works, or pricing.`;
-        baseResponse.actions = [
-          { label: 'Show Features', action: 'link', target: '#features', icon: 'sparkle' },
-          { label: 'How It Works', action: 'link', target: '#how', icon: 'help' },
-        ];
+        baseResponse.content = `I'm not sure I follow. Try asking about XeloChat's features, how it works, or pricing - I'm happy to help with any of that.`;
       }
   }
 
@@ -308,16 +396,9 @@ function createWelcomeMessage(mode: 'landing' | 'dashboard'): Message {
   return {
     role: 'assistant',
     content: mode === 'landing'
-      ? "Hi! I'm the XeloChat assistant. I can help you understand how XeloChat works and guide you through creating your AI chatbot. What would you like to know?"
-      : "Hi! I'm here to help you navigate and configure your chatbot. Ask me anything or use the quick actions below.",
-    actions: mode === 'landing' ? [
-      { label: 'Features', action: 'link', target: '#features', icon: 'sparkle' },
-      { label: 'How It Works', action: 'link', target: '#how', icon: 'help' },
-      { label: 'Get Started', action: 'link', target: '#cta', icon: 'arrow' },
-    ] : [
-      { label: 'Find a Setting', action: 'openSection', target: 'help', icon: 'settings' },
-      { label: 'All Chatbots', action: 'navigate', target: '/dashboard/chatbots', icon: 'list' },
-    ],
+      ? "Hey! I'm here to answer any questions about XeloChat. Ask me about features, pricing, how it works - whatever you need."
+      : "Hey! Need help finding a setting or configuring something? Just ask - I know this dashboard inside out.",
+    actions: [], // No buttons initially - let users ask naturally
   };
 }
 
