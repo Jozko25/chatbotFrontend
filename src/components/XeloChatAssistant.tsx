@@ -233,7 +233,7 @@ function detectAssistantIntent(message: string): { intent: string; context: stri
   return { intent: 'general', context: '', confidence: 'low' };
 }
 
-// Generate natural, human-like responses
+// Generate natural, professional responses
 function generateAssistantResponse(message: string, mode: 'landing' | 'dashboard', chatbotId?: string): Message {
   const { intent, context, confidence } = detectAssistantIntent(message);
 
@@ -243,27 +243,32 @@ function generateAssistantResponse(message: string, mode: 'landing' | 'dashboard
     actions: [],
   };
 
-  // Helper to add action only when useful
-  const addNavigationAction = (settingKey: string, settingName: string) => {
+  // Helper to add action button that navigates to the exact settings section
+  const addSettingsAction = (settingKey: string, settingName: string) => {
     if (mode === 'dashboard' && chatbotId) {
-      baseResponse.actions = [{ label: `Open ${settingName}`, action: 'openSection', target: settingKey, icon: 'arrow' }];
+      baseResponse.actions = [{
+        label: `Go to ${settingName}`,
+        action: 'navigate',
+        target: `/dashboard/chatbots/${chatbotId}?section=${settingKey}&highlight=true`,
+        icon: 'arrow'
+      }];
     }
   };
 
   switch (intent) {
     case 'greeting':
       if (mode === 'landing') {
-        baseResponse.content = `Hey! I'm here to help you learn about XeloChat. Ask me anything - how it works, what features we have, pricing, whatever you need.`;
+        baseResponse.content = `Hello! I can help you learn about XeloChat. Ask me anything about features, pricing, or how it works.`;
       } else {
-        baseResponse.content = `Hey! I can help you find any setting or answer questions about configuring your chatbot. Just ask away.`;
+        baseResponse.content = `Hello! I can help you find any setting or answer questions about configuring your chatbot.`;
       }
       break;
 
     case 'thanks':
       const thanksResponses = [
-        `Happy to help! Let me know if you need anything else.`,
-        `You're welcome! I'm here if you have more questions.`,
-        `Anytime! Feel free to ask if something else comes up.`,
+        `Happy to help. Let me know if you need anything else.`,
+        `You're welcome. I'm here if you have more questions.`,
+        `Anytime. Feel free to ask if something else comes up.`,
       ];
       baseResponse.content = thanksResponses[Math.floor(Math.random() * thanksResponses.length)];
       break;
@@ -271,7 +276,7 @@ function generateAssistantResponse(message: string, mode: 'landing' | 'dashboard
     case 'settings':
       const setting = APP_KNOWLEDGE.settings[context as keyof typeof APP_KNOWLEDGE.settings];
       if (setting) {
-        // Build a natural response with full details
+        // Build a professional response with full details
         baseResponse.content = `**${setting.name}**\n\n${setting.description}`;
 
         // Add the detailed info if available
@@ -280,13 +285,13 @@ function generateAssistantResponse(message: string, mode: 'landing' | 'dashboard
         }
 
         // Add location at the end
-        baseResponse.content += `\n\n📍 **${setting.path}**`;
+        baseResponse.content += `\n\nLocation: **${setting.path}**`;
 
-        // Only add action button if we can actually navigate there
+        // Add action button if we can navigate there
         if (mode === 'dashboard' && chatbotId) {
-          addNavigationAction(context, setting.name);
+          addSettingsAction(context, setting.name);
         } else if (mode === 'dashboard') {
-          baseResponse.content += `\n\nSelect a chatbot first to access this setting.`;
+          baseResponse.content += `\n\nPlease select a chatbot first to access this setting.`;
           baseResponse.actions = [{ label: 'View Chatbots', action: 'navigate', target: '/dashboard/chatbots', icon: 'list' }];
         }
       }
@@ -301,18 +306,18 @@ function generateAssistantResponse(message: string, mode: 'landing' | 'dashboard
       break;
 
     case 'features':
-      const featureList = APP_KNOWLEDGE.features.map(f => `• **${f.name}** - ${f.description}`).join('\n');
-      baseResponse.content = `Here's what XeloChat can do:\n\n${featureList}`;
+      const featureList = APP_KNOWLEDGE.features.map(f => `- **${f.name}**: ${f.description}`).join('\n');
+      baseResponse.content = `XeloChat includes the following features:\n\n${featureList}`;
       if (mode === 'landing') {
-        baseResponse.actions = [{ label: 'Get Started Free', action: 'link', target: '#cta', icon: 'arrow' }];
+        baseResponse.actions = [{ label: 'Get Started', action: 'link', target: '#cta', icon: 'arrow' }];
       }
       break;
 
     case 'howto':
       const steps = APP_KNOWLEDGE.howItWorks.map((s, i) => `${i + 1}. ${s}`).join('\n');
-      baseResponse.content = `Getting started is simple:\n\n${steps}\n\nThat's it - your AI chatbot will be live and answering questions.`;
+      baseResponse.content = `Getting started is straightforward:\n\n${steps}\n\nYour AI chatbot will be live and answering questions immediately.`;
       if (mode === 'landing') {
-        baseResponse.actions = [{ label: 'Try It Now', action: 'link', target: '#cta', icon: 'arrow' }];
+        baseResponse.actions = [{ label: 'Get Started', action: 'link', target: '#cta', icon: 'arrow' }];
       } else {
         baseResponse.actions = [{ label: 'Create Chatbot', action: 'navigate', target: '/dashboard/chatbots', icon: 'plus' }];
       }
@@ -327,18 +332,18 @@ function generateAssistantResponse(message: string, mode: 'landing' | 'dashboard
 
     case 'help':
       if (mode === 'dashboard') {
-        baseResponse.content = `Here's a quick overview of all the settings:\n\n` +
-          `• **Embed Code** - Get the script to add the chatbot to your site\n` +
-          `• **API Keys** - Manage keys and allowed domains for security\n` +
-          `• **AI Settings** - Welcome message, system prompt, extra knowledge\n` +
-          `• **Communication Style** - Tone (professional/friendly/casual) and language\n` +
-          `• **Page Restrictions** - Control which pages show the widget\n` +
-          `• **Booking** - Let customers book appointments via chat\n` +
-          `• **Notifications** - Email/webhook alerts for bookings\n` +
-          `• **Knowledge Base** - Edit business info, services, prices, hours\n\n` +
-          `Just ask about any of these and I'll give you the details.`;
+        baseResponse.content = `Available settings:\n\n` +
+          `- **Embed Code**: Script to add the chatbot to your site\n` +
+          `- **API Keys**: Manage keys and allowed domains\n` +
+          `- **AI Settings**: Welcome message, system prompt, knowledge\n` +
+          `- **Communication Style**: Tone and language preferences\n` +
+          `- **Page Restrictions**: Control which pages show the widget\n` +
+          `- **Booking**: Customer appointment booking\n` +
+          `- **Notifications**: Email and webhook alerts\n` +
+          `- **Knowledge Base**: Business info, services, prices\n\n` +
+          `Ask about any of these for more details.`;
       } else {
-        baseResponse.content = `I can help with anything about XeloChat - just ask! Common questions: How does it work? What features are included? How much does it cost?`;
+        baseResponse.content = `I can help with questions about XeloChat. Common topics: features, how it works, and pricing.`;
       }
       break;
 
@@ -351,12 +356,12 @@ function generateAssistantResponse(message: string, mode: 'landing' | 'dashboard
           if (setting.details) {
             baseResponse.content += `\n\n${setting.details}`;
           }
-          baseResponse.content += `\n\n📍 **${setting.path}**`;
+          baseResponse.content += `\n\nLocation: **${setting.path}**`;
 
           if (mode === 'dashboard' && chatbotId) {
-            addNavigationAction(key, setting.name);
+            addSettingsAction(key, setting.name);
           } else if (mode === 'dashboard') {
-            baseResponse.content += `\n\nSelect a chatbot first to access this.`;
+            baseResponse.content += `\n\nPlease select a chatbot first to access this.`;
             baseResponse.actions = [{ label: 'View Chatbots', action: 'navigate', target: '/dashboard/chatbots', icon: 'list' }];
           }
           return baseResponse;
@@ -365,9 +370,9 @@ function generateAssistantResponse(message: string, mode: 'landing' | 'dashboard
 
       // True fallback - didn't understand
       if (mode === 'dashboard') {
-        baseResponse.content = `I'm not sure what you're looking for. Try asking about a specific setting like "allowed domains", "welcome message", "page restrictions", or "booking". You can also just say "help" to see all available settings.`;
+        baseResponse.content = `I couldn't find what you're looking for. Try asking about a specific setting like "allowed domains", "welcome message", "page restrictions", or "booking". Type "help" to see all available settings.`;
       } else {
-        baseResponse.content = `I'm not sure I follow. Try asking about XeloChat's features, how it works, or pricing - I'm happy to help with any of that.`;
+        baseResponse.content = `I'm not sure I understand. Try asking about XeloChat's features, how it works, or pricing.`;
       }
   }
 
@@ -396,9 +401,9 @@ function createWelcomeMessage(mode: 'landing' | 'dashboard'): Message {
   return {
     role: 'assistant',
     content: mode === 'landing'
-      ? "Hey! I'm here to answer any questions about XeloChat. Ask me about features, pricing, how it works - whatever you need."
-      : "Hey! Need help finding a setting or configuring something? Just ask - I know this dashboard inside out.",
-    actions: [], // No buttons initially - let users ask naturally
+      ? "Hello! I can help you learn about XeloChat. Ask me about features, pricing, or how to get started."
+      : "Hello! I can help you find settings or configure your chatbot. Just ask.",
+    actions: [],
   };
 }
 
