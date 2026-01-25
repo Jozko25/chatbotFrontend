@@ -1,7 +1,24 @@
 import { ClinicData, ChatTheme, Message } from '@/types/clinic';
 
 // Normalize to avoid double slashes like https://api.example.com//api/...
-const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001').replace(/\/+$/, '');
+// Use production URL if env var is not set (happens when NEXT_PUBLIC is not baked at build time)
+const getApiUrl = () => {
+  // Check if we have the env var
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL.replace(/\/+$/, '');
+  }
+  // In browser, check if we're on production domain
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    if (host === 'xelochat.com' || host === 'www.xelochat.com' || host.includes('railway.app')) {
+      return 'https://chatbotbackend-production-814f.up.railway.app';
+    }
+  }
+  // Default to localhost for local dev
+  return 'http://localhost:3001';
+};
+
+const API_URL = getApiUrl();
 
 // ========== DEBUG LOGGING ==========
 const DEBUG = true;
