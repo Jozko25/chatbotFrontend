@@ -1,7 +1,7 @@
 'use client';
 
-import { useUser } from '@auth0/nextjs-auth0';
-import { useRouter, usePathname } from 'next/navigation';
+import { SignOutButton, useUser } from '@clerk/nextjs';
+import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
 import XeloChatAssistant from '@/components/XeloChatAssistant';
@@ -12,8 +12,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isLoading } = useUser();
-  const router = useRouter();
+  const { user, isLoaded, isSignedIn } = useUser();
   const pathname = usePathname();
 
   // Extract chatbot ID if on a chatbot detail page
@@ -24,13 +23,12 @@ export default function DashboardLayout({
   const showAssistant = !currentChatbotId;
 
   useEffect(() => {
-    if (!isLoading && !user) {
-      // Use <a> tag style redirect for auth routes as per Auth0 v4 docs
-      window.location.href = '/auth/login';
+    if (isLoaded && !isSignedIn) {
+      window.location.href = '/sign-in';
     }
-  }, [user, isLoading, router]);
+  }, [isLoaded, isSignedIn]);
 
-  if (isLoading) {
+  if (!isLoaded) {
     return (
       <div className={styles.loadingContainer}>
         <div className={styles.spinner}></div>
@@ -39,7 +37,7 @@ export default function DashboardLayout({
     );
   }
 
-  if (!user) {
+  if (!isSignedIn || !user) {
     return null;
   }
 
@@ -89,17 +87,19 @@ export default function DashboardLayout({
 
         <div className={styles.userSection}>
           <div className={styles.userInfo}>
-            {user.picture && (
-              <img src={user.picture} alt="" className={styles.avatar} />
+            {user.imageUrl && (
+              <img src={user.imageUrl} alt="" className={styles.avatar} />
             )}
             <div className={styles.userName}>
-              <span>{user.name || user.email}</span>
-              <small>{user.email}</small>
+              <span>{user.fullName || user.primaryEmailAddress?.emailAddress}</span>
+              <small>{user.primaryEmailAddress?.emailAddress}</small>
             </div>
           </div>
-          <a href="/auth/logout" className={styles.logoutBtn}>
-            Logout
-          </a>
+          <SignOutButton redirectUrl="/">
+            <button type="button" className={styles.logoutBtn}>
+              Logout
+            </button>
+          </SignOutButton>
         </div>
       </nav>
 

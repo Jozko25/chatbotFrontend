@@ -20,7 +20,7 @@ const PLANS = [
       'No calendar integration'
     ],
     highlight: false,
-    cta: { label: 'Start Free', href: '/auth/login?screen_hint=signup' }
+    cta: { label: 'Start Free', href: '/sign-up' }
   },
   {
     name: 'Starter',
@@ -34,7 +34,7 @@ const PLANS = [
       'Booking requests via email'
     ],
     highlight: false,
-    cta: { label: 'Choose Starter', href: '/auth/login?screen_hint=signup' }
+    cta: { label: 'Choose Starter', href: '/sign-up' }
   },
   {
     name: 'Pro',
@@ -48,7 +48,7 @@ const PLANS = [
       'Priority support'
     ],
     highlight: true,
-    cta: { label: 'Choose Pro', href: '/auth/login?screen_hint=signup' }
+    cta: { label: 'Choose Pro', href: '/sign-up' }
   }
 ] as const;
 

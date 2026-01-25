@@ -186,7 +186,7 @@ export default function Home() {
   const handleSignupToEmbed = () => {
     if (typeof window === 'undefined') return;
     localStorage.setItem('xelochat-demo-import-pending', '1');
-    window.location.href = '/auth/login?returnTo=/dashboard/chatbots';
+    window.location.href = '/sign-in?redirect_url=/dashboard/chatbots';
   };
 
   useEffect(() => {
@@ -558,7 +558,7 @@ export default function Home() {
                 <h3>Ready to embed?</h3>
                 <p>Sign up to generate your API key and embed script.</p>
               </div>
-              <a href="/auth/login?returnTo=/dashboard/chatbots" className={styles.copyBtn}>
+              <a href="/sign-in?redirect_url=/dashboard/chatbots" className={styles.copyBtn}>
                 Sign up to embed
               </a>
             </div>

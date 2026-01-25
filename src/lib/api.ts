@@ -23,12 +23,9 @@ async function getAuthHeaders(): Promise<HeadersInit> {
     }
 
     // Check if session expired and redirect to login
-    if (response.status === 401) {
-      const data = await response.json().catch(() => ({}));
-      if (data.requiresReauth && typeof window !== 'undefined') {
-        window.location.href = '/auth/login';
-        throw new Error('Session expired. Redirecting to login...');
-      }
+    if (response.status === 401 && typeof window !== 'undefined') {
+      window.location.href = '/sign-in';
+      throw new Error('Not authenticated. Redirecting to login...');
     }
   } catch (error) {
     console.error('Failed to get auth token:', error);

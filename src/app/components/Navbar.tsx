@@ -1,10 +1,10 @@
 'use client';
 
-import { useUser } from '@auth0/nextjs-auth0';
+import { useUser } from '@clerk/nextjs';
 import styles from './Navbar.module.css';
 
 export default function Navbar() {
-  const { user, isLoading } = useUser();
+  const { isLoaded, isSignedIn } = useUser();
 
   return (
     <nav className={styles.navbar}>
@@ -25,16 +25,16 @@ export default function Navbar() {
             <a href="/pricing" className={styles.link}>Pricing</a>
             <a href="/embed-guide" className={styles.link}>Embed Guide</a>
 
-            {isLoading ? (
+            {!isLoaded ? (
               <span className={styles.link}>Loading...</span>
-            ) : user ? (
+            ) : isSignedIn ? (
               <>
                 <a href="/dashboard" className={styles.cta}>Dashboard</a>
               </>
             ) : (
               <>
-                <a href="/auth/login" className={styles.link}>Login</a>
-                <a href="/auth/login?screen_hint=signup" className={styles.cta}>Sign Up</a>
+                <a href="/sign-in" className={styles.link}>Login</a>
+                <a href="/sign-up" className={styles.cta}>Sign Up</a>
               </>
             )}
           </div>
