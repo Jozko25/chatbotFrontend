@@ -20,18 +20,6 @@ const getApiUrl = () => {
 
 const API_URL = getApiUrl();
 
-// ========== DEBUG LOGGING ==========
-const DEBUG = true;
-function debugLog(category: string, ...args: unknown[]) {
-  if (DEBUG) {
-    console.log(`[API:${category}]`, ...args);
-  }
-}
-
-// Log API URL on load
-debugLog('CONFIG', 'API_URL =', API_URL);
-debugLog('CONFIG', 'NEXT_PUBLIC_API_URL env =', process.env.NEXT_PUBLIC_API_URL);
-
 const normalizeWebsiteUrl = (input: string): string => {
   const trimmed = input.trim();
   if (!trimmed) return trimmed;
@@ -45,33 +33,25 @@ const TOKEN_BUFFER_MS = 60000; // Refresh 1 minute before expiry
 
 // Clear token cache (call on logout)
 export function clearTokenCache(): void {
-  debugLog('TOKEN', 'Clearing token cache');
   tokenCache = null;
 }
 
 // Helper to get auth headers with caching
 async function getAuthHeaders(): Promise<HeadersInit> {
-  debugLog('AUTH', 'getAuthHeaders called');
-
   // Return cached token if still valid
   const now = Date.now();
   if (tokenCache && tokenCache.expiresAt > now + TOKEN_BUFFER_MS) {
-    debugLog('AUTH', 'Using cached token, expires in', Math.round((tokenCache.expiresAt - now) / 1000), 'seconds');
     return {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${tokenCache.token}`
     };
   }
 
-  debugLog('AUTH', 'Fetching new token from /api/auth/token');
   try {
     const response = await fetch('/api/auth/token');
-    debugLog('AUTH', 'Token response status:', response.status);
 
     if (response.ok) {
       const data = await response.json();
-      debugLog('AUTH', 'Token received, length:', data.accessToken?.length || 0);
-
       // Cache the token (Clerk tokens typically expire in 60 seconds, but we'll use 55s to be safe)
       tokenCache = {
         token: data.accessToken,
@@ -85,38 +65,15 @@ async function getAuthHeaders(): Promise<HeadersInit> {
 
     // Check if session expired and redirect to login
     if (response.status === 401 && typeof window !== 'undefined') {
-      debugLog('AUTH', '401 received, redirecting to sign-in');
       tokenCache = null;
       window.location.href = '/sign-in';
       throw new Error('Not authenticated. Redirecting to login...');
     }
 
     // Handle other errors (network issues, server errors)
-    const errorText = await response.text().catch(() => 'unknown');
-    debugLog('AUTH', 'Token fetch failed:', response.status, errorText);
-    throw new Error(`Token fetch failed with status ${response.status}: ${errorText}`);
+    throw new Error(`Token fetch failed with status ${response.status}`);
   } catch (error) {
-    debugLog('AUTH', 'Token fetch error:', error);
     tokenCache = null;
-    throw error;
-  }
-}
-
-// Debug wrapper for fetch calls
-async function debugFetch(url: string, options: RequestInit = {}): Promise<Response> {
-  debugLog('FETCH', 'Request:', options.method || 'GET', url);
-  debugLog('FETCH', 'Headers:', JSON.stringify(options.headers));
-
-  const startTime = Date.now();
-  try {
-    const response = await fetch(url, options);
-    const elapsed = Date.now() - startTime;
-    debugLog('FETCH', 'Response:', response.status, response.statusText, `(${elapsed}ms)`);
-    debugLog('FETCH', 'Response headers:', Object.fromEntries(response.headers.entries()));
-    return response;
-  } catch (error) {
-    const elapsed = Date.now() - startTime;
-    debugLog('FETCH', 'Request FAILED after', elapsed, 'ms:', error);
     throw error;
   }
 }
@@ -219,17 +176,13 @@ export async function importDemoChatbot(
 
 // Get all chatbots
 export async function getChatbots(): Promise<ChatbotSummary[]> {
-  debugLog('API', 'getChatbots() called');
   const headers = await getAuthHeaders();
-  const response = await debugFetch(`${API_URL}/api/chatbots`, { headers });
+  const response = await fetch(`${API_URL}/api/chatbots`, { headers });
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: 'Failed to fetch chatbots' }));
-    debugLog('API', 'getChatbots failed:', error);
     throw new Error(error.error || 'Failed to fetch chatbots');
   }
-  const data = await response.json();
-  debugLog('API', 'getChatbots success:', data?.length, 'chatbots');
-  return data;
+  return response.json();
 }
 
 // Get single chatbot
@@ -332,17 +285,13 @@ export async function updateNotificationSettings(id: string, settings: {
 
 // Get API keys
 export async function getApiKeys(): Promise<ApiKey[]> {
-  debugLog('API', 'getApiKeys() called');
   const headers = await getAuthHeaders();
-  const response = await debugFetch(`${API_URL}/api/api-keys`, { headers });
+  const response = await fetch(`${API_URL}/api/api-keys`, { headers });
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: 'Failed to fetch API keys' }));
-    debugLog('API', 'getApiKeys failed:', error);
     throw new Error(error.error || 'Failed to fetch API keys');
   }
-  const data = await response.json();
-  debugLog('API', 'getApiKeys success:', data?.length, 'keys');
-  return data;
+  return response.json();
 }
 
 // Create API key
@@ -397,17 +346,13 @@ export async function revokeApiKey(id: string): Promise<void> {
 
 // Get usage stats
 export async function getUsageStats(): Promise<UsageStats> {
-  debugLog('API', 'getUsageStats() called');
   const headers = await getAuthHeaders();
-  const response = await debugFetch(`${API_URL}/api/usage/stats`, { headers });
+  const response = await fetch(`${API_URL}/api/usage/stats`, { headers });
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: 'Failed to fetch usage stats' }));
-    debugLog('API', 'getUsageStats failed:', error);
     throw new Error(error.error || 'Failed to fetch usage stats');
   }
-  const data = await response.json();
-  debugLog('API', 'getUsageStats success:', data);
-  return data;
+  return response.json();
 }
 
 // ============================================
