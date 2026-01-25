@@ -1,6 +1,6 @@
 'use client';
 
-import { SignOutButton, useUser } from '@clerk/nextjs';
+import { SignOutButton, UserButton, useUser } from '@clerk/nextjs';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
@@ -87,9 +87,7 @@ export default function DashboardLayout({
 
         <div className={styles.userSection}>
           <div className={styles.userInfo}>
-            {user.imageUrl && (
-              <img src={user.imageUrl} alt="" className={styles.avatar} />
-            )}
+            <UserButton />
             <div className={styles.userName}>
               <span>{user.fullName || user.primaryEmailAddress?.emailAddress}</span>
               <small>{user.primaryEmailAddress?.emailAddress}</small>

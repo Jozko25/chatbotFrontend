@@ -1,10 +1,16 @@
 'use client';
 
-import { useUser } from '@clerk/nextjs';
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  SignUpButton,
+  useUser
+} from '@clerk/nextjs';
 import styles from './Navbar.module.css';
 
 export default function Navbar() {
-  const { isLoaded, isSignedIn } = useUser();
+  const { isLoaded } = useUser();
 
   return (
     <nav className={styles.navbar}>
@@ -26,14 +32,25 @@ export default function Navbar() {
             
             {!isLoaded ? (
               <span className={styles.link}>Loading...</span>
-            ) : isSignedIn ? (
-              <>
-                <a href="/dashboard" className={styles.cta}>Dashboard</a>
-              </>
             ) : (
               <>
-                <a href="/sign-in" className={styles.link}>Login</a>
-                <a href="/sign-up" className={styles.cta}>Sign Up</a>
+                <SignedIn>
+                  <a href="/dashboard" className={styles.cta}>Dashboard</a>
+                </SignedIn>
+                <SignedOut>
+                  <SignInButton
+                    forceRedirectUrl="/dashboard"
+                    signUpForceRedirectUrl="/dashboard"
+                  >
+                    <button type="button" className={styles.link}>Login</button>
+                  </SignInButton>
+                  <SignUpButton
+                    forceRedirectUrl="/dashboard"
+                    signInForceRedirectUrl="/dashboard"
+                  >
+                    <button type="button" className={styles.cta}>Sign Up</button>
+                  </SignUpButton>
+                </SignedOut>
               </>
             )}
           </div>
