@@ -10,12 +10,35 @@ const normalizeWebsiteUrl = (input: string): string => {
   return `https://${trimmed.replace(/^\/+/, '')}`;
 };
 
-// Helper to get auth headers
+// Token cache to avoid fetching on every request
+let tokenCache: { token: string; expiresAt: number } | null = null;
+const TOKEN_BUFFER_MS = 60000; // Refresh 1 minute before expiry
+
+// Clear token cache (call on logout)
+export function clearTokenCache(): void {
+  tokenCache = null;
+}
+
+// Helper to get auth headers with caching
 async function getAuthHeaders(): Promise<HeadersInit> {
+  // Return cached token if still valid
+  const now = Date.now();
+  if (tokenCache && tokenCache.expiresAt > now + TOKEN_BUFFER_MS) {
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${tokenCache.token}`
+    };
+  }
+
   try {
     const response = await fetch('/api/auth/token');
     if (response.ok) {
       const { accessToken } = await response.json();
+      // Cache the token (Clerk tokens typically expire in 60 seconds, but we'll use 55s to be safe)
+      tokenCache = {
+        token: accessToken,
+        expiresAt: now + 55000
+      };
       return {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${accessToken}`
@@ -24,14 +47,18 @@ async function getAuthHeaders(): Promise<HeadersInit> {
 
     // Check if session expired and redirect to login
     if (response.status === 401 && typeof window !== 'undefined') {
+      tokenCache = null;
       window.location.href = '/sign-in';
       throw new Error('Not authenticated. Redirecting to login...');
     }
+
+    // Handle other errors (network issues, server errors)
+    throw new Error(`Token fetch failed with status ${response.status}`);
   } catch (error) {
     console.error('Failed to get auth token:', error);
+    tokenCache = null;
     throw error;
   }
-  return { 'Content-Type': 'application/json' };
 }
 
 // ============================================
