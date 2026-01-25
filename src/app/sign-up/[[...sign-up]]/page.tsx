@@ -1,6 +1,6 @@
 import { SignUp } from '@clerk/nextjs';
 import Link from 'next/link';
-import '../sign-in/[[...sign-in]]/styles.css';
+import './styles.css';
 
 export default function SignUpPage() {
   return (
