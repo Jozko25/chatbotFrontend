@@ -9,7 +9,7 @@ const isPublicRoute = createRouteMatcher([
   '/billing/success',
   '/sign-in(.*)',
   '/sign-up(.*)',
-  '/sso-callback(.*)'
+  '/sso-callback(.*)',
 ]);
 
 export default clerkMiddleware((auth, req) => {
@@ -20,7 +20,7 @@ export default clerkMiddleware((auth, req) => {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|embed.js).*)',
-    '/(api|trpc)(.*)'
-  ]
+    '/((?!_next|favicon.ico|sitemap.xml|robots.txt|embed.js|wordpress|wp-admin).*)',
+    '/(api|trpc)(.*)',
+  ],
 };
