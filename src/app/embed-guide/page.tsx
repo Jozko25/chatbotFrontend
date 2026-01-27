@@ -9,7 +9,7 @@ export default function EmbedGuide() {
     const [copied, setCopied] = useState(false);
 
     const embedCode = `<script 
-  src="https://yourdomain.com/widget.js" 
+  src="https://yourdomain.com/embed.js" 
   data-chatbot-id="YOUR_CHATBOT_ID"
   async>
 </script>`;

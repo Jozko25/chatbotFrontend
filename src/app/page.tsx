@@ -30,7 +30,6 @@ export default function Home() {
   const [showCustomizerModal, setShowCustomizerModal] = useState(false);
   const [draftTheme, setDraftTheme] = useState<ChatTheme | null>(null);
   const [activeWidget, setActiveWidget] = useState<'xelochat' | 'demo'>('xelochat');
-  const [showDemoToast, setShowDemoToast] = useState(false);
   const [scrapeProgress, setScrapeProgress] = useState<{
     status: string;
     pagesScraped: number;
@@ -52,9 +51,6 @@ export default function Home() {
       setClinicData(saved.clinicData);
       setMessages(saved.messages);
       setTheme(saved.theme || createDefaultTheme(saved.clinicData?.clinic_name));
-      if (saved.clinicData) {
-        setShowDemoToast(true);
-      }
     }
     setIsHydrated(true);
   }, []);
@@ -136,7 +132,6 @@ export default function Home() {
       setClinicData(data);
       setTheme(createDefaultTheme(data.clinic_name));
       setActiveWidget('demo');
-      setShowDemoToast(true);
 
       if (data.welcomeMessage) {
         setMessages([{ role: 'assistant', content: data.welcomeMessage }]);
@@ -188,12 +183,6 @@ export default function Home() {
     localStorage.setItem('xelochat-demo-import-pending', '1');
     window.location.href = '/sign-in?redirect_url=/dashboard/chatbots';
   };
-
-  useEffect(() => {
-    if (!showDemoToast) return;
-    const id = setTimeout(() => setShowDemoToast(false), 7000);
-    return () => clearTimeout(id);
-  }, [showDemoToast]);
 
   useEffect(() => {
     const refreshCalendar = () => {
@@ -662,14 +651,6 @@ export default function Home() {
         />
       )}
 
-      {showDemoToast && clinicData && (
-        <div className={styles.demoToast} onClick={handleSwitchToDemo} role="button" tabIndex={0}>
-          <span>Your chatbot is live here</span>
-          <button type="button" className={styles.demoToastBtn} onClick={handleSwitchToDemo}>
-            Open my bot
-          </button>
-        </div>
-      )}
 
       {/* Customizer modal */}
       {showCustomizerModal && draftTheme && clinicData && (

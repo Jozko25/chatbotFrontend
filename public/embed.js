@@ -865,7 +865,7 @@
   const minimizeBtn = panel.querySelector('.minimize');
   const headerName = panel.querySelector('.header-name');
   const headerTagline = panel.querySelector('.header-tagline');
-  
+
   // Booking form elements
   const bookingForm = panel.querySelector('#bookingForm');
   const bookingCloseBtn = panel.querySelector('.booking-close');
@@ -899,7 +899,7 @@
     messages.forEach((m) => {
       const div = document.createElement('div');
       div.className = `msg ${m.role}`;
-      div.textContent = m.content;
+      div.innerHTML = m.content; // Allow HTML for booking button
       messagesEl.appendChild(div);
     });
 
@@ -923,6 +923,7 @@
 
   // Booking form functions
   const showBookingForm = () => {
+    console.log('[XeloChat] Opening booking form');
     if (bookingForm) {
       bookingForm.classList.add('active');
       // Focus the first input
@@ -947,6 +948,7 @@
   };
 
   const prefillBookingForm = (data) => {
+    console.log('[XeloChat] Prefilling booking form', data);
     if (data.customerName && bookingNameInput) bookingNameInput.value = data.customerName;
     if (data.customerEmail && bookingEmailInput) bookingEmailInput.value = data.customerEmail;
     if (data.customerPhone && bookingPhoneInput) bookingPhoneInput.value = data.customerPhone;
@@ -960,13 +962,13 @@
     const name = bookingNameInput?.value?.trim();
     const email = bookingEmailInput?.value?.trim();
     const phone = bookingPhoneInput?.value?.trim();
-    
+
     // Validate required fields - name is always required
     if (bookingFields.includes('name') && !name) {
       bookingNameInput?.focus();
       return;
     }
-    
+
     // Need at least email or phone if either is configured
     const needsEmail = bookingFields.includes('email');
     const needsPhone = bookingFields.includes('phone');
@@ -995,6 +997,8 @@
         notes: bookingNotesInput?.value?.trim() || null
       };
 
+      console.log('[XeloChat] Submitting booking...', bookingData);
+
       const res = await fetch(`${apiBase}/api/widget/booking`, {
         method: 'POST',
         headers: {
@@ -1014,6 +1018,7 @@
       }
 
       const result = await res.json();
+      console.log('[XeloChat] Booking submitted successfully', result);
 
       // Show success message in chat with calendar link if available
       hideBookingForm();
@@ -1035,9 +1040,9 @@
 
     } catch (err) {
       console.error('[XeloChat] Booking failed:', err);
-      messages.push({ 
-        role: 'assistant', 
-        content: 'Sorry, there was an error submitting your booking. Please try again or contact us directly.' 
+      messages.push({
+        role: 'assistant',
+        content: 'Sorry, there was an error submitting your booking. Please try again or contact us directly.'
       });
       hideBookingForm();
       renderMessages();
@@ -1067,7 +1072,7 @@
         element.style.display = bookingFields.includes(field) ? 'flex' : 'none';
       }
     });
-    
+
     // Handle row layout for date/time
     const dateTimeRow = bookingDateInput?.parentElement?.parentElement;
     if (dateTimeRow && dateTimeRow.classList.contains('form-row')) {
@@ -1079,7 +1084,7 @@
         dateTimeRow.style.display = 'grid';
       }
     }
-    
+
     // Handle row layout for email/phone
     const emailPhoneRow = bookingEmailInput?.parentElement?.parentElement;
     if (emailPhoneRow && emailPhoneRow.classList.contains('form-row')) {
@@ -1096,17 +1101,18 @@
   // Add "Book Now" button to messages area
   const addBookingButton = () => {
     if (!bookingEnabled || !messagesEl) return;
-    
-    const existingBtn = messagesEl.querySelector('.book-btn');
-    if (existingBtn) return; // Already exists
-    
+
     // Update form fields visibility
     updateBookingFormFields();
-    
+
+    // Instead of appending a separate container, append a message with the button
+    // This keeps it in the message flow
+    const btnId = 'book-btn-' + Date.now();
     const btnContainer = document.createElement('div');
-    btnContainer.style.alignSelf = 'flex-start';
+    btnContainer.className = 'msg assistant';
     btnContainer.innerHTML = `
-      <button class="book-btn">
+      <div>I can help you with that. Click below to book an appointment:</div>
+      <button id="${btnId}" class="book-btn" style="margin-top: 10px;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
           <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -1117,11 +1123,14 @@
       </button>
     `;
     messagesEl.appendChild(btnContainer);
-    
-    btnContainer.querySelector('.book-btn')?.addEventListener('click', () => {
-      showBookingForm();
-    });
-    
+
+    const btn = btnContainer.querySelector(`#${btnId}`);
+    if (btn) {
+      btn.addEventListener('click', () => {
+        showBookingForm();
+      });
+    }
+
     scrollToBottom();
   };
 
@@ -1165,9 +1174,9 @@
     if (displayMode === 'ALL' || !patterns || patterns.length === 0) {
       return true;
     }
-    
+
     const currentPath = window.location.pathname;
-    
+
     // Convert patterns to regex and check
     const matchesPattern = (pattern) => {
       // Convert wildcard pattern to regex
@@ -1176,13 +1185,13 @@
       const regexPattern = pattern
         .replace(/[.+?^${}()|[\]\\]/g, '\\$&') // Escape special regex chars except *
         .replace(/\*/g, '.*'); // Convert * to .*
-      
+
       const regex = new RegExp(`^${regexPattern}$`);
       return regex.test(currentPath);
     };
-    
+
     const anyMatch = patterns.some(matchesPattern);
-    
+
     if (displayMode === 'INCLUDE') {
       // Only show on matching pages
       return anyMatch;
@@ -1190,13 +1199,14 @@
       // Show on all pages except matching ones
       return !anyMatch;
     }
-    
+
     return true;
   };
 
   // Load chatbot configuration from API
   const loadChatbot = async () => {
     try {
+      console.log('[XeloChat] Loading chatbot config...');
       const response = await fetch(`${apiBase}/api/widget/chatbot/${chatbotId}`, {
         headers: {
           'X-API-Key': apiKey
@@ -1209,20 +1219,21 @@
       }
 
       const data = await response.json();
-      
+      console.log('[XeloChat] Chatbot config loaded', data);
+
       // Check page display restrictions FIRST
       const pageDisplayMode = data.pageDisplayMode || 'ALL';
       const allowedPages = data.allowedPages || [];
-      
+
       if (!shouldDisplayOnPage(pageDisplayMode, allowedPages)) {
         // Don't show widget on this page - remove from DOM
         console.log('[XeloChat] Widget hidden on this page due to display restrictions');
         shadowHost.remove();
         return;
       }
-      
+
       clinicData = data.clinicData;
-      
+
       // Store booking settings
       bookingEnabled = data.bookingEnabled !== false;
       bookingFields = data.bookingFields || ['name', 'email', 'phone', 'service', 'preferredDate', 'preferredTime', 'notes'];
@@ -1259,15 +1270,15 @@
 
   const openPanel = () => {
     open = true;
-      panel.classList.add('open');
+    panel.classList.add('open');
     fab.classList.add('hidden');
-      setTimeout(scrollToBottom, 50);
+    setTimeout(scrollToBottom, 50);
     if (initialized) inputEl?.focus();
   };
 
   const closePanel = () => {
     open = false;
-      panel.classList.remove('open');
+    panel.classList.remove('open');
     fab.classList.remove('hidden');
   };
 
@@ -1279,7 +1290,7 @@
     const content = inputEl.value.trim();
     if (!content || loading) return;
 
-    messages.push({ role: 'user', content });
+    messages.push({ role: 'user', content: sanitize(content) });
     inputEl.value = '';
     renderMessages();
 
@@ -1288,6 +1299,7 @@
     renderMessages();
 
     try {
+      console.log('[XeloChat] Sending message:', content);
       const res = await fetch(`${apiBase}/api/widget/chat/stream`, {
         method: 'POST',
         headers: {
@@ -1297,7 +1309,7 @@
         body: JSON.stringify({
           chatbotId,
           sessionId,
-          conversationHistory: messages.slice(-10), // Last 10 messages for context
+          conversationHistory: messages.map(m => ({ role: m.role, content: m.content })).slice(-10), // Send clean history
           message: content
         })
       });
@@ -1333,13 +1345,19 @@
             if (data.done) break;
             if (data.content) {
               assistantText += data.content;
+              // Real-time update logic could go here if we wanted char-by-char effect
+              // But for now we wait for full response to render completely or update last message
             }
+
             // Check if the assistant called the booking tool - show the booking button
             if (data.toolCall === 'show_booking_form' && bookingEnabled) {
+              console.log('[XeloChat] Server requested booking form', data);
               setTimeout(addBookingButton, 100);
             }
+
             // Check if booking was auto-submitted
             if (data.bookingSubmitted && data.bookingData) {
+              console.log('[XeloChat] Booking auto-submitted', data.bookingData);
               // Pre-fill and show booking form for confirmation
               prefillBookingForm(data.bookingData);
               setTimeout(showBookingForm, 500);
@@ -1351,7 +1369,7 @@
       }
 
       if (assistantText) {
-        messages.push({ role: 'assistant', content: assistantText });
+        messages.push({ role: 'assistant', content: sanitize(assistantText) });
       }
     } catch (err) {
       console.error('[XeloChat] Send failed:', err);

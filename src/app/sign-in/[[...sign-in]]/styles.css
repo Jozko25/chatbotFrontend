@@ -5,10 +5,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background:
-    radial-gradient(circle at 18% 10%, hsl(var(--blue-50) / 0.9), transparent 45%),
-    radial-gradient(circle at 90% 20%, hsl(var(--blue-100) / 0.7), transparent 40%),
-    linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--blue-50) / 0.25) 55%, hsl(var(--background)) 100%);
+  background: hsl(var(--background));
   padding: 2rem;
   position: relative;
   overflow: hidden;
@@ -58,7 +55,7 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 480px;
+  max-width: 440px;
   margin-left: auto;
   margin-right: auto;
   display: flex;
@@ -77,22 +74,21 @@
 .auth-logo {
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
-  font-size: 24px;
-  font-weight: 700;
+  gap: 0.625rem;
+  font-size: 22px;
+  font-weight: 600;
   color: hsl(var(--foreground));
   text-decoration: none;
-  transition: transform 0.2s ease, color 0.2s ease;
+  transition: color 0.2s ease;
 }
 
 .auth-logo:hover {
   color: hsl(var(--blue-600));
-  transform: scale(1.02);
 }
 
 .auth-logo svg {
   color: hsl(var(--blue-600));
-  stroke-width: 2.5;
+  stroke-width: 2;
 }
 
 /* Header */
@@ -102,52 +98,120 @@
 }
 
 .auth-title {
-  font-size: 32px;
-  font-weight: 700;
-  letter-spacing: -0.03em;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
   color: hsl(var(--foreground));
   margin-bottom: 0.5rem;
 }
 
 .auth-subtitle {
-  font-size: 16px;
+  font-size: 15px;
   color: hsl(var(--muted-foreground));
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 /* Clerk customization */
 .auth-clerk-root {
   width: 100%;
-  max-width: 480px;
+  max-width: 440px;
   margin-bottom: 1.5rem;
   display: flex;
   justify-content: center;
 }
 
 .auth-clerk-card {
-  background: rgba(255, 255, 255, 0.9) !important;
-  border-radius: 20px !important;
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.05),
-    0 20px 60px -10px hsl(var(--blue-600) / 0.15),
-    0 0 0 1px hsl(var(--border)) !important;
-  padding: 2.5rem !important;
-  backdrop-filter: blur(20px);
-  border: none !important;
+  background: hsl(var(--card)) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+  padding: 2rem !important;
+  backdrop-filter: none !important;
+  border: 1px solid hsl(var(--border)) !important;
   margin-left: auto !important;
   margin-right: auto !important;
+  width: 100% !important;
+}
+
+/* Make Clerk form elements more conservative - target Clerk's internal classes */
+.auth-clerk-root .cl-card,
+.auth-clerk-root [class*="cl-card"] {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+.auth-clerk-root .cl-formFieldInput,
+.auth-clerk-root .cl-input,
+.auth-clerk-root input[type="email"],
+.auth-clerk-root input[type="password"],
+.auth-clerk-root input[type="text"] {
+  font-size: 14px !important;
+  padding: 10px 12px !important;
+  min-height: 42px !important;
+  border-radius: 6px !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+.auth-clerk-root .cl-formButtonPrimary,
+.auth-clerk-root button[type="submit"],
+.auth-clerk-root [class*="formButtonPrimary"] {
+  font-size: 14px !important;
+  padding: 10px 20px !important;
+  min-height: 42px !important;
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+}
+
+.auth-clerk-root .cl-socialButtonsBlockButton,
+.auth-clerk-root [class*="socialButtonsBlockButton"] {
+  font-size: 14px !important;
+  padding: 10px 16px !important;
+  min-height: 42px !important;
+  border-radius: 6px !important;
+}
+
+.auth-clerk-root .cl-headerTitle,
+.auth-clerk-root h1,
+.auth-clerk-root h2,
+.auth-clerk-root [class*="headerTitle"] {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.375rem !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.auth-clerk-root .cl-headerSubtitle,
+.auth-clerk-root p,
+.auth-clerk-root [class*="headerSubtitle"] {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+/* Hide or minimize development mode banner */
+.auth-clerk-root [class*="devMode"],
+.auth-clerk-root [class*="development"],
+.auth-clerk-root [class*="environment"] {
+  display: none !important;
+}
+
+/* Style Clerk footer more conservatively */
+.auth-clerk-root [class*="footer"],
+.auth-clerk-root [class*="footerText"] {
+  font-size: 12px !important;
+  color: hsl(var(--muted-foreground)) !important;
 }
 
 .auth-clerk-button {
-  background: linear-gradient(135deg, hsl(var(--blue-600)), hsl(var(--blue-700))) !important;
-  box-shadow: 0 4px 12px hsl(var(--blue-600) / 0.3) !important;
-  transition: all 0.2s ease !important;
+  background: hsl(var(--blue-600)) !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+  transition: all 0.15s ease !important;
 }
 
 .auth-clerk-button:hover {
-  background: linear-gradient(135deg, hsl(var(--blue-700)), hsl(var(--blue-800))) !important;
-  box-shadow: 0 6px 16px hsl(var(--blue-600) / 0.4) !important;
-  transform: translateY(-1px) !important;
+  background: hsl(var(--blue-700)) !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
 }
 
 .auth-clerk-link {
@@ -164,7 +228,7 @@
   text-align: center;
   display: flex;
   justify-content: center;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
 }
 
 .auth-footer-links {
@@ -172,7 +236,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .auth-footer-link-small {
@@ -236,8 +300,16 @@
   }
 
   .auth-clerk-card {
-    padding: 2rem 1.5rem !important;
-    border-radius: 16px !important;
+    padding: 1.5rem !important;
+    border-radius: 8px !important;
+  }
+  
+  .auth-clerk-root {
+    max-width: 100% !important;
+  }
+  
+  .auth-wrapper {
+    max-width: 100% !important;
   }
 
   .auth-bg-orb-1,

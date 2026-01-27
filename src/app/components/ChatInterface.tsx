@@ -41,6 +41,7 @@ export default function ChatInterface({
   const [showAllPages, setShowAllPages] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const [showBookingButton, setShowBookingButton] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const closeTimerRef = useRef<number | null>(null);
   const showUseBadge = mode === 'demo' && onUseWidget;
@@ -117,6 +118,12 @@ export default function ChatInterface({
             { role: 'assistant', content: error || 'Sorry, something went wrong.' },
           ]);
           setIsLoading(false);
+        },
+        (toolName: string) => {
+          if (toolName === 'show_booking_form') {
+            console.log('[ChatInterface] Booking tool called - showing button');
+            setShowBookingButton(true);
+          }
         }
       );
       return;
@@ -314,6 +321,28 @@ export default function ChatInterface({
                   <span />
                   <span />
                 </div>
+              </div>
+            </div>
+          )}
+
+          {showBookingButton && !isLoading && (
+            <div className={`${styles.message} ${styles.assistant}`}>
+              <div className={styles.bookingButtonContainer}>
+                <button
+                  className={styles.bookingButton}
+                  onClick={() => {
+                    window.dispatchEvent(new CustomEvent('xelochat-open-booking'));
+                    setShowBookingButton(false);
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  Book Appointment
+                </button>
               </div>
             </div>
           )}

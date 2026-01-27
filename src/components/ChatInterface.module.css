@@ -590,3 +590,40 @@
     height: 42px;
   }
 }
+
+/* Booking Button */
+.bookingButtonContainer {
+  display: flex;
+  justify-content: flex-start;
+  padding: 8px 16px;
+}
+
+.bookingButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: var(--chat-primary, #3b82f6);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.bookingButton:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.bookingButton:active {
+  transform: translateY(0);
+}
+
+.bookingButton svg {
+  flex-shrink: 0;
+}

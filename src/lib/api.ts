@@ -773,7 +773,8 @@ export async function sendDemoChatMessageStream(
   message: string,
   onChunk: (chunk: string) => void,
   onComplete: () => void,
-  onError: (error: string) => void
+  onError: (error: string) => void,
+  onToolCall?: (toolName: string) => void
 ): Promise<void> {
   try {
     const response = await fetch(`${API_URL}/api/demo/chatbot/stream`, {
@@ -832,6 +833,12 @@ export async function sendDemoChatMessageStream(
             if (data.done) {
               onComplete();
               return;
+            }
+
+            // Handle booking tool call
+            if (data.toolCall && onToolCall) {
+              console.log('[XeloChat] Tool call received:', data.toolCall);
+              onToolCall(data.toolCall);
             }
 
             if (data.content) {
