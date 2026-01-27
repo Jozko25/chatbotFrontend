@@ -1190,26 +1190,26 @@
 
     const currentPath = window.location.pathname;
 
-    // Convert patterns to regex and check
     const matchesPattern = (pattern) => {
-      // Convert wildcard pattern to regex
-      // /blog/* -> /blog/.*
-      // /contact -> /contact (exact)
+      // If pattern has no wildcard, match the path exactly OR as a prefix
+      // e.g. "/dashboard" matches "/dashboard", "/dashboard/", "/dashboard/chatbots/123"
+      if (!pattern.includes('*')) {
+        const normalized = pattern.replace(/\/+$/, '');
+        const normalizedPath = currentPath.replace(/\/+$/, '');
+        return normalizedPath === normalized || currentPath.startsWith(normalized + '/');
+      }
+      // Convert wildcard pattern to regex: /blog/* -> /blog/.*
       const regexPattern = pattern
-        .replace(/[.+?^${}()|[\]\\]/g, '\\$&') // Escape special regex chars except *
-        .replace(/\*/g, '.*'); // Convert * to .*
-
-      const regex = new RegExp(`^${regexPattern}$`);
-      return regex.test(currentPath);
+        .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
+        .replace(/\*/g, '.*');
+      return new RegExp(`^${regexPattern}$`).test(currentPath);
     };
 
     const anyMatch = patterns.some(matchesPattern);
 
     if (displayMode === 'INCLUDE') {
-      // Only show on matching pages
       return anyMatch;
     } else if (displayMode === 'EXCLUDE') {
-      // Show on all pages except matching ones
       return !anyMatch;
     }
 

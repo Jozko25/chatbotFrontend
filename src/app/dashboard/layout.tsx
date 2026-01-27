@@ -1,10 +1,9 @@
 'use client';
 
 import { SignOutButton, UserButton, useUser } from '@clerk/nextjs';
-import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
-import XeloChatAssistant from '@/components/XeloChatAssistant';
+import EmbedWidgetLoader from '@/components/EmbedWidgetLoader';
 import styles from './dashboard.module.css';
 
 export default function DashboardLayout({
@@ -13,14 +12,6 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { user, isLoaded, isSignedIn } = useUser();
-  const pathname = usePathname();
-
-  // Extract chatbot ID if on a chatbot detail page
-  const chatbotIdMatch = pathname.match(/\/dashboard\/chatbots\/([^/]+)/);
-  const currentChatbotId = chatbotIdMatch ? chatbotIdMatch[1] : undefined;
-
-  // Don't show assistant on chatbot detail pages (they have their own with section navigation)
-  const showAssistant = !currentChatbotId;
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
@@ -93,11 +84,6 @@ export default function DashboardLayout({
               <small>{user.primaryEmailAddress?.emailAddress}</small>
             </div>
           </div>
-          <SignOutButton redirectUrl="/">
-            <button type="button" className={styles.logoutBtn}>
-              Logout
-            </button>
-          </SignOutButton>
         </div>
       </nav>
 
@@ -105,10 +91,11 @@ export default function DashboardLayout({
         {children}
       </main>
 
-      {/* XeloChat Assistant - shown on all pages except chatbot detail (which has its own) */}
-      {showAssistant && (
-        <XeloChatAssistant mode="dashboard" />
-      )}
+      <EmbedWidgetLoader
+        chatbotId={process.env.NEXT_PUBLIC_WIDGET_CHATBOT_ID || ''}
+        apiKey={process.env.NEXT_PUBLIC_WIDGET_API_KEY || ''}
+        apiUrl={process.env.NEXT_PUBLIC_API_URL || ''}
+      />
     </div>
   );
 }

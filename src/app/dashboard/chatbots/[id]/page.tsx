@@ -1105,9 +1105,15 @@ export default function ChatbotDetailPage() {
               <h2>Delete Chatbot</h2>
             </div>
             <div className={styles.modalBody}>
-              <p>Are you sure you want to delete <strong>{chatbot.name}</strong>?</p>
+              <p>Are you <strong>absolutely sure</strong> you want to delete <strong>{chatbot.name}</strong>?</p>
               <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.5rem' }}>
                 This will also deactivate all API keys associated with this chatbot.
+              </p>
+              <p style={{ color: '#b91c1c', fontWeight: 500, marginTop: '1rem' }}>
+                This action <strong>cannot be undone</strong>. Please confirm again: <br />
+                <span>
+                  Delete <strong>{chatbot.name}</strong>?
+                </span>
               </p>
             </div>
             <div className={styles.modalFooter}>

@@ -172,7 +172,10 @@
   font-size: 0.875rem;
   font-weight: 500;
   border-radius: 0.5rem;
+  border: none;
+  outline: none;
 }
+
 
 
 .main {
