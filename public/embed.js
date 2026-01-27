@@ -107,8 +107,8 @@
       position: fixed;
       bottom: 24px;
       right: 24px;
-      width: 52px;
-      height: 52px;
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
       background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
       border: none;
@@ -117,11 +117,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 
+      box-shadow:
         0 4px 14px rgba(59, 130, 246, 0.4),
         0 0 0 0 rgba(59, 130, 246, 0);
       z-index: 2147483646;
-      transition: 
+      transition:
         transform 0.2s ease,
         box-shadow 0.2s ease,
         background 0.2s ease;
@@ -143,27 +143,33 @@
       opacity: 0;
       transform: scale(0.8);
       pointer-events: none;
-      transition: opacity 0.25s ease, transform 0.25s ease;
+      visibility: hidden;
+      box-shadow: none;
+      transition:
+        opacity 0.2s ease,
+        transform 0.2s ease,
+        visibility 0s linear 0.2s,
+        box-shadow 0s linear 0.2s;
     }
 
     .fab:hover {
       background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-      box-shadow: 
+      box-shadow:
         0 6px 20px rgba(59, 130, 246, 0.5),
         0 0 0 4px rgba(59, 130, 246, 0.15);
-      transform: translateY(-1px);
+      transform: scale(1.08);
     }
 
     .fab:active {
       transform: scale(0.96);
-      box-shadow: 
+      box-shadow:
         0 2px 8px rgba(59, 130, 246, 0.4),
         0 0 0 2px rgba(59, 130, 246, 0.2);
     }
 
     .fab svg {
-      width: 20px;
-      height: 20px;
+      width: 24px;
+      height: 24px;
       transition: transform 0.2s ease;
     }
 
@@ -189,16 +195,15 @@
       position: fixed;
       bottom: 24px;
       right: 24px;
-      width: 420px;
+      width: 400px;
       max-width: calc(100vw - 48px);
-      height: min(640px, 78vh);
+      height: min(560px, 75vh);
       max-height: calc(100vh - 48px);
       background: var(--chat-surface);
       border-radius: 24px;
-      box-shadow: 
-        0 28px 60px -18px rgba(15, 23, 42, 0.28),
-        0 10px 24px -12px rgba(15, 23, 42, 0.18),
-        0 0 0 1px rgba(15, 23, 42, 0.04);
+      box-shadow:
+        0 25px 50px -12px rgba(0, 0, 0, 0.15),
+        0 0 0 1px rgba(0, 0, 0, 0.05);
       border: none;
       display: flex;
       flex-direction: column;
@@ -207,25 +212,21 @@
       opacity: 0;
       pointer-events: none;
       transform: translateY(20px) scale(0.96);
-      filter: blur(8px);
       transform-origin: bottom right;
-      transition: 
+      transition:
         opacity 0.35s ease,
         transform 0.35s cubic-bezier(0.2, 0.9, 0.2, 1),
-        box-shadow 0.3s ease,
-        filter 0.3s ease;
+        box-shadow 0.35s ease;
     }
 
     .panel.open {
       opacity: 1;
       pointer-events: auto;
       transform: translateY(0) scale(1);
-      filter: blur(0);
       animation: panelPop 0.45s cubic-bezier(0.2, 0.9, 0.2, 1);
-      box-shadow: 
-        0 28px 60px -18px rgba(15, 23, 42, 0.28),
-        0 10px 24px -12px rgba(15, 23, 42, 0.18),
-        0 0 0 1px rgba(15, 23, 42, 0.04);
+      box-shadow:
+        0 25px 50px -12px rgba(0, 0, 0, 0.2),
+        0 0 0 1px rgba(0, 0, 0, 0.05);
     }
 
     @keyframes panelPop {
@@ -247,7 +248,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 20px 22px;
+      padding: 18px 20px;
       background: #ffffff;
       border-bottom: 1px solid #e2e8f0;
       flex-shrink: 0;
@@ -255,8 +256,8 @@
 
     .headerInfo {
       display: flex;
-      align-items: center;
-      gap: 12px;
+      flex-direction: column;
+      gap: 2px;
       min-width: 0;
       flex: 1;
     }
@@ -281,23 +282,17 @@
     }
 
     .headerInfo h3 {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
-      color: var(--chat-text);
+      color: #1e293b;
       margin: 0;
       line-height: 1.2;
-      word-break: normal;
-      overflow-wrap: break-word;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
     }
 
     .headerSub {
-      margin: 2px 0 0;
-      color: var(--chat-muted);
-      font-size: 13px;
+      margin: 0;
+      color: #64748b;
+      font-size: 12px;
       line-height: 1.2;
     }
 
@@ -341,11 +336,11 @@
     .messages {
       flex: 1;
       overflow-y: auto;
-      padding: 22px;
-      background: #ffffff;
+      padding: 20px;
+      background: #f8fafc;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 16px;
     }
 
     .messages::-webkit-scrollbar {
@@ -364,27 +359,27 @@
 
     .msg {
       max-width: 85%;
-      padding: 13px 18px;
-      border-radius: 20px;
-      font-size: 15px;
-      line-height: 1.5;
+      padding: 14px 18px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.6;
       white-space: pre-wrap;
       word-wrap: break-word;
     }
 
     .user {
       align-self: flex-end;
-      background: var(--chat-user);
-      color: var(--chat-user-text);
-      border-bottom-right-radius: 12px;
+      background: #3b82f6;
+      color: white;
+      border-bottom-right-radius: 4px;
     }
 
     .assistant {
       align-self: flex-start;
-      background: var(--chat-assistant);
+      background: #ffffff;
       color: var(--chat-text);
-      border: 1px solid var(--chat-assistant-border);
-      border-bottom-left-radius: 12px;
+      border: 1px solid #e2e8f0;
+      border-bottom-left-radius: 4px;
     }
 
     .error {
@@ -399,60 +394,64 @@
 
     .inputBar {
       display: flex;
-      gap: 10px;
-      padding: 18px 22px;
-      background: var(--chat-surface);
-      border-top: 1px solid var(--chat-assistant-border);
+      gap: 12px;
+      padding: 18px 20px;
+      background: #ffffff;
+      border-top: 1px solid #e2e8f0;
       flex-shrink: 0;
     }
 
     .inputBar input {
       flex: 1;
-      padding: 13px 18px;
-      border: 1px solid var(--chat-assistant-border);
-      border-radius: 12px;
-      font-size: 15px;
+      height: 44px;
+      padding: 0 18px;
+      border: 1px solid #e2e8f0;
+      border-radius: 100px;
+      font-size: 14px;
       font-family: inherit;
-      background: hsl(214 32% 98%);
+      background: #f8fafc;
       color: var(--chat-text);
-      transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+      transition: border-color 0.15s ease, background 0.15s ease;
     }
 
     .inputBar input::placeholder {
-      color: var(--chat-muted);
+      color: #94a3b8;
     }
 
     .inputBar input:focus {
       outline: none;
       border-color: #3b82f6;
-      background: var(--chat-surface);
-      box-shadow: 0 0 0 3px hsl(217 91% 60% / 0.1);
+      background: #ffffff;
+    }
+
+    .inputBar input:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
 
     .send {
-      width: 50px;
-      height: 50px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 100px;
+      background: #3b82f6;
+      border: 1px solid #3b82f6;
       color: white;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+      transition: background 0.15s ease, border-color 0.15s ease;
     }
 
     .send:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px hsl(217 91% 45% / 0.3);
+      background: #2563eb;
+      border-color: #2563eb;
     }
 
     .send:disabled {
       opacity: 0.4;
       cursor: not-allowed;
-      transform: none;
     }
 
     .send svg {
@@ -536,7 +535,7 @@
         right: 16px;
         width: 52px;
         height: 52px;
-        border-radius: 16px;
+        border-radius: 50%;
       }
     }
 
@@ -551,16 +550,30 @@
       display: flex;
       opacity: 0;
       pointer-events: none;
-      transform: translateY(8px);
+      transform: translateY(16px) scale(0.97);
       flex-direction: column;
       z-index: 10;
-      transition: opacity 0.2s ease, transform 0.2s ease;
+      transition:
+        opacity 0.35s cubic-bezier(0.2, 0.9, 0.2, 1),
+        transform 0.35s cubic-bezier(0.2, 0.9, 0.2, 1);
     }
 
     .booking-form.active {
       opacity: 1;
       pointer-events: auto;
-      transform: translateY(0);
+      transform: translateY(0) scale(1);
+      animation: bookingSlideUp 0.4s cubic-bezier(0.2, 0.9, 0.2, 1);
+    }
+
+    @keyframes bookingSlideUp {
+      0% {
+        opacity: 0;
+        transform: translateY(24px) scale(0.96);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
     }
 
     .booking-header {
@@ -721,27 +734,34 @@
     .book-btn {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 10px 18px;
-      background: var(--chat-primary);
+      gap: 10px;
+      padding: 14px 24px;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
       color: white;
-      border: 1px solid var(--chat-primary);
-      border-radius: 10px;
-      font-size: 14px;
+      border: none;
+      border-radius: 14px;
+      font-size: 15px;
       font-weight: 600;
       cursor: pointer;
-      margin-top: 10px;
-      transition: background 0.15s ease, border-color 0.15s ease;
+      margin-top: 12px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
     }
 
     .book-btn:hover {
-      background: #2563eb;
-      border-color: #2563eb;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .book-btn:active {
+      transform: translateY(0) scale(0.98);
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
     }
 
     .book-btn svg {
-      width: 16px;
-      height: 16px;
+      width: 18px;
+      height: 18px;
     }
   `;
 
@@ -769,11 +789,6 @@
   panel.innerHTML = `
     <header class="header">
       <div class="headerInfo">
-        <div class="headerAvatar" aria-hidden="true">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          </svg>
-        </div>
         <div class="headerTitle">
           <h3 class="header-name">Loading...</h3>
           <p class="headerSub header-tagline">AI-powered assistant</p>
@@ -798,8 +813,8 @@
     </div>
     <div class="legalBar">
       <span>AI responses are informational and may be imperfect.</span>
-      <div>
-        <a href="#" target="_blank" rel="noopener noreferrer">Terms</a>
+      <div style="display: flex; align-items: center; gap: 6px; margin-top: 0;">
+        <a href="/privacy" target="_blank" rel="noopener noreferrer">Terms</a>
         <span class="legalSeparator">•</span>
         <a href="#" target="_blank" rel="noopener noreferrer">Privacy</a>
       </div>
@@ -1105,14 +1120,12 @@
     // Update form fields visibility
     updateBookingFormFields();
 
-    // Instead of appending a separate container, append a message with the button
-    // This keeps it in the message flow
+    // Append just the booking button after the last assistant message
     const btnId = 'book-btn-' + Date.now();
     const btnContainer = document.createElement('div');
-    btnContainer.className = 'msg assistant';
+    btnContainer.style.cssText = 'padding: 4px 0 8px 0;';
     btnContainer.innerHTML = `
-      <div>I can help you with that. Click below to book an appointment:</div>
-      <button id="${btnId}" class="book-btn" style="margin-top: 10px;">
+      <button id="${btnId}" class="book-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
           <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -1298,6 +1311,9 @@
     sendBtn.disabled = true;
     renderMessages();
 
+    let pendingBookingButton = false;
+    let pendingBookingAutoSubmit = null;
+
     try {
       console.log('[XeloChat] Sending message:', content);
       const res = await fetch(`${apiBase}/api/widget/chat/stream`, {
@@ -1345,22 +1361,18 @@
             if (data.done) break;
             if (data.content) {
               assistantText += data.content;
-              // Real-time update logic could go here if we wanted char-by-char effect
-              // But for now we wait for full response to render completely or update last message
             }
 
-            // Check if the assistant called the booking tool - show the booking button
+            // Check if the assistant called the booking tool - defer until after render
             if (data.toolCall === 'show_booking_form' && bookingEnabled) {
               console.log('[XeloChat] Server requested booking form', data);
-              setTimeout(addBookingButton, 100);
+              pendingBookingButton = true;
             }
 
             // Check if booking was auto-submitted
             if (data.bookingSubmitted && data.bookingData) {
               console.log('[XeloChat] Booking auto-submitted', data.bookingData);
-              // Pre-fill and show booking form for confirmation
-              prefillBookingForm(data.bookingData);
-              setTimeout(showBookingForm, 500);
+              pendingBookingAutoSubmit = data.bookingData;
             }
           } catch {
             // Ignore malformed chunks
@@ -1386,6 +1398,16 @@
       loading = false;
       sendBtn.disabled = false;
       renderMessages();
+
+      // Add booking button after render so it doesn't get wiped
+      if (pendingBookingButton) {
+        setTimeout(addBookingButton, 50);
+      }
+      if (pendingBookingAutoSubmit) {
+        prefillBookingForm(pendingBookingAutoSubmit);
+        setTimeout(showBookingForm, 500);
+      }
+
       scrollToBottom();
     }
   };

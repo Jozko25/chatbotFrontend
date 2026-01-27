@@ -4,8 +4,6 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getChatbot, deleteChatbot, createApiKey, getApiKeys, updateChatbotSettings, updateNotificationSettings, Chatbot, ApiKey } from '@/lib/api';
-import ChatInterface from '@/components/ChatInterface';
-import { ChatTheme, Message } from '@/types/clinic';
 import styles from '../../dashboard.module.css';
 
 // Icons as simple SVG components
@@ -105,8 +103,6 @@ export default function ChatbotDetailPage() {
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showChat, setShowChat] = useState(false);
-  const [chatMessages, setChatMessages] = useState<Message[]>([]);
 
   // Search and section state
   const [searchQuery, setSearchQuery] = useState('');
@@ -237,38 +233,7 @@ export default function ChatbotDetailPage() {
     loadData();
   }, [chatbotId]);
 
-  useEffect(() => {
-    if (!chatbot || chatMessages.length > 0) return;
-    const greeting = chatbot.welcomeMessage || chatbot.clinicData?.welcomeMessage;
-    if (greeting) {
-      setChatMessages([{ role: 'assistant', content: greeting }]);
-    }
-  }, [chatbot, chatMessages.length]);
 
-  const chatTheme: ChatTheme = useMemo(() => {
-    if (!chatbot) {
-      return {
-        name: 'Assistant',
-        tagline: 'AI-powered assistant',
-        primaryColor: '#3b82f6',
-        backgroundColor: '#ffffff',
-        textColor: '#1e293b',
-        userBubbleColor: '#3b82f6',
-        assistantBubbleColor: '#ffffff',
-      };
-    }
-
-    const theme = (chatbot.theme || {}) as Partial<ChatTheme>;
-    return {
-      name: theme.name || chatbot.name || chatbot.clinicData?.clinic_name || 'Assistant',
-      tagline: theme.tagline || 'AI-powered assistant',
-      primaryColor: theme.primaryColor || '#3b82f6',
-      backgroundColor: theme.backgroundColor || '#ffffff',
-      textColor: theme.textColor || '#1e293b',
-      userBubbleColor: theme.userBubbleColor || theme.primaryColor || '#3b82f6',
-      assistantBubbleColor: theme.assistantBubbleColor || '#ffffff',
-    };
-  }, [chatbot]);
 
   async function loadData() {
     try {
@@ -1242,42 +1207,6 @@ export default function ChatbotDetailPage() {
         </div>
       )}
 
-      {showChat ? (
-        <ChatInterface
-          clinicData={clinicData}
-          theme={chatTheme}
-          messages={chatMessages}
-          onMessagesUpdate={setChatMessages}
-          onReset={() => setChatMessages([])}
-          chatbotId={chatbotId}
-          floating
-          showMeta={false}
-          onClose={() => setShowChat(false)}
-        />
-      ) : (
-        <button
-          type="button"
-          className={styles.chatFab}
-          onClick={() => setShowChat(true)}
-          aria-label="Open chatbot preview"
-          title="Open chatbot preview"
-        >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M8 10.5h8M8 14.5h5"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-            <path
-              d="M12 3C6.5 3 2 6.8 2 11.5c0 2.4 1.2 4.6 3.1 6.1l-.6 3.9 4.3-2.2c1 .3 2.1.4 3.2.4 5.5 0 10-3.8 10-8.5S17.5 3 12 3z"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-      )}
     </div>
   );
 }

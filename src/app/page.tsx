@@ -6,7 +6,6 @@ import { scrapeClinicDemoStream, ScrapeProgressEvent } from '@/lib/api';
 import { saveSession, loadSession, clearSession } from '@/lib/storage';
 import Navbar from '@/components/Navbar';
 import SetupForm from '@/components/SetupForm';
-import ChatInterface from '@/components/ChatInterface';
 import EmbedWidgetLoader from '@/components/EmbedWidgetLoader';
 import styles from './page.module.css';
 
@@ -29,7 +28,6 @@ export default function Home() {
   const [isHydrated, setIsHydrated] = useState(false);
   const [showCustomizerModal, setShowCustomizerModal] = useState(false);
   const [draftTheme, setDraftTheme] = useState<ChatTheme | null>(null);
-  const [activeWidget, setActiveWidget] = useState<'xelochat' | 'demo'>('xelochat');
   const [scrapeProgress, setScrapeProgress] = useState<{
     status: string;
     pagesScraped: number;
@@ -131,7 +129,6 @@ export default function Home() {
       });
       setClinicData(data);
       setTheme(createDefaultTheme(data.clinic_name));
-      setActiveWidget('demo');
 
       if (data.welcomeMessage) {
         setMessages([{ role: 'assistant', content: data.welcomeMessage }]);
@@ -145,17 +142,12 @@ export default function Home() {
     }
   };
 
-  const handleMessagesUpdate = (newMessages: Message[]) => {
-    setMessages(newMessages);
-  };
-
   const handleReset = () => {
     clearSession();
     setClinicData(null);
     setMessages([]);
     setTheme(createDefaultTheme());
     setError(null);
-    setActiveWidget('xelochat');
     setScrapeProgress(null);
   };
 
@@ -168,20 +160,6 @@ export default function Home() {
   const closeCustomizer = () => {
     setShowCustomizerModal(false);
     setDraftTheme(null);
-  };
-
-  const handleSwitchToAssistant = () => {
-    setActiveWidget('xelochat');
-  };
-
-  const handleSwitchToDemo = () => {
-    setActiveWidget('demo');
-  };
-
-  const handleSignupToEmbed = () => {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('xelochat-demo-import-pending', '1');
-    window.location.href = '/sign-in?redirect_url=/dashboard/chatbots';
   };
 
   useEffect(() => {
@@ -627,29 +605,12 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Shared widget for the marketing site (same as customer embed) */}
+      {/* Widget loaded via embed code - same as what customers get */}
       <EmbedWidgetLoader
-        enabled={activeWidget === 'xelochat'}
         chatbotId={process.env.NEXT_PUBLIC_WIDGET_CHATBOT_ID || ''}
         apiKey={process.env.NEXT_PUBLIC_WIDGET_API_KEY || ''}
         apiUrl={process.env.NEXT_PUBLIC_API_URL || ''}
       />
-
-      {activeWidget === 'demo' && clinicData && (
-        <ChatInterface
-          clinicData={clinicData}
-          theme={theme}
-          messages={messages}
-          onMessagesUpdate={handleMessagesUpdate}
-          onReset={handleReset}
-          floating
-          showMeta={false}
-          mode="demo"
-          onSwitchToAssistant={handleSwitchToAssistant}
-          onClose={handleSwitchToAssistant}
-          onUseWidget={handleSignupToEmbed}
-        />
-      )}
 
 
       {/* Customizer modal */}

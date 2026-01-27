@@ -299,7 +299,7 @@ export default function XeloChatChat({
         onClick={() => setOpen(true)}
         aria-label="Open XeloChat chat"
       >
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
           <path
             d="M8 10.5h8M8 14.5h5"
             stroke="currentColor"
