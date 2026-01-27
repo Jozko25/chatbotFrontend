@@ -2,52 +2,24 @@
 .auth-container {
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: hsl(var(--background));
+  background: #f1f5f9;
   padding: 2rem;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  width: 100%;
 }
 
-/* Decorative background orbs */
-.auth-bg-orb {
+.auth-container::before {
+  content: '';
   position: absolute;
-  border-radius: 50%;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(59, 130, 246, 0.07), transparent),
+    radial-gradient(ellipse 50% 40% at 100% 50%, rgba(59, 130, 246, 0.03), transparent);
   pointer-events: none;
-  z-index: 0;
-}
-
-.auth-bg-orb-1 {
-  top: -10%;
-  right: -5%;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, hsl(var(--blue-200) / 0.4), transparent 70%);
-  filter: blur(40px);
-  animation: float 20s ease-in-out infinite;
-}
-
-.auth-bg-orb-2 {
-  bottom: -15%;
-  left: -10%;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, hsl(var(--blue-100) / 0.5), transparent 70%);
-  filter: blur(60px);
-  animation: float 25s ease-in-out infinite reverse;
-}
-
-.auth-bg-orb-3 {
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, hsl(var(--blue-300) / 0.2), transparent 70%);
-  filter: blur(50px);
-  animation: pulse 15s ease-in-out infinite;
 }
 
 /* Wrapper */
@@ -55,84 +27,103 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 440px;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 420px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  animation: fadeInUp 0.6s ease-out;
+  animation: fadeIn 0.4s ease-out;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0 auto;
+}
+
+/* Unified card */
+.auth-card {
+  width: 100%;
+  max-width: 100%;
+  background: white;
+  border-radius: 20px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 12px 40px rgba(0, 0, 0, 0.04);
+  padding: 2.5rem 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  box-sizing: border-box;
+  margin: 0;
 }
 
 /* Brand logo */
 .auth-brand {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 3rem;
+  margin-bottom: 1.75rem;
 }
 
 .auth-logo {
   display: inline-flex;
   align-items: center;
-  gap: 0.625rem;
-  font-size: 22px;
+  gap: 0.5rem;
+  font-size: 18px;
   font-weight: 600;
-  color: hsl(var(--foreground));
+  color: #0f172a;
   text-decoration: none;
-  transition: color 0.2s ease;
+  letter-spacing: -0.01em;
+  transition: opacity 0.15s ease;
 }
 
 .auth-logo:hover {
-  color: hsl(var(--blue-600));
+  opacity: 0.7;
 }
 
 .auth-logo svg {
-  color: hsl(var(--blue-600));
-  stroke-width: 2;
+  color: #3b82f6;
 }
 
 /* Header */
 .auth-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .auth-title {
-  font-size: 28px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: hsl(var(--foreground));
-  margin-bottom: 0.5rem;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: #0f172a;
+  margin: 0 0 0.375rem;
 }
 
 .auth-subtitle {
-  font-size: 15px;
-  color: hsl(var(--muted-foreground));
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
   line-height: 1.5;
 }
 
-/* Clerk customization */
+/* Hide Clerk's own header since we provide our own */
+.auth-clerk-hidden {
+  display: none !important;
+}
+
+/* Clerk root - flush inside the card */
 .auth-clerk-root {
   width: 100%;
-  max-width: 440px;
-  margin-bottom: 1.5rem;
   display: flex;
   justify-content: center;
 }
 
+/* Clerk card - strip all its own styling so it sits flush */
 .auth-clerk-card {
-  background: hsl(var(--card)) !important;
-  border-radius: 8px !important;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
-  padding: 2rem !important;
-  backdrop-filter: none !important;
-  border: 1px solid hsl(var(--border)) !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border: none !important;
   width: 100% !important;
 }
 
-/* Make Clerk form elements more conservative - target Clerk's internal classes */
 .auth-clerk-root .cl-card,
 .auth-clerk-root [class*="cl-card"] {
   background: transparent !important;
@@ -141,93 +132,197 @@
   padding: 0 !important;
 }
 
+/* Hide Clerk's internal header (fallback) */
+.auth-clerk-root .cl-headerTitle,
+.auth-clerk-root .cl-headerSubtitle,
+.auth-clerk-root [class*="headerTitle"],
+.auth-clerk-root [class*="headerSubtitle"] {
+  display: none !important;
+}
+
+/* Form inputs */
 .auth-clerk-root .cl-formFieldInput,
 .auth-clerk-root .cl-input,
 .auth-clerk-root input[type="email"],
 .auth-clerk-root input[type="password"],
 .auth-clerk-root input[type="text"] {
   font-size: 14px !important;
-  padding: 10px 12px !important;
-  min-height: 42px !important;
-  border-radius: 6px !important;
-  border-color: hsl(var(--border)) !important;
+  padding: 11px 14px !important;
+  min-height: 44px !important;
+  border-radius: 10px !important;
+  border: 1px solid #e2e8f0 !important;
+  background: #f8fafc !important;
+  color: #1e293b !important;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease !important;
 }
 
+.auth-clerk-root .cl-formFieldInput:focus,
+.auth-clerk-root .cl-input:focus,
+.auth-clerk-root input:focus {
+  border-color: #3b82f6 !important;
+  background: white !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08) !important;
+  outline: none !important;
+}
+
+/* Form field labels */
+.auth-clerk-root .cl-formFieldLabel,
+.auth-clerk-root [class*="formFieldLabel"] {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #374151 !important;
+  margin-bottom: 4px !important;
+}
+
+/* Primary button */
+.auth-clerk-button,
 .auth-clerk-root .cl-formButtonPrimary,
 .auth-clerk-root button[type="submit"],
 .auth-clerk-root [class*="formButtonPrimary"] {
   font-size: 14px !important;
-  padding: 10px 20px !important;
-  min-height: 42px !important;
-  border-radius: 6px !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
+  padding: 12px 20px !important;
+  min-height: 44px !important;
+  border-radius: 10px !important;
+  background: #3b82f6 !important;
+  border: none !important;
+  color: white !important;
+  box-shadow: 0 1px 3px rgba(59, 130, 246, 0.2) !important;
+  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease !important;
 }
 
+.auth-clerk-button:hover,
+.auth-clerk-root .cl-formButtonPrimary:hover,
+.auth-clerk-root button[type="submit"]:hover {
+  background: #2563eb !important;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.25) !important;
+  transform: translateY(-1px) !important;
+}
+
+.auth-clerk-button:active,
+.auth-clerk-root .cl-formButtonPrimary:active {
+  transform: translateY(0) !important;
+}
+
+/* Social / OAuth buttons */
 .auth-clerk-root .cl-socialButtonsBlockButton,
 .auth-clerk-root [class*="socialButtonsBlockButton"] {
   font-size: 14px !important;
-  padding: 10px 16px !important;
-  min-height: 42px !important;
-  border-radius: 6px !important;
+  font-weight: 500 !important;
+  padding: 11px 16px !important;
+  min-height: 44px !important;
+  border-radius: 10px !important;
+  border: 1px solid #e2e8f0 !important;
+  background: white !important;
+  color: #1e293b !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease !important;
 }
 
-.auth-clerk-root .cl-headerTitle,
-.auth-clerk-root h1,
-.auth-clerk-root h2,
-.auth-clerk-root [class*="headerTitle"] {
-  font-size: 20px !important;
-  font-weight: 600 !important;
-  margin-bottom: 0.375rem !important;
-  color: hsl(var(--foreground)) !important;
+.auth-clerk-root .cl-socialButtonsBlockButton:hover,
+.auth-clerk-root [class*="socialButtonsBlockButton"]:hover {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06) !important;
 }
 
-.auth-clerk-root .cl-headerSubtitle,
-.auth-clerk-root p,
-.auth-clerk-root [class*="headerSubtitle"] {
-  font-size: 14px !important;
-  line-height: 1.5 !important;
-  color: hsl(var(--muted-foreground)) !important;
+.auth-clerk-root .cl-socialButtonsBlockButton:focus,
+.auth-clerk-root [class*="socialButtonsBlockButton"]:focus {
+  outline: none !important;
+  box-shadow: none !important;
 }
 
-/* Hide or minimize development mode banner */
-.auth-clerk-root [class*="devMode"],
-.auth-clerk-root [class*="development"],
-.auth-clerk-root [class*="environment"] {
+/* Divider */
+.auth-clerk-root .cl-dividerRow,
+.auth-clerk-root [class*="divider"] {
+  color: #94a3b8 !important;
+  font-size: 13px !important;
+}
+
+.auth-clerk-root .cl-dividerLine,
+.auth-clerk-root [class*="dividerLine"] {
+  background: #e2e8f0 !important;
+}
+
+/* Hide development mode banner and Clerk branding */
+.auth-clerk-root [class*="cl-internal-b3fm6y"],
+.auth-clerk-root .cl-internal-b3fm6y {
   display: none !important;
 }
 
-/* Style Clerk footer more conservatively */
-.auth-clerk-root [class*="footer"],
-.auth-clerk-root [class*="footerText"] {
-  font-size: 12px !important;
-  color: hsl(var(--muted-foreground)) !important;
+/* Hide Clerk footer branding (Secured by Clerk, dev mode) but not the form */
+.auth-clerk-root .cl-footer,
+.auth-clerk-root [class*="footerPages"] {
+  display: none !important;
 }
 
-.auth-clerk-button {
-  background: hsl(var(--blue-600)) !important;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
-  transition: all 0.15s ease !important;
+/* Clerk footer action (Don't have an account? etc.) - keep visible */
+.auth-clerk-root [class*="footerAction"] {
+  display: flex !important;
+  font-size: 13px !important;
+  color: #64748b !important;
+  justify-content: center !important;
 }
 
-.auth-clerk-button:hover {
-  background: hsl(var(--blue-700)) !important;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+/* Clerk footer - hide branding but keep "Don't have an account?" */
+.auth-clerk-footer {
+  border-top: none !important;
+  background: transparent !important;
+  padding-top: 0.75rem !important;
 }
 
-.auth-clerk-link {
-  color: hsl(var(--blue-600)) !important;
+.auth-clerk-footer [class*="secured"],
+.auth-clerk-footer [class*="Secured"],
+.auth-clerk-footer [class*="powered"],
+.auth-clerk-footer [class*="Powered"],
+.auth-clerk-footer [class*="cl-internal"],
+.auth-clerk-footer [class*="environment"],
+.auth-clerk-footer a[href*="clerk"],
+.auth-clerk-footer [class*="badge"],
+.auth-clerk-footer [class*="tagline"] {
+  display: none !important;
+}
+
+/* Social button via appearance prop */
+.auth-clerk-social {
+  font-size: 14px !important;
   font-weight: 500 !important;
+  padding: 11px 16px !important;
+  min-height: 44px !important;
+  border-radius: 10px !important;
+  border: 1px solid #e2e8f0 !important;
+  background: white !important;
+  color: #1e293b !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transition: background 0.15s ease, border-color 0.15s ease !important;
+}
+
+.auth-clerk-social:hover {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+.auth-clerk-social:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Links */
+.auth-clerk-link {
+  color: #3b82f6 !important;
+  font-weight: 500 !important;
+  transition: color 0.15s ease !important;
 }
 
 .auth-clerk-link:hover {
-  color: hsl(var(--blue-700)) !important;
+  color: #2563eb !important;
 }
 
-/* Footer */
+/* Page footer (Terms / Privacy) */
 .auth-footer {
   text-align: center;
-  display: flex;
-  justify-content: center;
   margin-top: 1.5rem;
 }
 
@@ -240,24 +335,24 @@
 }
 
 .auth-footer-link-small {
-  color: hsl(var(--muted-foreground));
+  color: #94a3b8;
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: color 0.15s ease;
 }
 
 .auth-footer-link-small:hover {
-  color: hsl(var(--foreground));
+  color: #475569;
 }
 
 .auth-footer-separator {
-  color: hsl(var(--border));
+  color: #cbd5e1;
 }
 
-/* Animations */
-@keyframes fadeInUp {
+/* Animation */
+@keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -265,56 +360,33 @@
   }
 }
 
-@keyframes float {
-  0%, 100% {
-    transform: translate(0, 0);
-  }
-  50% {
-    transform: translate(30px, -30px);
-  }
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 0.2;
-    transform: translate(-50%, -50%) scale(1);
-  }
-  50% {
-    opacity: 0.3;
-    transform: translate(-50%, -50%) scale(1.1);
-  }
-}
-
 /* Responsive */
 @media (max-width: 640px) {
   .auth-container {
-    padding: 1.5rem;
+    padding: 1rem;
+    background: #f1f5f9;
+    overflow-x: hidden;
+  }
+
+  .auth-container::before {
+    display: none;
+  }
+
+  .auth-wrapper {
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+
+  .auth-card {
+    border-radius: 16px;
+    padding: 2rem 1.5rem 1.25rem;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
   }
 
   .auth-title {
-    font-size: 28px;
-  }
-
-  .auth-subtitle {
-    font-size: 15px;
-  }
-
-  .auth-clerk-card {
-    padding: 1.5rem !important;
-    border-radius: 8px !important;
-  }
-  
-  .auth-clerk-root {
-    max-width: 100% !important;
-  }
-  
-  .auth-wrapper {
-    max-width: 100% !important;
-  }
-
-  .auth-bg-orb-1,
-  .auth-bg-orb-2,
-  .auth-bg-orb-3 {
-    display: none;
+    font-size: 20px;
   }
 }
