@@ -1,6 +1,17 @@
+import type { Metadata } from 'next';
 import { SignUp } from '@clerk/nextjs';
 import Link from 'next/link';
 import './styles.css';
+
+export const metadata: Metadata = {
+  title: 'Sign Up - Create Your Free Account',
+  description:
+    'Create your free XeloChat account. Build AI chatbots for your website in 90 seconds. No credit card required.',
+  robots: {
+    index: false,
+    follow: true,
+  },
+};
 
 export default function SignUpPage() {
   return (

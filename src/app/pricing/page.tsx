@@ -3,65 +3,160 @@ import Navbar from '@/components/Navbar';
 import styles from './page.module.css';
 
 export const metadata: Metadata = {
-  title: 'Pricing - XeloChat',
-  description: 'Simple pricing for XeloChat chatbot plans.',
+  title: 'Pricing - Simple, Transparent Plans',
+  description:
+    'XeloChat pricing starts free. Choose from Starter ($19/mo), Pro ($49/mo), or Enterprise ($149/mo) plans. No hidden fees, cancel anytime. Start with 50 free messages.',
+  keywords: [
+    'chatbot pricing',
+    'AI chatbot cost',
+    'customer support pricing',
+    'chatbot plans',
+    'affordable chatbot',
+    'free chatbot trial',
+  ],
+  alternates: {
+    canonical: '/pricing',
+  },
+  openGraph: {
+    title: 'XeloChat Pricing - Plans for Every Business Size',
+    description:
+      'Start free with 50 messages. Upgrade to Starter, Pro, or Enterprise as you grow. Transparent pricing, no surprises.',
+    url: '/pricing',
+    type: 'website',
+  },
+  twitter: {
+    title: 'XeloChat Pricing - Start Free, Scale As You Grow',
+    description:
+      'Free plan available. Pro features from $19/mo. See our transparent pricing.',
+  },
+};
+
+// JSON-LD for Pricing Page
+const pricingSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: 'XeloChat',
+  description: 'AI-powered chatbot for websites',
+  brand: {
+    '@type': 'Brand',
+    name: 'XeloChat',
+  },
+  offers: [
+    {
+      '@type': 'Offer',
+      name: 'Free Plan',
+      price: '0',
+      priceCurrency: 'USD',
+      description: '1 chatbot, 50 messages per month',
+      availability: 'https://schema.org/InStock',
+    },
+    {
+      '@type': 'Offer',
+      name: 'Starter Plan',
+      price: '19',
+      priceCurrency: 'USD',
+      priceValidUntil: '2027-12-31',
+      description: '2 chatbots, 500 messages per month',
+      availability: 'https://schema.org/InStock',
+    },
+    {
+      '@type': 'Offer',
+      name: 'Pro Plan',
+      price: '49',
+      priceCurrency: 'USD',
+      priceValidUntil: '2027-12-31',
+      description: '4 chatbots, 2000+ messages per month',
+      availability: 'https://schema.org/InStock',
+    },
+    {
+      '@type': 'Offer',
+      name: 'Enterprise Plan',
+      price: '149',
+      priceCurrency: 'USD',
+      priceValidUntil: '2027-12-31',
+      description: 'Unlimited chatbots and messages',
+      availability: 'https://schema.org/InStock',
+    },
+  ],
 };
 
 const PLANS = [
   {
     name: 'Free',
-    price: 'Free',
+    price: '$0',
     subtitle: 'Perfect for trying the widget on one site.',
     features: [
-      '50 messages',
+      '50 messages/month',
       '1 chatbot',
-      'Website-trained',
-      'Lead capture only',
-      'No calendar integration'
+      'Website-trained AI',
+      'Lead capture',
+      'XeloChat branding',
     ],
     highlight: false,
-    cta: { label: 'Start Free', href: '/sign-up' }
+    cta: { label: 'Start Free', href: '/sign-up' },
   },
   {
     name: 'Starter',
-    price: 'EUR 12',
-    subtitle: 'For early-stage teams capturing leads by email.',
+    price: '$19',
+    subtitle: 'For small businesses capturing leads.',
     features: [
-      '500 messages',
+      '500 messages/month',
       '2 chatbots',
       'Email lead capture',
       'Remove branding',
-      'Booking requests via email'
+      'Booking requests via email',
     ],
     highlight: false,
-    cta: { label: 'Choose Starter', href: '/sign-up' }
+    cta: { label: 'Choose Starter', href: '/sign-up' },
   },
   {
     name: 'Pro',
-    price: 'EUR 39',
-    subtitle: 'Bookings + automation for serious businesses.',
+    price: '$49',
+    subtitle: 'Bookings + automation for growing businesses.',
     features: [
-      '2000+ messages',
+      '2,000 messages/month',
       'Up to 4 chatbots',
       'Google Calendar integration',
       'Auto booking toggle',
-      'Priority support'
+      'Priority support',
     ],
     highlight: true,
-    cta: { label: 'Choose Pro', href: '/sign-up' }
-  }
+    cta: { label: 'Choose Pro', href: '/sign-up' },
+  },
+  {
+    name: 'Enterprise',
+    price: '$149',
+    subtitle: 'For high-volume businesses at scale.',
+    features: [
+      'Unlimited messages',
+      'Unlimited chatbots',
+      'Custom integrations',
+      'Dedicated support',
+      'SLA guarantee',
+    ],
+    highlight: false,
+    cta: { label: 'Contact Sales', href: '/sign-up' },
+  },
 ] as const;
 
 export default function PricingPage() {
   return (
     <div className={styles.page}>
+      {/* JSON-LD Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(pricingSchema),
+        }}
+      />
+
       <Navbar />
       <main className={styles.main}>
         <section className={styles.hero}>
           <div className={styles.badge}>Pricing</div>
-          <h1 className={styles.title}>Honest pricing for real bookings.</h1>
+          <h1 className={styles.title}>Simple, transparent pricing</h1>
           <p className={styles.description}>
-            Start with lead capture, upgrade when bookings become core to your business.
+            Start free. Upgrade when you need more. No hidden fees, cancel anytime.
           </p>
         </section>
 
@@ -80,7 +175,7 @@ export default function PricingPage() {
               </div>
               <div className={styles.planPrice}>
                 <span>{plan.price}</span>
-                {plan.price !== 'Free' && <small>per month</small>}
+                {plan.price !== '$0' && <small>/month</small>}
               </div>
               <ul className={styles.planFeatures}>
                 {plan.features.map((feature) => (
@@ -96,7 +191,8 @@ export default function PricingPage() {
 
         <section className={styles.footerNote}>
           <p>
-            Need enterprise onboarding, security review, or custom limits? Reach out and we&apos;ll tailor a plan.
+            Need enterprise onboarding, security review, or custom limits?{' '}
+            <a href="mailto:sales@xelochat.com">Contact our sales team</a>.
           </p>
         </section>
       </main>

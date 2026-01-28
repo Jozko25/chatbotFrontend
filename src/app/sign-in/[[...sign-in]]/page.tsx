@@ -1,6 +1,17 @@
+import type { Metadata } from 'next';
 import { SignIn } from '@clerk/nextjs';
 import Link from 'next/link';
 import './styles.css';
+
+export const metadata: Metadata = {
+  title: 'Sign In',
+  description:
+    'Sign in to your XeloChat account. Manage your AI chatbots, view analytics, and customize your widgets.',
+  robots: {
+    index: false,
+    follow: true,
+  },
+};
 
 export default function SignInPage() {
   return (

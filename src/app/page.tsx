@@ -7,6 +7,7 @@ import { saveSession, loadSession, clearSession } from '@/lib/storage';
 import Navbar from '@/components/Navbar';
 import SetupForm from '@/components/SetupForm';
 import EmbedWidgetLoader from '@/components/EmbedWidgetLoader';
+import FAQ, { faqSchema } from '@/components/FAQ';
 import styles from './page.module.css';
 
 const createDefaultTheme = (name?: string): ChatTheme => ({
@@ -532,6 +533,9 @@ export default function Home() {
           </section>
         )}
 
+        {/* FAQ Section */}
+        <FAQ />
+
         {/* CTA */}
         <section className={styles.cta}>
           <h2>Ready to automate your customer support?</h2>
@@ -539,6 +543,14 @@ export default function Home() {
           <a href="#cta" className={styles.ctaButton}>Get Started Free</a>
         </section>
       </main>
+
+      {/* FAQ Schema for rich snippets */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(faqSchema),
+        }}
+      />
 
       {/* Footer */}
       <footer className={styles.footer}>
@@ -563,7 +575,7 @@ export default function Home() {
               <ul className={styles.footerList}>
                 <li><a href="#features" className={styles.footerLink}>Features</a></li>
                 <li><a href="#how" className={styles.footerLink}>How it Works</a></li>
-                <li><a href="#cta" className={styles.footerLink}>Pricing</a></li>
+                <li><a href="/pricing" className={styles.footerLink}>Pricing</a></li>
                 <li><a href="/dashboard" className={styles.footerLink}>Dashboard</a></li>
               </ul>
             </div>
@@ -572,21 +584,18 @@ export default function Home() {
             <div className={styles.footerSection}>
               <h4 className={styles.footerHeading}>Resources</h4>
               <ul className={styles.footerList}>
-                <li><a href="#embed" className={styles.footerLink}>Documentation</a></li>
-                <li><a href="#cta" className={styles.footerLink}>API Reference</a></li>
-                <li><a href="#cta" className={styles.footerLink}>Integrations</a></li>
-                <li><a href="#cta" className={styles.footerLink}>Support</a></li>
+                <li><a href="/embed-guide" className={styles.footerLink}>Integration Guide</a></li>
+                <li><a href="#faq" className={styles.footerLink}>FAQ</a></li>
+                <li><a href="mailto:support@xelochat.com" className={styles.footerLink}>Support</a></li>
               </ul>
             </div>
 
-            {/* Company Section */}
+            {/* Legal Section */}
             <div className={styles.footerSection}>
-              <h4 className={styles.footerHeading}>Company</h4>
+              <h4 className={styles.footerHeading}>Legal</h4>
               <ul className={styles.footerList}>
-                <li><a href="#cta" className={styles.footerLink}>About</a></li>
-                <li><a href="#cta" className={styles.footerLink}>Contact</a></li>
-                <li><a href="#cta" className={styles.footerLink}>Blog</a></li>
-                <li><a href="#cta" className={styles.footerLink}>Careers</a></li>
+                <li><a href="/terms" className={styles.footerLink}>Terms of Service</a></li>
+                <li><a href="/privacy" className={styles.footerLink}>Privacy Policy</a></li>
               </ul>
             </div>
           </div>

@@ -1,0 +1,26 @@
+# XeloChat Robots.txt
+# https://www.xelochat.com
+
+User-agent: *
+Allow: /
+
+# Public pages - allow full crawling
+Allow: /pricing
+Allow: /privacy
+Allow: /terms
+Allow: /embed-guide
+Allow: /sign-in
+Allow: /sign-up
+
+# Block dashboard and authenticated areas
+Disallow: /dashboard
+Disallow: /dashboard/*
+Disallow: /billing/success
+Disallow: /api/*
+
+# Block development/staging patterns
+Disallow: /_next/static/development/
+Disallow: /*?_rsc=*
+
+# Sitemap location
+Sitemap: https://www.xelochat.com/sitemap.xml

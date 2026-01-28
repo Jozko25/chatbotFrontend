@@ -2,8 +2,16 @@ import type { Metadata } from 'next';
 import styles from './page.module.css';
 
 export const metadata: Metadata = {
-  title: 'Terms of Service - XeloChat',
-  description: 'Terms of Service for XeloChat AI chatbot platform',
+  title: 'Terms of Service',
+  description:
+    'XeloChat Terms of Service. Read our terms and conditions for using the AI chatbot platform. Fair usage policy and user responsibilities.',
+  alternates: {
+    canonical: '/terms',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function TermsPage() {

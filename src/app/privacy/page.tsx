@@ -2,8 +2,16 @@ import type { Metadata } from 'next';
 import styles from './page.module.css';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy - XeloChat',
-  description: 'Privacy Policy for XeloChat AI chatbot platform',
+  title: 'Privacy Policy',
+  description:
+    'XeloChat Privacy Policy. Learn how we collect, use, and protect your data. GDPR compliant. We never sell your information.',
+  alternates: {
+    canonical: '/privacy',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function PrivacyPage() {
