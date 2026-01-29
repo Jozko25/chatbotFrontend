@@ -7,6 +7,9 @@
   const chatbotId = script.getAttribute('data-chatbot-id')?.trim();
   const apiKey = script.getAttribute('data-api-key')?.trim();
   const apiUrl = script.getAttribute('data-api-url')?.trim() || '';
+  const widgetStyle = script.getAttribute('data-style')?.trim() || 'floating'; // floating, embedded, minimal
+  const widgetPosition = script.getAttribute('data-position')?.trim() || 'bottom-right'; // bottom-right, bottom-left
+  const targetContainer = script.getAttribute('data-container')?.trim() || null; // For embedded mode: CSS selector of container element
 
   // Security: Validate required attributes
   if (!chatbotId || !apiKey || !apiUrl) {
@@ -30,7 +33,6 @@
   let apiBase;
   try {
     const url = new URL(apiUrl);
-    // Only allow http/https protocols
     if (!['http:', 'https:'].includes(url.protocol)) {
       console.error('[XeloChat] Invalid API URL protocol. Only http/https allowed.');
       return;
@@ -52,6 +54,17 @@
     return sessionId;
   };
 
+  // Track if this is first open
+  const isFirstOpen = () => {
+    const key = 'xelochat_opened_' + chatbotId;
+    return !localStorage.getItem(key);
+  };
+
+  const markAsOpened = () => {
+    const key = 'xelochat_opened_' + chatbotId;
+    localStorage.setItem(key, 'true');
+  };
+
   const sessionId = getSessionId();
 
   // Sanitize text content to prevent XSS
@@ -71,7 +84,7 @@
   let clinicData = null;
   let theme = {
     name: 'Assistant',
-    tagline: 'AI-powered assistant',
+    tagline: 'How can I help you today?',
     primary: '#3b82f6',
     surface: '#ffffff',
     text: '#1e293b',
@@ -81,6 +94,14 @@
     assistantBorder: '#e2e8f0'
   };
 
+  // Position styles
+  const positionStyles = {
+    'bottom-right': { bottom: '24px', right: '24px', left: 'auto' },
+    'bottom-left': { bottom: '24px', left: '24px', right: 'auto' }
+  };
+
+  const pos = positionStyles[widgetPosition] || positionStyles['bottom-right'];
+
   // Create isolated shadow DOM
   const shadowHost = document.createElement('div');
   shadowHost.id = 'xelochat-widget';
@@ -89,12 +110,13 @@
 
   const style = document.createElement('style');
   style.textContent = `
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
     :host {
       all: initial;
-      font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     * {
@@ -103,14 +125,16 @@
       box-sizing: border-box;
     }
 
+    /* ========== FAB BUTTON ========== */
     .fab {
       position: fixed;
-      bottom: 24px;
-      right: 24px;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      ${pos.bottom ? `bottom: ${pos.bottom};` : ''}
+      ${pos.right ? `right: ${pos.right};` : ''}
+      ${pos.left ? `left: ${pos.left};` : ''}
+      width: 64px;
+      height: 64px;
+      border-radius: 20px;
+      background: linear-gradient(145deg, var(--fab-primary, #3b82f6) 0%, var(--fab-secondary, #1d4ed8) 100%);
       border: none;
       color: white;
       cursor: pointer;
@@ -118,92 +142,113 @@
       align-items: center;
       justify-content: center;
       box-shadow:
-        0 4px 14px rgba(59, 130, 246, 0.4),
-        0 0 0 0 rgba(59, 130, 246, 0);
+        0 8px 32px -4px rgba(59, 130, 246, 0.5),
+        0 4px 12px -2px rgba(0, 0, 0, 0.1);
       z-index: 2147483646;
-      transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease,
-        background 0.2s ease;
-      animation: fabEnter 0.35s ease-out forwards;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: fabEnter 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
 
     @keyframes fabEnter {
       0% {
         opacity: 0;
-        transform: scale(0.5);
+        transform: scale(0) rotate(-180deg);
       }
       100% {
         opacity: 1;
-        transform: scale(1);
+        transform: scale(1) rotate(0deg);
       }
     }
 
     .fab.hidden {
       opacity: 0;
-      transform: scale(0.8);
+      transform: scale(0.5) rotate(90deg);
       pointer-events: none;
       visibility: hidden;
-      box-shadow: none;
-      transition:
-        opacity 0.2s ease,
-        transform 0.2s ease,
-        visibility 0s linear 0.2s,
-        box-shadow 0s linear 0.2s;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.3s;
     }
 
     .fab:hover {
-      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      transform: scale(1.05) translateY(-2px);
       box-shadow:
-        0 6px 20px rgba(59, 130, 246, 0.5),
-        0 0 0 4px rgba(59, 130, 246, 0.15);
-      transform: scale(1.08);
+        0 12px 40px -4px rgba(59, 130, 246, 0.6),
+        0 8px 20px -4px rgba(0, 0, 0, 0.15);
     }
 
     .fab:active {
-      transform: scale(0.96);
-      box-shadow:
-        0 2px 8px rgba(59, 130, 246, 0.4),
-        0 0 0 2px rgba(59, 130, 246, 0.2);
+      transform: scale(0.95);
     }
 
     .fab svg {
-      width: 24px;
-      height: 24px;
-      transition: transform 0.2s ease;
-    }
-
-    .fab:hover svg {
-      transform: scale(1.05);
+      width: 28px;
+      height: 28px;
+      transition: transform 0.3s ease;
     }
 
     .fab.loading {
-      opacity: 0.6;
+      opacity: 0.7;
       cursor: wait;
       animation: none;
     }
 
+    .fab.loading svg {
+      animation: fabPulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes fabPulse {
+      0%, 100% { opacity: 0.5; transform: scale(0.95); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+
+    /* Notification badge */
+    .fab-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 20px;
+      height: 20px;
+      background: #ef4444;
+      border-radius: 50%;
+      border: 3px solid white;
+      display: none;
+      animation: badgePop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .fab-badge.show {
+      display: block;
+    }
+
+    @keyframes badgePop {
+      0% { transform: scale(0); }
+      100% { transform: scale(1); }
+    }
+
+    /* ========== CHAT PANEL ========== */
     .panel {
       --chat-primary: #3b82f6;
       --chat-surface: #ffffff;
-      --chat-text: #1e293b;
+      --chat-text: #0f172a;
       --chat-muted: #64748b;
       --chat-user: #3b82f6;
       --chat-user-text: #ffffff;
-      --chat-assistant: #ffffff;
+      --chat-assistant: #f8fafc;
       --chat-assistant-border: #e2e8f0;
+      --chat-bg: #f1f5f9;
+
       position: fixed;
-      bottom: 24px;
-      right: 24px;
-      width: 400px;
-      max-width: calc(100vw - 48px);
-      height: min(560px, 75vh);
+      ${pos.bottom ? `bottom: ${pos.bottom};` : ''}
+      ${pos.right ? `right: ${pos.right};` : ''}
+      ${pos.left ? `left: ${pos.left};` : ''}
+      width: 420px;
+      max-width: calc(100vw - 32px);
+      height: min(640px, 80vh);
       max-height: calc(100vh - 48px);
       background: var(--chat-surface);
       border-radius: 24px;
       box-shadow:
-        0 25px 50px -12px rgba(0, 0, 0, 0.15),
-        0 0 0 1px rgba(0, 0, 0, 0.05);
+        0 0 0 1px rgba(0, 0, 0, 0.04),
+        0 24px 64px -16px rgba(0, 0, 0, 0.24),
+        0 8px 24px -8px rgba(0, 0, 0, 0.12);
       border: none;
       display: flex;
       flex-direction: column;
@@ -211,47 +256,52 @@
       z-index: 2147483646;
       opacity: 0;
       pointer-events: none;
-      transform: translateY(20px) scale(0.96);
-      transform-origin: bottom right;
-      transition:
-        opacity 0.35s ease,
-        transform 0.35s cubic-bezier(0.2, 0.9, 0.2, 1),
-        box-shadow 0.35s ease;
+      transform: translateY(24px) scale(0.92);
+      transform-origin: ${widgetPosition === 'bottom-left' ? 'bottom left' : 'bottom right'};
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     .panel.open {
       opacity: 1;
       pointer-events: auto;
       transform: translateY(0) scale(1);
-      animation: panelPop 0.45s cubic-bezier(0.2, 0.9, 0.2, 1);
-      box-shadow:
-        0 25px 50px -12px rgba(0, 0, 0, 0.2),
-        0 0 0 1px rgba(0, 0, 0, 0.05);
     }
 
-    @keyframes panelPop {
-      0% {
-        opacity: 0;
-        transform: translateY(28px) scale(0.94);
-      }
-      60% {
-        opacity: 1;
-        transform: translateY(-6px) scale(1.02);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
+    /* ========== HEADER ========== */
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 18px 20px;
-      background: #ffffff;
-      border-bottom: 1px solid #e2e8f0;
+      padding: 20px 20px 16px 20px;
+      background: linear-gradient(180deg, var(--chat-surface) 0%, var(--chat-surface) 100%);
       flex-shrink: 0;
+      border-bottom: 1px solid var(--chat-assistant-border);
+    }
+
+    .headerLeft {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .headerAvatar {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 14px;
+      background: linear-gradient(145deg, var(--chat-primary) 0%, #1d4ed8 100%);
+      color: white;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px -2px rgba(59, 130, 246, 0.4);
+    }
+
+    .headerAvatar svg {
+      width: 22px;
+      height: 22px;
     }
 
     .headerInfo {
@@ -259,88 +309,86 @@
       flex-direction: column;
       gap: 2px;
       min-width: 0;
-      flex: 1;
-    }
-
-    .headerAvatar {
-      width: 36px;
-      height: 36px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-      color: #ffffff;
-      flex-shrink: 0;
-    }
-
-    .headerTitle {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      min-width: 0;
     }
 
     .headerInfo h3 {
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 600;
-      color: #1e293b;
+      color: var(--chat-text);
       margin: 0;
-      line-height: 1.2;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .headerSub {
-      margin: 0;
-      color: #64748b;
-      font-size: 12px;
-      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--chat-muted);
+      font-size: 13px;
+      line-height: 1.3;
+    }
+
+    .statusDot {
+      width: 8px;
+      height: 8px;
+      background: #22c55e;
+      border-radius: 50%;
+      animation: statusPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes statusPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
     }
 
     .headerActions {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       flex-shrink: 0;
     }
 
     .actionBtn {
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      border: 1px solid transparent;
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      border: none;
       background: transparent;
-      color: #64748b;
+      color: var(--chat-muted);
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+      transition: all 0.2s ease;
     }
 
     .actionBtn:hover {
-      background: #eff6ff;
-      color: #3b82f6;
-      transform: translateY(-1px);
+      background: var(--chat-bg);
+      color: var(--chat-text);
     }
 
     .actionBtn:active {
-      background: #eff6ff;
-      color: #3b82f6;
+      transform: scale(0.92);
     }
 
     .actionBtn svg {
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
     }
 
+    /* ========== MESSAGES AREA ========== */
     .messages {
       flex: 1;
       overflow-y: auto;
       padding: 20px;
-      background: #f8fafc;
+      background: var(--chat-bg);
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 12px;
+      scroll-behavior: smooth;
     }
 
     .messages::-webkit-scrollbar {
@@ -357,29 +405,118 @@
       background: #94a3b8;
     }
 
+    /* Welcome state */
+    .welcome {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 32px 24px;
+      height: 100%;
+      gap: 20px;
+      animation: welcomeFade 0.5s ease-out;
+    }
+
+    @keyframes welcomeFade {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .welcomeIcon {
+      width: 72px;
+      height: 72px;
+      border-radius: 20px;
+      background: linear-gradient(145deg, var(--chat-primary) 0%, #1d4ed8 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      box-shadow: 0 8px 24px -4px rgba(59, 130, 246, 0.4);
+    }
+
+    .welcomeIcon svg {
+      width: 36px;
+      height: 36px;
+    }
+
+    .welcomeTitle {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--chat-text);
+      line-height: 1.3;
+    }
+
+    .welcomeText {
+      font-size: 15px;
+      color: var(--chat-muted);
+      line-height: 1.6;
+      max-width: 280px;
+    }
+
+    .welcomeSuggestions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      max-width: 280px;
+      margin-top: 8px;
+    }
+
+    .suggestion {
+      padding: 12px 16px;
+      background: var(--chat-surface);
+      border: 1px solid var(--chat-assistant-border);
+      border-radius: 12px;
+      font-size: 14px;
+      color: var(--chat-text);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+
+    .suggestion:hover {
+      border-color: var(--chat-primary);
+      background: rgba(59, 130, 246, 0.04);
+      transform: translateY(-1px);
+    }
+
+    .suggestion:active {
+      transform: scale(0.98);
+    }
+
+    /* Message bubbles */
     .msg {
       max-width: 85%;
       padding: 14px 18px;
-      border-radius: 16px;
-      font-size: 14px;
-      line-height: 1.6;
+      border-radius: 18px;
+      font-size: 15px;
+      line-height: 1.55;
       white-space: pre-wrap;
       word-wrap: break-word;
+      animation: msgSlide 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes msgSlide {
+      from { opacity: 0; transform: translateY(8px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     .user {
       align-self: flex-end;
-      background: #3b82f6;
-      color: white;
-      border-bottom-right-radius: 4px;
+      background: linear-gradient(145deg, var(--chat-user) 0%, #1d4ed8 100%);
+      color: var(--chat-user-text);
+      border-bottom-right-radius: 6px;
+      box-shadow: 0 2px 8px -2px rgba(59, 130, 246, 0.3);
     }
 
     .assistant {
       align-self: flex-start;
-      background: #ffffff;
+      background: var(--chat-surface);
       color: var(--chat-text);
-      border: 1px solid #e2e8f0;
-      border-bottom-left-radius: 4px;
+      border: 1px solid var(--chat-assistant-border);
+      border-bottom-left-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
 
     .error {
@@ -388,30 +525,64 @@
       color: #dc2626;
       border: 1px solid #fecaca;
       text-align: center;
-      font-size: 13px;
+      font-size: 14px;
       border-radius: 12px;
+      padding: 12px 16px;
     }
 
+    /* Typing indicator */
+    .typing {
+      display: flex;
+      gap: 5px;
+      padding: 4px 0;
+      align-items: center;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--chat-primary);
+      opacity: 0.6;
+      animation: typingBounce 1.4s infinite ease-in-out;
+    }
+
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typingBounce {
+      0%, 80%, 100% { transform: scale(0.8); opacity: 0.4; }
+      40% { transform: scale(1.1); opacity: 1; }
+    }
+
+    /* ========== INPUT BAR ========== */
     .inputBar {
       display: flex;
       gap: 12px;
-      padding: 18px 20px;
-      background: #ffffff;
-      border-top: 1px solid #e2e8f0;
+      padding: 16px 20px 20px 20px;
+      background: var(--chat-surface);
+      border-top: 1px solid var(--chat-assistant-border);
       flex-shrink: 0;
     }
 
-    .inputBar input {
+    .inputWrapper {
       flex: 1;
-      height: 44px;
-      padding: 0 18px;
-      border: 1px solid #e2e8f0;
-      border-radius: 100px;
-      font-size: 14px;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .inputBar input {
+      width: 100%;
+      height: 48px;
+      padding: 0 48px 0 18px;
+      border: 2px solid var(--chat-assistant-border);
+      border-radius: 16px;
+      font-size: 15px;
       font-family: inherit;
-      background: #f8fafc;
+      background: var(--chat-bg);
       color: var(--chat-text);
-      transition: border-color 0.15s ease, background 0.15s ease;
+      transition: all 0.2s ease;
     }
 
     .inputBar input::placeholder {
@@ -420,8 +591,9 @@
 
     .inputBar input:focus {
       outline: none;
-      border-color: #3b82f6;
-      background: #ffffff;
+      border-color: var(--chat-primary);
+      background: var(--chat-surface);
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
     }
 
     .inputBar input:disabled {
@@ -430,23 +602,28 @@
     }
 
     .send {
-      width: 44px;
-      height: 44px;
-      border-radius: 100px;
-      background: #3b82f6;
-      border: 1px solid #3b82f6;
+      position: absolute;
+      right: 6px;
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: var(--chat-primary);
+      border: none;
       color: white;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
-      transition: background 0.15s ease, border-color 0.15s ease;
+      transition: all 0.2s ease;
     }
 
     .send:hover:not(:disabled) {
-      background: #2563eb;
-      border-color: #2563eb;
+      background: #1d4ed8;
+      transform: scale(1.05);
+    }
+
+    .send:active:not(:disabled) {
+      transform: scale(0.95);
     }
 
     .send:disabled {
@@ -459,87 +636,61 @@
       height: 18px;
     }
 
-    .legalBar {
+    /* ========== FOOTER ========== */
+    .footer {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 20px;
-      background: hsl(214 32% 98%);
-      border-top: 1px solid hsl(214 32% 93%);
+      justify-content: center;
+      padding: 12px 20px;
+      background: var(--chat-bg);
+      border-top: 1px solid var(--chat-assistant-border);
       font-size: 11px;
       color: var(--chat-muted);
     }
 
-    .legalBar a {
-      color: var(--chat-primary);
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-    .legalBar a:hover {
-      text-decoration: underline;
-    }
-
-    .legalSeparator {
+    .footer a {
       color: var(--chat-muted);
-      margin: 0 6px;
+      text-decoration: none;
+      transition: color 0.2s ease;
     }
 
-    .typing {
-      display: flex;
-      gap: 5px;
-      padding: 6px 0;
+    .footer a:hover {
+      color: var(--chat-primary);
     }
 
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #93c5fd;
-      opacity: 0.9;
-      animation: typingBounce 1.2s infinite ease-in-out;
+    /* ========== BOOKING BUTTON ========== */
+    .book-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 24px;
+      background: linear-gradient(145deg, var(--chat-primary) 0%, #1d4ed8 100%);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      margin-top: 12px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 16px -4px rgba(59, 130, 246, 0.4);
     }
 
-    .dot:nth-child(2) {
-      animation-delay: 0.15s;
+    .book-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px -4px rgba(59, 130, 246, 0.5);
     }
 
-    .dot:nth-child(3) {
-      animation-delay: 0.3s;
+    .book-btn:active {
+      transform: scale(0.98);
     }
 
-    @keyframes typingBounce {
-      0%, 60%, 100% {
-        transform: scale(0.8);
-        opacity: 0.5;
-      }
-      30% {
-        transform: scale(1);
-        opacity: 1;
-      }
+    .book-btn svg {
+      width: 18px;
+      height: 18px;
     }
 
-    @media (max-width: 480px) {
-      .panel {
-        bottom: 16px;
-        right: 16px;
-        left: 16px;
-        width: auto;
-        max-width: none;
-        height: calc(100vh - 100px);
-        max-height: none;
-        border-radius: 16px;
-      }
-      .fab {
-        bottom: 16px;
-        right: 16px;
-        width: 52px;
-        height: 52px;
-        border-radius: 50%;
-      }
-    }
-
-    /* Booking Form Styles */
+    /* ========== BOOKING FORM ========== */
     .booking-form {
       position: absolute;
       top: 0;
@@ -548,46 +699,32 @@
       bottom: 0;
       background: var(--chat-surface);
       display: flex;
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(16px) scale(0.97);
       flex-direction: column;
       z-index: 10;
-      transition:
-        opacity 0.35s cubic-bezier(0.2, 0.9, 0.2, 1),
-        transform 0.35s cubic-bezier(0.2, 0.9, 0.2, 1);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(100%);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     .booking-form.active {
       opacity: 1;
       pointer-events: auto;
-      transform: translateY(0) scale(1);
-      animation: bookingSlideUp 0.4s cubic-bezier(0.2, 0.9, 0.2, 1);
-    }
-
-    @keyframes bookingSlideUp {
-      0% {
-        opacity: 0;
-        transform: translateY(24px) scale(0.96);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
+      transform: translateY(0);
     }
 
     .booking-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 18px 20px;
+      padding: 20px;
       background: var(--chat-surface);
       border-bottom: 1px solid var(--chat-assistant-border);
       flex-shrink: 0;
     }
 
     .booking-header h3 {
-      font-size: 15px;
+      font-size: 17px;
       font-weight: 600;
       color: var(--chat-text);
       margin: 0;
@@ -609,15 +746,13 @@
     }
 
     .form-group label {
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 600;
       color: var(--chat-text);
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
     }
 
     .form-group label .required {
-      color: #dc2626;
+      color: #ef4444;
       margin-left: 2px;
     }
 
@@ -625,30 +760,31 @@
     .form-group textarea,
     .form-group select {
       padding: 12px 14px;
-      border: 1px solid var(--chat-assistant-border);
-      border-radius: 10px;
-      font-size: 14px;
+      border: 2px solid var(--chat-assistant-border);
+      border-radius: 12px;
+      font-size: 15px;
       font-family: inherit;
-      background: #f8fafc;
+      background: var(--chat-bg);
       color: var(--chat-text);
+      transition: all 0.2s ease;
     }
 
     .form-group input:focus,
     .form-group textarea:focus,
     .form-group select:focus {
       outline: none;
-      border-color: #3b82f6;
+      border-color: var(--chat-primary);
       background: var(--chat-surface);
     }
 
     .form-group input::placeholder,
     .form-group textarea::placeholder {
-      color: var(--chat-muted);
+      color: #94a3b8;
     }
 
     .form-group textarea {
       resize: vertical;
-      min-height: 70px;
+      min-height: 80px;
     }
 
     .form-row {
@@ -660,41 +796,44 @@
     .booking-footer {
       display: flex;
       gap: 12px;
-      padding: 18px 20px;
-      background: #f8fafc;
+      padding: 20px;
+      background: var(--chat-bg);
       border-top: 1px solid var(--chat-assistant-border);
       flex-shrink: 0;
     }
 
     .booking-footer button {
       flex: 1;
-      padding: 12px 18px;
-      border-radius: 10px;
-      font-size: 14px;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 15px;
       font-weight: 600;
       font-family: inherit;
       cursor: pointer;
+      transition: all 0.2s ease;
     }
 
     .btn-cancel {
       background: transparent;
-      border: 1px solid var(--chat-assistant-border);
+      border: 2px solid var(--chat-assistant-border);
       color: var(--chat-text);
     }
 
     .btn-cancel:hover {
-      background: #f8fafc;
+      background: var(--chat-bg);
+      border-color: var(--chat-muted);
     }
 
     .btn-submit {
-      background: var(--chat-primary);
-      border: 1px solid var(--chat-primary);
+      background: linear-gradient(145deg, var(--chat-primary) 0%, #1d4ed8 100%);
+      border: none;
       color: white;
+      box-shadow: 0 4px 12px -4px rgba(59, 130, 246, 0.4);
     }
 
     .btn-submit:hover:not(:disabled) {
-      background: #2563eb;
-      border-color: #2563eb;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px -4px rgba(59, 130, 246, 0.5);
     }
 
     .btn-submit:disabled {
@@ -702,130 +841,233 @@
       cursor: not-allowed;
     }
 
-    .booking-success {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 40px 20px;
-      gap: 16px;
+    /* ========== MINIMAL STYLE ========== */
+    .panel.minimal {
+      width: 360px;
+      height: min(520px, 70vh);
     }
 
-    .booking-success svg {
-      width: 56px;
-      height: 56px;
-      color: #22c55e;
+    .panel.minimal .header {
+      padding: 14px 16px 12px 16px;
     }
 
-    .booking-success h4 {
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--chat-text);
-      margin: 0;
+    .panel.minimal .headerAvatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
     }
 
-    .booking-success p {
-      font-size: 14px;
-      color: var(--chat-muted);
-      margin: 0;
-    }
-
-    .book-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 14px 24px;
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-      color: white;
-      border: none;
-      border-radius: 14px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 12px;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
-    }
-
-    .book-btn:hover {
-      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
-    }
-
-    .book-btn:active {
-      transform: translateY(0) scale(0.98);
-      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
-    }
-
-    .book-btn svg {
+    .panel.minimal .headerAvatar svg {
       width: 18px;
       height: 18px;
+    }
+
+    .panel.minimal .headerInfo h3 {
+      font-size: 14px;
+    }
+
+    .panel.minimal .headerSub {
+      font-size: 12px;
+    }
+
+    .panel.minimal .messages {
+      padding: 14px;
+      gap: 10px;
+    }
+
+    .panel.minimal .msg {
+      padding: 10px 14px;
+      font-size: 14px;
+      border-radius: 14px;
+    }
+
+    .panel.minimal .inputBar {
+      padding: 12px 14px 14px 14px;
+    }
+
+    .panel.minimal .inputBar input {
+      height: 42px;
+      font-size: 14px;
+      padding: 0 42px 0 14px;
+      border-radius: 12px;
+    }
+
+    .panel.minimal .send {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+    }
+
+    .panel.minimal .welcomeIcon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+    }
+
+    .panel.minimal .welcomeIcon svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .panel.minimal .welcomeTitle {
+      font-size: 17px;
+    }
+
+    .panel.minimal .welcomeText {
+      font-size: 14px;
+    }
+
+    .panel.minimal .suggestion {
+      padding: 10px 14px;
+      font-size: 13px;
+    }
+
+    .fab.minimal {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+    }
+
+    .fab.minimal svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    /* ========== EMBEDDED STYLE ========== */
+    .panel.embedded {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: none;
+      max-height: none;
+      border-radius: 16px;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 4px 16px -4px rgba(0, 0, 0, 0.12);
+      opacity: 1;
+      pointer-events: auto;
+      transform: none;
+    }
+
+    .fab.embedded {
+      display: none;
+    }
+
+    /* ========== MOBILE RESPONSIVE ========== */
+    @media (max-width: 480px) {
+      .panel:not(.embedded) {
+        bottom: 0;
+        right: 0;
+        left: 0;
+        width: 100%;
+        max-width: none;
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 0;
+        transform-origin: bottom center;
+      }
+
+      .panel.open:not(.embedded) {
+        border-radius: 0;
+      }
+
+      .fab:not(.embedded) {
+        bottom: 20px;
+        ${pos.right ? 'right: 20px;' : ''}
+        ${pos.left ? 'left: 20px;' : ''}
+        width: 60px;
+        height: 60px;
+        border-radius: 18px;
+      }
+
+      .header {
+        padding: 16px;
+      }
+
+      .messages {
+        padding: 16px;
+      }
+
+      .inputBar {
+        padding: 12px 16px 16px 16px;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
     }
   `;
 
   const fab = document.createElement('button');
-  fab.className = 'fab loading';
+  fab.className = `fab loading${widgetStyle === 'minimal' ? ' minimal' : ''}${widgetStyle === 'embedded' ? ' embedded' : ''}`;
   fab.type = 'button';
   fab.setAttribute('aria-label', 'Open chat');
-  fab.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-    <path 
-      d="M8 10.5h8M8 14.5h5" 
-      stroke="currentColor" 
-      stroke-width="2" 
-      stroke-linecap="round"
-    />
-    <path 
-      d="M12 3C6.5 3 2 6.8 2 11.5c0 2.4 1.2 4.6 3.1 6.1l-.6 3.9 4.3-2.2c1 .3 2.1.4 3.2.4 5.5 0 10-3.8 10-8.5S17.5 3 12 3z" 
-      stroke="currentColor" 
-      stroke-width="2" 
-      stroke-linejoin="round"
-    />
-  </svg>`;
+  fab.innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none">
+      <path d="M12 3C6.5 3 2 6.8 2 11.5c0 2.4 1.2 4.6 3.1 6.1l-.6 3.9 4.3-2.2c1 .3 2.1.4 3.2.4 5.5 0 10-3.8 10-8.5S17.5 3 12 3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" fill="none"/>
+      <circle cx="8" cy="11.5" r="1.5" fill="currentColor"/>
+      <circle cx="12" cy="11.5" r="1.5" fill="currentColor"/>
+      <circle cx="16" cy="11.5" r="1.5" fill="currentColor"/>
+    </svg>
+    <span class="fab-badge"></span>
+  `;
 
   const panel = document.createElement('div');
-  panel.className = 'panel';
+  panel.className = `panel${widgetStyle === 'minimal' ? ' minimal' : ''}${widgetStyle === 'embedded' ? ' embedded' : ''}`;
   panel.innerHTML = `
     <header class="header">
-      <div class="headerInfo">
-        <div class="headerTitle">
+      <div class="headerLeft">
+        <div class="headerAvatar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 3C6.5 3 2 6.8 2 11.5c0 2.4 1.2 4.6 3.1 6.1l-.6 3.9 4.3-2.2c1 .3 2.1.4 3.2.4 5.5 0 10-3.8 10-8.5S17.5 3 12 3z" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="headerInfo">
           <h3 class="header-name">Loading...</h3>
-          <p class="headerSub header-tagline">AI-powered assistant</p>
+          <div class="headerSub">
+            <span class="statusDot"></span>
+            <span class="header-tagline">Online</span>
+          </div>
         </div>
       </div>
       <div class="headerActions">
-        <button class="actionBtn minimize" aria-label="Minimize" title="Minimize">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="5" y1="12" x2="19" y2="12"></line>
+        <button class="actionBtn minimize" aria-label="Close chat" title="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
         </button>
       </div>
     </header>
-    <div class="messages"></div>
-    <div class="inputBar">
-      <input type="text" placeholder="Ask anything..." autocomplete="off" disabled />
-      <button class="send" aria-label="Send message" disabled>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
-        </svg>
-      </button>
-    </div>
-    <div class="legalBar">
-      <span>AI responses are informational and may be imperfect.</span>
-      <div style="display: flex; align-items: center; gap: 6px; margin-top: 0;">
-        <a href="/privacy" target="_blank" rel="noopener noreferrer">Terms</a>
-        <span class="legalSeparator">•</span>
-        <a href="#" target="_blank" rel="noopener noreferrer">Privacy</a>
+    <div class="messages">
+      <div class="welcome">
+        <div class="welcomeIcon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 3C6.5 3 2 6.8 2 11.5c0 2.4 1.2 4.6 3.1 6.1l-.6 3.9 4.3-2.2c1 .3 2.1.4 3.2.4 5.5 0 10-3.8 10-8.5S17.5 3 12 3z" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="welcomeTitle">Welcome!</div>
+        <div class="welcomeText">Loading your assistant...</div>
       </div>
     </div>
-    
-    <!-- Booking Form Overlay -->
+    <div class="inputBar">
+      <div class="inputWrapper">
+        <input type="text" placeholder="Type your message..." autocomplete="off" disabled />
+        <button class="send" aria-label="Send" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="footer">
+      <span>Powered by <a href="https://xelochat.com" target="_blank" rel="noopener">XeloChat</a></span>
+    </div>
+
+    <!-- Booking Form -->
     <div class="booking-form" id="bookingForm">
       <div class="booking-header">
-        <h3>Complete Your Booking</h3>
-        <button class="actionBtn booking-close" aria-label="Close booking form">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <h3>Book an Appointment</h3>
+        <button class="actionBtn booking-close" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
@@ -833,22 +1075,22 @@
       </div>
       <div class="booking-body">
         <div class="form-group">
-          <label for="booking-name">Full Name <span class="required">*</span></label>
-          <input type="text" id="booking-name" placeholder="Your name" required />
+          <label for="booking-name">Your Name <span class="required">*</span></label>
+          <input type="text" id="booking-name" placeholder="Enter your name" required />
         </div>
         <div class="form-row">
           <div class="form-group">
             <label for="booking-email">Email</label>
-            <input type="email" id="booking-email" placeholder="your@email.com" />
+            <input type="email" id="booking-email" placeholder="you@example.com" />
           </div>
           <div class="form-group">
             <label for="booking-phone">Phone</label>
-            <input type="tel" id="booking-phone" placeholder="+421..." />
+            <input type="tel" id="booking-phone" placeholder="+1234567890" />
           </div>
         </div>
         <div class="form-group">
           <label for="booking-service">Service</label>
-          <input type="text" id="booking-service" placeholder="Desired service" />
+          <input type="text" id="booking-service" placeholder="What service do you need?" />
         </div>
         <div class="form-row">
           <div class="form-group">
@@ -862,17 +1104,31 @@
         </div>
         <div class="form-group">
           <label for="booking-notes">Additional Notes</label>
-          <textarea id="booking-notes" placeholder="Any special requests or notes..." rows="3"></textarea>
+          <textarea id="booking-notes" placeholder="Anything else we should know?" rows="3"></textarea>
         </div>
       </div>
       <div class="booking-footer">
-        <button class="btn-cancel" type="button">Back to Chat</button>
-        <button class="btn-submit" type="button">Submit Booking</button>
+        <button class="btn-cancel" type="button">Cancel</button>
+        <button class="btn-submit" type="button">Submit Request</button>
       </div>
     </div>
   `;
 
-  shadow.append(style, fab, panel);
+  // For embedded mode, insert into target container instead of body
+  if (widgetStyle === 'embedded' && targetContainer) {
+    const container = document.querySelector(targetContainer);
+    if (container) {
+      container.appendChild(shadowHost);
+      shadow.append(style, panel); // No FAB needed for embedded
+      panel.classList.add('open'); // Always visible in embedded mode
+    } else {
+      console.warn('[XeloChat] Target container not found:', targetContainer);
+      document.body.appendChild(shadowHost);
+      shadow.append(style, fab, panel);
+    }
+  } else {
+    shadow.append(style, fab, panel);
+  }
 
   const messagesEl = panel.querySelector('.messages');
   const inputEl = panel.querySelector('input');
@@ -880,6 +1136,9 @@
   const minimizeBtn = panel.querySelector('.minimize');
   const headerName = panel.querySelector('.header-name');
   const headerTagline = panel.querySelector('.header-tagline');
+  const welcomeEl = panel.querySelector('.welcome');
+  const welcomeTitle = panel.querySelector('.welcomeTitle');
+  const welcomeText = panel.querySelector('.welcomeText');
 
   // Booking form elements
   const bookingForm = panel.querySelector('#bookingForm');
@@ -899,6 +1158,8 @@
   let initialized = false;
   let bookingEnabled = true;
   let bookingFields = ['name', 'email', 'phone', 'service', 'preferredDate', 'preferredTime', 'notes'];
+  let showingWelcome = true;
+  let suggestions = [];
   const messages = [];
 
   const scrollToBottom = () => {
@@ -907,14 +1168,27 @@
     }
   };
 
+  const hideWelcome = () => {
+    if (welcomeEl && showingWelcome) {
+      welcomeEl.style.display = 'none';
+      showingWelcome = false;
+    }
+  };
+
   const renderMessages = () => {
     if (!messagesEl) return;
+
+    if (messages.length === 0 && showingWelcome) {
+      return; // Keep showing welcome
+    }
+
+    hideWelcome();
     messagesEl.innerHTML = '';
 
     messages.forEach((m) => {
       const div = document.createElement('div');
       div.className = `msg ${m.role}`;
-      div.innerHTML = m.content; // Allow HTML for booking button
+      div.innerHTML = m.content;
       messagesEl.appendChild(div);
     });
 
@@ -929,6 +1203,7 @@
   };
 
   const showError = (message) => {
+    hideWelcome();
     const div = document.createElement('div');
     div.className = 'msg error';
     div.textContent = message;
@@ -936,12 +1211,10 @@
     scrollToBottom();
   };
 
-  // Booking form functions
+  // Booking functions
   const showBookingForm = () => {
-    console.log('[XeloChat] Opening booking form');
     if (bookingForm) {
       bookingForm.classList.add('active');
-      // Focus the first input
       bookingNameInput?.focus();
     }
   };
@@ -963,7 +1236,6 @@
   };
 
   const prefillBookingForm = (data) => {
-    console.log('[XeloChat] Prefilling booking form', data);
     if (data.customerName && bookingNameInput) bookingNameInput.value = data.customerName;
     if (data.customerEmail && bookingEmailInput) bookingEmailInput.value = data.customerEmail;
     if (data.customerPhone && bookingPhoneInput) bookingPhoneInput.value = data.customerPhone;
@@ -978,21 +1250,13 @@
     const email = bookingEmailInput?.value?.trim();
     const phone = bookingPhoneInput?.value?.trim();
 
-    // Validate required fields - name is always required
-    if (bookingFields.includes('name') && !name) {
+    if (!name) {
       bookingNameInput?.focus();
       return;
     }
 
-    // Need at least email or phone if either is configured
-    const needsEmail = bookingFields.includes('email');
-    const needsPhone = bookingFields.includes('phone');
-    if ((needsEmail || needsPhone) && !email && !phone) {
-      if (needsEmail) {
-        bookingEmailInput?.focus();
-      } else {
-        bookingPhoneInput?.focus();
-      }
+    if (!email && !phone) {
+      bookingEmailInput?.focus();
       return;
     }
 
@@ -1012,8 +1276,6 @@
         notes: bookingNotesInput?.value?.trim() || null
       };
 
-      console.log('[XeloChat] Submitting booking...', bookingData);
-
       const res = await fetch(`${apiBase}/api/widget/booking`, {
         method: 'POST',
         headers: {
@@ -1032,26 +1294,14 @@
         throw new Error(error.error || 'Booking failed');
       }
 
-      const result = await res.json();
-      console.log('[XeloChat] Booking submitted successfully', result);
-
-      // Show success message in chat with calendar link if available
       hideBookingForm();
       clearBookingForm();
 
-      let successMsg = 'Your booking request has been submitted successfully!';
-      if (result.calendarEvent && result.calendarEvent.eventLink) {
-        successMsg += ' A calendar invite has been created. We will contact you shortly to confirm.';
-      } else {
-        successMsg += ' We will contact you shortly to confirm.';
-      }
-
       messages.push({
         role: 'assistant',
-        content: successMsg
+        content: "Thank you! Your booking request has been submitted. We'll be in touch shortly to confirm your appointment."
       });
       renderMessages();
-      window.dispatchEvent(new CustomEvent('xelochat-booking-submitted'));
 
     } catch (err) {
       console.error('[XeloChat] Booking failed:', err);
@@ -1064,12 +1314,11 @@
     } finally {
       if (bookingSubmitBtn) {
         bookingSubmitBtn.disabled = false;
-        bookingSubmitBtn.textContent = 'Submit Booking';
+        bookingSubmitBtn.textContent = 'Submit Request';
       }
     }
   };
 
-  // Update booking form to show only configured fields
   const updateBookingFormFields = () => {
     const fieldMap = {
       'name': bookingNameInput?.parentElement,
@@ -1081,53 +1330,23 @@
       'notes': bookingNotesInput?.parentElement
     };
 
-    // Show/hide fields based on config
     Object.entries(fieldMap).forEach(([field, element]) => {
       if (element) {
         element.style.display = bookingFields.includes(field) ? 'flex' : 'none';
       }
     });
-
-    // Handle row layout for date/time
-    const dateTimeRow = bookingDateInput?.parentElement?.parentElement;
-    if (dateTimeRow && dateTimeRow.classList.contains('form-row')) {
-      const showDate = bookingFields.includes('preferredDate');
-      const showTime = bookingFields.includes('preferredTime');
-      if (!showDate && !showTime) {
-        dateTimeRow.style.display = 'none';
-      } else {
-        dateTimeRow.style.display = 'grid';
-      }
-    }
-
-    // Handle row layout for email/phone
-    const emailPhoneRow = bookingEmailInput?.parentElement?.parentElement;
-    if (emailPhoneRow && emailPhoneRow.classList.contains('form-row')) {
-      const showEmail = bookingFields.includes('email');
-      const showPhone = bookingFields.includes('phone');
-      if (!showEmail && !showPhone) {
-        emailPhoneRow.style.display = 'none';
-      } else {
-        emailPhoneRow.style.display = 'grid';
-      }
-    }
   };
 
-  // Add "Book Now" button to messages area
   const addBookingButton = () => {
     if (!bookingEnabled || !messagesEl) return;
-
-    // Update form fields visibility
     updateBookingFormFields();
 
-    // Append just the booking button after the last assistant message
-    const btnId = 'book-btn-' + Date.now();
     const btnContainer = document.createElement('div');
     btnContainer.style.cssText = 'padding: 4px 0 8px 0;';
     btnContainer.innerHTML = `
-      <button id="${btnId}" class="book-btn">
+      <button class="book-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <rect x="3" y="4" width="18" height="18" rx="2"></rect>
           <line x1="16" y1="2" x2="16" y2="6"></line>
           <line x1="8" y1="2" x2="8" y2="6"></line>
           <line x1="3" y1="10" x2="21" y2="10"></line>
@@ -1137,17 +1356,13 @@
     `;
     messagesEl.appendChild(btnContainer);
 
-    const btn = btnContainer.querySelector(`#${btnId}`);
+    const btn = btnContainer.querySelector('.book-btn');
     if (btn) {
-      btn.addEventListener('click', () => {
-        showBookingForm();
-      });
+      btn.addEventListener('click', showBookingForm);
     }
-
     scrollToBottom();
   };
 
-  // Booking form event listeners
   bookingCloseBtn?.addEventListener('click', hideBookingForm);
   bookingCancelBtn?.addEventListener('click', hideBookingForm);
   bookingSubmitBtn?.addEventListener('click', submitBooking);
@@ -1157,7 +1372,7 @@
 
     theme = {
       name: sanitize(themeData.name || clinicData?.clinic_name || 'Assistant'),
-      tagline: sanitize(themeData.tagline || 'AI-powered assistant'),
+      tagline: sanitize(themeData.tagline || 'How can I help you?'),
       primary: sanitizeColor(themeData.primaryColor, '#3b82f6'),
       surface: sanitizeColor(themeData.backgroundColor, '#ffffff'),
       text: sanitizeColor(themeData.textColor, '#1e293b'),
@@ -1170,19 +1385,14 @@
     panel.style.setProperty('--chat-primary', theme.primary);
     panel.style.setProperty('--chat-surface', theme.surface);
     panel.style.setProperty('--chat-text', theme.text);
-    panel.style.setProperty('--chat-muted', theme.text);
     panel.style.setProperty('--chat-user', theme.user);
     panel.style.setProperty('--chat-user-text', theme.userText);
     panel.style.setProperty('--chat-assistant', theme.assistant);
-    panel.style.setProperty('--chat-assistant-border', theme.assistantBorder);
-    fab.style.setProperty('--chat-primary', theme.primary);
-    fab.style.setProperty('--chat-surface', theme.surface);
+    fab.style.setProperty('--fab-primary', theme.primary);
 
     if (headerName) headerName.textContent = theme.name;
-    if (headerTagline) headerTagline.textContent = theme.tagline;
   };
 
-  // Check if current page matches the display restrictions
   const shouldDisplayOnPage = (displayMode, patterns) => {
     if (displayMode === 'ALL' || !patterns || patterns.length === 0) {
       return true;
@@ -1191,14 +1401,11 @@
     const currentPath = window.location.pathname;
 
     const matchesPattern = (pattern) => {
-      // If pattern has no wildcard, match the path exactly OR as a prefix
-      // e.g. "/dashboard" matches "/dashboard", "/dashboard/", "/dashboard/chatbots/123"
       if (!pattern.includes('*')) {
         const normalized = pattern.replace(/\/+$/, '');
         const normalizedPath = currentPath.replace(/\/+$/, '');
         return normalizedPath === normalized || currentPath.startsWith(normalized + '/');
       }
-      // Convert wildcard pattern to regex: /blog/* -> /blog/.*
       const regexPattern = pattern
         .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
         .replace(/\*/g, '.*');
@@ -1216,14 +1423,56 @@
     return true;
   };
 
-  // Load chatbot configuration from API
+  // Generate suggestions based on available data
+  const generateSuggestions = (data) => {
+    const s = [];
+    if (data.services?.length > 0) {
+      s.push('What services do you offer?');
+    }
+    if (data.opening_hours) {
+      s.push('What are your opening hours?');
+    }
+    if (data.phone || data.email) {
+      s.push('How can I contact you?');
+    }
+    if (bookingEnabled) {
+      s.push('I\'d like to book an appointment');
+    }
+    return s.slice(0, 3);
+  };
+
+  const renderWelcome = (name, message, suggestionList) => {
+    if (welcomeTitle) welcomeTitle.textContent = `Hi there! 👋`;
+    if (welcomeText) welcomeText.textContent = message || `I'm here to help you with anything about ${name}. Ask me a question!`;
+
+    // Add suggestions
+    if (suggestionList && suggestionList.length > 0 && welcomeEl) {
+      let suggestionsContainer = welcomeEl.querySelector('.welcomeSuggestions');
+      if (!suggestionsContainer) {
+        suggestionsContainer = document.createElement('div');
+        suggestionsContainer.className = 'welcomeSuggestions';
+        welcomeEl.appendChild(suggestionsContainer);
+      }
+
+      suggestionsContainer.innerHTML = suggestionList.map(s =>
+        `<button class="suggestion">${sanitize(s)}</button>`
+      ).join('');
+
+      suggestionsContainer.querySelectorAll('.suggestion').forEach((btn, i) => {
+        btn.addEventListener('click', () => {
+          if (inputEl) {
+            inputEl.value = suggestionList[i];
+            sendMessage();
+          }
+        });
+      });
+    }
+  };
+
   const loadChatbot = async () => {
     try {
-      console.log('[XeloChat] Loading chatbot config...');
       const response = await fetch(`${apiBase}/api/widget/chatbot/${chatbotId}`, {
-        headers: {
-          'X-API-Key': apiKey
-        }
+        headers: { 'X-API-Key': apiKey }
       });
 
       if (!response.ok) {
@@ -1232,43 +1481,33 @@
       }
 
       const data = await response.json();
-      console.log('[XeloChat] Chatbot config loaded', data);
 
-      // Check page display restrictions FIRST
       const pageDisplayMode = data.pageDisplayMode || 'ALL';
       const allowedPages = data.allowedPages || [];
 
       if (!shouldDisplayOnPage(pageDisplayMode, allowedPages)) {
-        // Don't show widget on this page - remove from DOM
-        console.log('[XeloChat] Widget hidden on this page due to display restrictions');
         shadowHost.remove();
         return;
       }
 
       clinicData = data.clinicData;
-
-      // Store booking settings
       bookingEnabled = data.bookingEnabled !== false;
       bookingFields = data.bookingFields || ['name', 'email', 'phone', 'service', 'preferredDate', 'preferredTime', 'notes'];
 
-      // Apply theme
       applyTheme(data.theme);
 
-      // Update header with actual name
-      if (headerName) headerName.textContent = sanitize(clinicData?.clinic_name || 'Assistant');
+      const businessName = clinicData?.clinic_name || 'our business';
+      if (headerName) headerName.textContent = sanitize(businessName);
 
-      // Add welcome message (sanitized via textContent in renderMessages)
-      if (clinicData?.welcomeMessage) {
-        messages.push({ role: 'assistant', content: sanitize(clinicData.welcomeMessage) });
-        renderMessages();
-      }
+      suggestions = generateSuggestions(clinicData || {});
 
-      // Update booking form fields visibility (but don't show button yet)
+      const welcomeMsg = clinicData?.welcomeMessage || `I can help you with information about ${businessName}, answer questions about our services, or help you book an appointment.`;
+      renderWelcome(businessName, welcomeMsg, suggestions);
+
       if (bookingEnabled) {
         updateBookingFormFields();
       }
 
-      // Enable input
       if (inputEl) inputEl.disabled = false;
       if (sendBtn) sendBtn.disabled = false;
       fab.classList.remove('loading');
@@ -1277,32 +1516,47 @@
     } catch (err) {
       console.error('[XeloChat] Failed to load chatbot:', err);
       fab.classList.remove('loading');
-      showError(err.message || 'Failed to load chatbot. Please check your API key.');
+      if (welcomeText) welcomeText.textContent = 'Failed to load. Please refresh.';
     }
   };
 
   const openPanel = () => {
+    if (widgetStyle === 'embedded') return; // Always open in embedded mode
     open = true;
     panel.classList.add('open');
     fab.classList.add('hidden');
-    setTimeout(scrollToBottom, 50);
-    if (initialized) inputEl?.focus();
+
+    if (isFirstOpen()) {
+      markAsOpened();
+    }
+
+    setTimeout(() => {
+      if (initialized && !showingWelcome) inputEl?.focus();
+    }, 100);
   };
 
   const closePanel = () => {
+    if (widgetStyle === 'embedded') return; // Cannot close in embedded mode
     open = false;
     panel.classList.remove('open');
     fab.classList.remove('hidden');
   };
 
-  fab.addEventListener('click', openPanel);
-  minimizeBtn?.addEventListener('click', closePanel);
+  // Don't add FAB event listener for embedded mode
+  if (widgetStyle !== 'embedded') {
+    fab.addEventListener('click', openPanel);
+    minimizeBtn?.addEventListener('click', closePanel);
+  } else {
+    // Hide minimize button in embedded mode
+    if (minimizeBtn) minimizeBtn.style.display = 'none';
+  }
 
   const sendMessage = async () => {
     if (!inputEl || !sendBtn || !initialized) return;
     const content = inputEl.value.trim();
     if (!content || loading) return;
 
+    hideWelcome();
     messages.push({ role: 'user', content: sanitize(content) });
     inputEl.value = '';
     renderMessages();
@@ -1315,7 +1569,6 @@
     let pendingBookingAutoSubmit = null;
 
     try {
-      console.log('[XeloChat] Sending message:', content);
       const res = await fetch(`${apiBase}/api/widget/chat/stream`, {
         method: 'POST',
         headers: {
@@ -1325,7 +1578,7 @@
         body: JSON.stringify({
           chatbotId,
           sessionId,
-          conversationHistory: messages.map(m => ({ role: m.role, content: m.content })).slice(-10), // Send clean history
+          conversationHistory: messages.map(m => ({ role: m.role, content: m.content })).slice(-10),
           message: content
         })
       });
@@ -1363,15 +1616,11 @@
               assistantText += data.content;
             }
 
-            // Check if the assistant called the booking tool - defer until after render
             if (data.toolCall === 'show_booking_form' && bookingEnabled) {
-              console.log('[XeloChat] Server requested booking form', data);
               pendingBookingButton = true;
             }
 
-            // Check if booking was auto-submitted
             if (data.bookingSubmitted && data.bookingData) {
-              console.log('[XeloChat] Booking auto-submitted', data.bookingData);
               pendingBookingAutoSubmit = data.bookingData;
             }
           } catch {
@@ -1386,7 +1635,6 @@
     } catch (err) {
       console.error('[XeloChat] Send failed:', err);
 
-      // Handle specific error messages
       if (err.message.includes('limit')) {
         showError('Message limit exceeded. Please try again later.');
       } else if (err.message.includes('Domain')) {
@@ -1399,7 +1647,6 @@
       sendBtn.disabled = false;
       renderMessages();
 
-      // Add booking button after render so it doesn't get wiped
       if (pendingBookingButton) {
         setTimeout(addBookingButton, 50);
       }
@@ -1420,6 +1667,5 @@
     }
   });
 
-  // Load chatbot on init
   loadChatbot();
 })();
