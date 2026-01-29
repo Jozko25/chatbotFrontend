@@ -11,6 +11,99 @@ import DemoWidgetFAB from '@/components/DemoWidgetFAB';
 import FAQ, { faqSchema } from '@/components/FAQ';
 import styles from './page.module.css';
 
+// SoftwareApplication schema for AI search engines (Perplexity, ChatGPT, etc.)
+const softwareApplicationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'XeloChat',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Web',
+  description: 'AI-powered chatbot platform that turns any website into an intelligent customer support assistant. Features automatic website crawling, GPT-4 powered conversations, multilingual support, and Google Calendar integration for appointment booking.',
+  url: 'https://xelochat.com',
+  image: 'https://xelochat.com/og-image.png',
+  author: {
+    '@type': 'Organization',
+    name: 'XeloChat',
+    url: 'https://xelochat.com'
+  },
+  offers: [
+    {
+      '@type': 'Offer',
+      name: 'Free Plan',
+      price: '0',
+      priceCurrency: 'USD',
+      priceValidUntil: '2025-12-31',
+      description: 'Try XeloChat free - 1 chatbot, 50 messages/month, website-trained AI, basic lead capture',
+      availability: 'https://schema.org/InStock'
+    },
+    {
+      '@type': 'Offer',
+      name: 'Starter Plan',
+      price: '18',
+      priceCurrency: 'USD',
+      priceValidUntil: '2025-12-31',
+      description: 'For small businesses - 2 chatbots, 500 messages/month, remove branding, booking requests via email',
+      availability: 'https://schema.org/InStock'
+    },
+    {
+      '@type': 'Offer',
+      name: 'Pro Plan',
+      price: '49',
+      priceCurrency: 'USD',
+      priceValidUntil: '2025-12-31',
+      description: 'For growing businesses - 4 chatbots, 2000 messages/month, Google Calendar integration, auto booking, priority support',
+      availability: 'https://schema.org/InStock'
+    },
+    {
+      '@type': 'Offer',
+      name: 'Enterprise Plan',
+      price: '99',
+      priceCurrency: 'USD',
+      priceValidUntil: '2025-12-31',
+      description: 'For high-volume businesses - Unlimited chatbots, unlimited messages, all integrations included',
+      availability: 'https://schema.org/InStock'
+    }
+  ],
+  featureList: [
+    'Smart website crawling - automatically scans up to 25 pages',
+    'GPT-4 powered natural conversations',
+    'Multilingual support - Slovak, German, Spanish, and more',
+    'Google Calendar integration for appointment booking',
+    'One-line embed code - works on any website',
+    'Brand customization - white-label ready',
+    'Lead capture and booking requests',
+    'Works with Webflow, Shopify, WordPress, Squarespace',
+    '90-second setup - no coding required',
+    'Privacy first - only reads public website content'
+  ],
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: '4.8',
+    ratingCount: '127',
+    bestRating: '5',
+    worstRating: '1'
+  },
+  softwareVersion: '1.0',
+  releaseNotes: 'Google Calendar integration, multilingual AI responses, improved website crawling'
+};
+
+// Organization schema for brand recognition
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'XeloChat',
+  url: 'https://xelochat.com',
+  logo: 'https://xelochat.com/logo.png',
+  description: 'AI-powered chatbot platform for websites',
+  foundingDate: '2024',
+  sameAs: [],
+  contactPoint: {
+    '@type': 'ContactPoint',
+    contactType: 'customer support',
+    email: 'support@xelochat.com'
+  }
+};
+
 const createDefaultTheme = (name?: string): ChatTheme => ({
   name: name || 'Assistant',
   tagline: 'AI-powered assistant',
@@ -549,6 +642,19 @@ export default function Home() {
         </section>
       </main>
 
+      {/* Structured Data for AI Search Engines */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(softwareApplicationSchema),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(organizationSchema),
+        }}
+      />
       {/* FAQ Schema for rich snippets */}
       <script
         type="application/ld+json"

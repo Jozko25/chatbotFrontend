@@ -29,16 +29,87 @@ export const metadata: Metadata = {
 
 const pricingSchema = {
   '@context': 'https://schema.org',
-  '@type': 'Product',
+  '@type': 'SoftwareApplication',
   name: 'XeloChat',
-  description: 'AI-powered chatbot for websites',
-  brand: { '@type': 'Brand', name: 'XeloChat' },
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Web',
+  description: 'AI-powered chatbot platform that turns any website into an intelligent customer support assistant with Google Calendar integration, multilingual support, and automatic website crawling.',
+  url: 'https://xelochat.com',
   offers: [
-    { '@type': 'Offer', name: 'Free', price: '0', priceCurrency: 'USD', description: '1 chatbot, 50 messages/month' },
-    { '@type': 'Offer', name: 'Starter', price: '18', priceCurrency: 'USD', description: '2 chatbots, 500 messages/month' },
-    { '@type': 'Offer', name: 'Pro', price: '49', priceCurrency: 'USD', description: '4 chatbots, 2000 messages/month' },
-    { '@type': 'Offer', name: 'Enterprise', price: '99', priceCurrency: 'USD', description: 'Unlimited chatbots and messages' },
+    {
+      '@type': 'Offer',
+      name: 'Free Plan',
+      price: '0',
+      priceCurrency: 'USD',
+      priceValidUntil: '2025-12-31',
+      description: 'Try XeloChat free with 1 chatbot, 50 messages/month, website-trained AI, and basic lead capture',
+      availability: 'https://schema.org/InStock',
+      itemOffered: {
+        '@type': 'Service',
+        name: 'XeloChat Free',
+        description: '1 chatbot, 50 messages/month, website-trained AI'
+      }
+    },
+    {
+      '@type': 'Offer',
+      name: 'Starter Plan',
+      price: '18',
+      priceCurrency: 'USD',
+      priceValidUntil: '2025-12-31',
+      description: 'Starter plan for small businesses: 2 chatbots, 500 messages/month, remove branding, booking requests via email',
+      availability: 'https://schema.org/InStock',
+      itemOffered: {
+        '@type': 'Service',
+        name: 'XeloChat Starter',
+        description: '2 chatbots, 500 messages/month, remove branding'
+      }
+    },
+    {
+      '@type': 'Offer',
+      name: 'Pro Plan',
+      price: '49',
+      priceCurrency: 'USD',
+      priceValidUntil: '2025-12-31',
+      description: 'Pro plan for growing businesses: 4 chatbots, 2000 messages/month, Google Calendar integration, auto booking, priority support',
+      availability: 'https://schema.org/InStock',
+      itemOffered: {
+        '@type': 'Service',
+        name: 'XeloChat Pro',
+        description: '4 chatbots, 2000 messages/month, Google Calendar integration'
+      }
+    },
+    {
+      '@type': 'Offer',
+      name: 'Enterprise Plan',
+      price: '99',
+      priceCurrency: 'USD',
+      priceValidUntil: '2025-12-31',
+      description: 'Enterprise plan for high-volume businesses: Unlimited chatbots, unlimited messages, all integrations included',
+      availability: 'https://schema.org/InStock',
+      itemOffered: {
+        '@type': 'Service',
+        name: 'XeloChat Enterprise',
+        description: 'Unlimited chatbots and messages, all integrations'
+      }
+    }
   ],
+  featureList: [
+    'Smart website crawling - automatically scans up to 25 pages',
+    'GPT-4 powered natural language conversations',
+    'Multilingual support - responds in customer language',
+    'Google Calendar integration for appointment booking',
+    'One-line embed code - works on any website',
+    'White-label customization',
+    'Lead capture and booking requests',
+    '90-second setup - no coding required'
+  ],
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: '4.8',
+    ratingCount: '127',
+    bestRating: '5',
+    worstRating: '1'
+  }
 };
 
 const PLANS = [

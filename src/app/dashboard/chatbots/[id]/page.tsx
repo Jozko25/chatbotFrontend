@@ -88,8 +88,15 @@ const SearchEmptyIcon = () => (
   </svg>
 );
 
+const PlayIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="5 3 19 12 5 21 5 3"/>
+  </svg>
+);
+
 // Section configuration with search keywords
 const SECTIONS = [
+  { id: 'preview', title: 'Chat Preview', description: 'Test your chatbot live', icon: PlayIcon, keywords: ['preview', 'test', 'chat', 'try', 'demo', 'live'] },
   { id: 'embed', title: 'Embed Code', description: 'Add chatbot to your website', icon: CodeIcon, keywords: ['embed', 'code', 'script', 'website', 'install', 'widget'] },
   { id: 'apikeys', title: 'API Keys', description: 'Manage access keys', icon: KeyIcon, keywords: ['api', 'key', 'keys', 'access', 'token', 'authentication'] },
   { id: 'ai', title: 'AI Settings', description: 'Configure AI behavior', icon: BrainIcon, keywords: ['ai', 'prompt', 'system', 'welcome', 'message', 'knowledge', 'behavior'] },
@@ -481,6 +488,12 @@ export default function ChatbotDetailPage() {
   const [integrationsError, setIntegrationsError] = useState<string | null>(null);
   const [integrationsSuccess, setIntegrationsSuccess] = useState<string | null>(null);
 
+  // Chat preview state
+  const [previewMessages, setPreviewMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
+  const [previewInput, setPreviewInput] = useState('');
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewSessionId] = useState(() => 'preview_' + Math.random().toString(36).substring(2) + Date.now().toString(36));
+
   async function handleSavePages(e: React.FormEvent) {
     e.preventDefault();
     setSavingPages(true);
@@ -559,6 +572,90 @@ export default function ChatbotDetailPage() {
     }
   }
 
+  // Chat preview functions
+  async function handlePreviewSend(e?: React.FormEvent) {
+    e?.preventDefault();
+    if (!previewInput.trim() || previewLoading) return;
+
+    const userMessage = previewInput.trim();
+    setPreviewInput('');
+    setPreviewMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    setPreviewLoading(true);
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const response = await fetch(`${apiUrl}/api/chatbots/${chatbotId}/preview/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          sessionId: previewSessionId,
+          conversationHistory: previewMessages.slice(-10),
+          message: userMessage
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get response');
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('No response body');
+
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let assistantText = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          try {
+            const data = JSON.parse(line.slice(6));
+            if (data.content) {
+              assistantText += data.content;
+              // Update message in real-time
+              setPreviewMessages(prev => {
+                const newMessages = [...prev];
+                const lastMsg = newMessages[newMessages.length - 1];
+                if (lastMsg?.role === 'assistant') {
+                  lastMsg.content = assistantText;
+                } else {
+                  newMessages.push({ role: 'assistant', content: assistantText });
+                }
+                return newMessages;
+              });
+            }
+          } catch {
+            // Ignore parse errors
+          }
+        }
+      }
+
+      if (assistantText && previewMessages[previewMessages.length - 1]?.role !== 'assistant') {
+        setPreviewMessages(prev => [...prev, { role: 'assistant', content: assistantText }]);
+      }
+    } catch (err) {
+      setPreviewMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, something went wrong. Please try again.' }]);
+      console.error('Preview chat error:', err);
+    } finally {
+      setPreviewLoading(false);
+    }
+  }
+
+  function clearPreviewChat() {
+    setPreviewMessages([]);
+    setPreviewInput('');
+  }
+
   if (loading) {
     return (
       <div className={styles.loadingContainer}>
@@ -583,6 +680,80 @@ export default function ChatbotDetailPage() {
 
   const renderSectionContent = (sectionId: string) => {
     switch (sectionId) {
+      case 'preview':
+        return (
+          <div className={styles.sectionContentInner}>
+            <div className={styles.chatPreviewContainer}>
+              {chatbot.status !== 'ACTIVE' ? (
+                <div className={styles.chatPreviewEmpty}>
+                  <p>Chatbot must be active to test. Current status: {chatbot.status}</p>
+                </div>
+              ) : (
+                <>
+                  <div className={styles.chatPreviewMessages}>
+                    {previewMessages.length === 0 ? (
+                      <div className={styles.chatPreviewWelcome}>
+                        <div className={styles.chatPreviewWelcomeIcon}>
+                          <MessageIcon />
+                        </div>
+                        <h4>Test Your Chatbot</h4>
+                        <p>Send a message to see how your chatbot responds to customers</p>
+                        <div className={styles.chatPreviewSuggestions}>
+                          <button onClick={() => { setPreviewInput('What services do you offer?'); }}>
+                            What services do you offer?
+                          </button>
+                          <button onClick={() => { setPreviewInput('What are your opening hours?'); }}>
+                            What are your opening hours?
+                          </button>
+                          <button onClick={() => { setPreviewInput('I want to book an appointment'); }}>
+                            I want to book an appointment
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        {previewMessages.map((msg, i) => (
+                          <div key={i} className={`${styles.chatPreviewMsg} ${styles[msg.role]}`}>
+                            {msg.content}
+                          </div>
+                        ))}
+                        {previewLoading && (
+                          <div className={`${styles.chatPreviewMsg} ${styles.assistant}`}>
+                            <span className={styles.typingDots}>
+                              <span></span><span></span><span></span>
+                            </span>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                  <form onSubmit={handlePreviewSend} className={styles.chatPreviewInputBar}>
+                    <input
+                      type="text"
+                      value={previewInput}
+                      onChange={(e) => setPreviewInput(e.target.value)}
+                      placeholder="Type a message..."
+                      disabled={previewLoading}
+                    />
+                    <button type="submit" disabled={previewLoading || !previewInput.trim()}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                      </svg>
+                    </button>
+                  </form>
+                  {previewMessages.length > 0 && (
+                    <div className={styles.chatPreviewActions}>
+                      <button onClick={clearPreviewChat} className={styles.secondaryBtn}>
+                        Clear Chat
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        );
+
       case 'embed':
         return (
           <div className={styles.sectionContentInner}>

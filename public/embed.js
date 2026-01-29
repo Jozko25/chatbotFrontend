@@ -1157,7 +1157,7 @@
   let loading = false;
   let initialized = false;
   let bookingEnabled = true;
-  let bookingFields = ['name', 'email', 'phone', 'service', 'preferredDate', 'preferredTime', 'notes'];
+  let bookingFields = ['name', 'email', 'preferredDate', 'preferredTime'];
   let showingWelcome = true;
   let suggestions = [];
   const messages = [];
@@ -1492,7 +1492,7 @@
 
       clinicData = data.clinicData;
       bookingEnabled = data.bookingEnabled !== false;
-      bookingFields = data.bookingFields || ['name', 'email', 'phone', 'service', 'preferredDate', 'preferredTime', 'notes'];
+      bookingFields = data.bookingFields || ['name', 'email', 'preferredDate', 'preferredTime'];
 
       applyTheme(data.theme);
 
