@@ -649,6 +649,7 @@ export default function DemoWidgetFAB({
           .demo-widget-fab {
             bottom: 84px;
             right: 16px;
+            left: auto;
             width: 52px;
             height: 52px;
           }
@@ -667,8 +668,8 @@ export default function DemoWidgetFAB({
           <img className="demo-widget-fab-icon" src={favicon} alt="" onError={() => setFavicon(null)} />
         ) : (
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M8 10.5h8M8 14.5h5" strokeLinecap="round"/>
-            <path d="M12 3C6.5 3 2 6.8 2 11.5c0 2.4 1.2 4.6 3.1 6.1l-.6 3.9 4.3-2.2c1 .3 2.1.4 3.2.4 5.5 0 10-3.8 10-8.5S17.5 3 12 3z" strokeLinejoin="round"/>
+            <path d="M8 10.5h8M8 14.5h5" strokeLinecap="round" />
+            <path d="M12 3C6.5 3 2 6.8 2 11.5c0 2.4 1.2 4.6 3.1 6.1l-.6 3.9 4.3-2.2c1 .3 2.1.4 3.2.4 5.5 0 10-3.8 10-8.5S17.5 3 12 3z" strokeLinejoin="round" />
           </svg>
         )}
       </button>
@@ -682,8 +683,8 @@ export default function DemoWidgetFAB({
                 <img src={favicon} alt="" onError={() => setFavicon(null)} />
               ) : (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M8 10.5h8M8 14.5h5" strokeLinecap="round"/>
-                  <path d="M12 3C6.5 3 2 6.8 2 11.5c0 2.4 1.2 4.6 3.1 6.1l-.6 3.9 4.3-2.2c1 .3 2.1.4 3.2.4 5.5 0 10-3.8 10-8.5S17.5 3 12 3z" strokeLinejoin="round"/>
+                  <path d="M8 10.5h8M8 14.5h5" strokeLinecap="round" />
+                  <path d="M12 3C6.5 3 2 6.8 2 11.5c0 2.4 1.2 4.6 3.1 6.1l-.6 3.9 4.3-2.2c1 .3 2.1.4 3.2.4 5.5 0 10-3.8 10-8.5S17.5 3 12 3z" strokeLinejoin="round" />
                 </svg>
               )}
             </div>

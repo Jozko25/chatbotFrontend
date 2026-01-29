@@ -1175,4 +1175,12 @@
   .logos {
     gap: 20px;
   }
+
+  .calendarWrapper iframe {
+    height: 400px;
+  }
+
+  .calendarSection {
+    padding: 60px 0 50px;
+  }
 }

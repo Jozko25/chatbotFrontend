@@ -971,8 +971,8 @@
 
       .fab:not(.embedded) {
         bottom: 20px;
-        ${pos.right ? 'right: 20px;' : ''}
-        ${pos.left ? 'left: 20px;' : ''}
+        right: 20px;
+        left: auto;
         width: 60px;
         height: 60px;
         border-radius: 18px;

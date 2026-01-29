@@ -379,20 +379,15 @@ export default function Home() {
             the AI create a calendar event in real-time. Google Calendar integration is live —
             more integrations like Calendly, Cal.com, and CRM webhooks are coming soon.
           </p>
-          <div className={styles.calendarWrapper} data-calendar-wrapper>
-            <div className={styles.calendarLoader}>
-              <div className={styles.spinner} />
-              <span>Refreshing calendar...</span>
-            </div>
-            <iframe
-              id="xelochat-calendar"
-              src="https://calendar.google.com/calendar/embed?src=18f28ab12e61762fbccb2124e396d399078f9bd1bcc80b635852d932b7b1a12b%40group.calendar.google.com&ctz=Europe%2FPrague&mode=WEEK&showTitle=0&showNav=1&showPrint=0&showTabs=0&showCalendars=0"
-              style={{ border: 0 }}
-              width="100%"
-              height="500"
-              frameBorder="0"
-              scrolling="no"
-            />
+          <div style={{
+            marginTop: '40px',
+            borderRadius: '16px',
+            overflow: 'hidden',
+            border: '1px solid hsl(220 13% 91%)',
+            background: 'white',
+            boxShadow: '0 8px 32px rgba(59, 130, 246, 0.08)'
+          }}>
+            <iframe src="https://calendar.google.com/calendar/embed?src=18f28ab12e61762fbccb2124e396d399078f9bd1bcc80b635852d932b7b1a12b%40group.calendar.google.com&ctz=Europe%2FPrague" style={{ border: 0, display: 'block', width: '100%', height: '600px' }} title="XeloChat Live Booking Calendar" />
           </div>
         </section>
 
@@ -405,7 +400,7 @@ export default function Home() {
             <div className={styles.featureCard}>
               <div className={styles.featureIcon}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                  <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
                 </svg>
               </div>
               <h3>Smart Crawling</h3>
@@ -415,7 +410,7 @@ export default function Home() {
             <div className={styles.featureCard}>
               <div className={styles.featureIcon}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                 </svg>
               </div>
               <h3>Natural Conversations</h3>
@@ -425,7 +420,7 @@ export default function Home() {
             <div className={styles.featureCard}>
               <div className={styles.featureIcon}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+                  <polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" />
                 </svg>
               </div>
               <h3>Easy Integration</h3>
@@ -435,8 +430,8 @@ export default function Home() {
             <div className={styles.featureCard}>
               <div className={styles.featureIcon}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
-                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                  <circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" />
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
                 </svg>
               </div>
               <h3>Multilingual</h3>
@@ -446,7 +441,7 @@ export default function Home() {
             <div className={styles.featureCard}>
               <div className={styles.featureIcon}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/>
+                  <rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18" /><path d="M9 21V9" />
                 </svg>
               </div>
               <h3>Brand Customizable</h3>
@@ -456,7 +451,7 @@ export default function Home() {
             <div className={styles.featureCard}>
               <div className={styles.featureIcon}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
               </div>
               <h3>Privacy First</h3>
@@ -671,7 +666,7 @@ export default function Home() {
             <div className={styles.footerSection}>
               <div className={styles.footerBrand}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                 </svg>
                 <span>XeloChat</span>
               </div>
