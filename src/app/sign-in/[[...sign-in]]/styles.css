@@ -37,11 +37,11 @@
   margin: 0 auto;
 }
 
-/* Unified card */
+/* Unified card – single white container, rounded corners, subtle shadow */
 .auth-card {
   width: 100%;
   max-width: 100%;
-  background: white;
+  background: #fff;
   border-radius: 20px;
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.04),
@@ -51,7 +51,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow: hidden;
+  overflow: visible;
   box-sizing: border-box;
   margin: 0;
 }
@@ -71,6 +71,7 @@
   text-decoration: none;
   letter-spacing: -0.01em;
   transition: opacity 0.15s ease;
+  margin-bottom: 1.5rem;
 }
 
 .auth-logo:hover {
@@ -79,6 +80,30 @@
 
 .auth-logo svg {
   color: #3b82f6;
+}
+
+/* Account switch link */
+.auth-switch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e2e8f0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.auth-switch-link {
+  color: #3b82f6;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.auth-switch-link:hover {
+  color: #2563eb;
 }
 
 /* Header */
@@ -112,6 +137,7 @@
   width: 100%;
   display: flex;
   justify-content: center;
+  overflow: visible;
 }
 
 /* Clerk card - strip all its own styling so it sits flush */
@@ -130,6 +156,27 @@
   box-shadow: none !important;
   border: none !important;
   padding: 0 !important;
+}
+
+/* Remove all wrapper borders and backgrounds from Clerk */
+.auth-clerk-root [class*="cl-internal"],
+.auth-clerk-root [class*="cl-form"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Fix form field containers */
+.auth-clerk-root [class*="formField"],
+.auth-clerk-root [class*="formFieldRow"] {
+  overflow: visible !important;
+}
+
+/* Remove any wrapper styling around the entire social button */
+.auth-clerk-root [class*="socialButtonsBlockButtonOuter"],
+.auth-clerk-root [class*="cl-socialButtonsBlockButton__"] > * {
+  border: none !important;
+  background: transparent !important;
 }
 
 /* Hide Clerk's internal header (fallback) */
@@ -154,6 +201,8 @@
   background: #f8fafc !important;
   color: #1e293b !important;
   transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 .auth-clerk-root .cl-formFieldInput:focus,
@@ -218,6 +267,91 @@
   box-shadow: none !important;
   outline: none !important;
   transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+/* Remove nested button appearance - "Last used" indicator */
+.auth-clerk-root .cl-socialButtonsBlockButton__google,
+.auth-clerk-root [class*="socialButtonsBlockButton"] {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.auth-clerk-root .cl-socialButtonsBlockButton__google::before,
+.auth-clerk-root .cl-socialButtonsBlockButton__google::after,
+.auth-clerk-root [class*="socialButtonsBlockButton"]::before,
+.auth-clerk-root [class*="socialButtonsBlockButton"]::after {
+  display: none !important;
+}
+
+/* Remove the outer ring/wrapper around social buttons */
+.auth-clerk-root [class*="socialButtonsBlockButtonArrow"],
+.auth-clerk-root [class*="socialButtonsProviderIcon__"],
+.auth-clerk-root [class*="buttonArrowIcon"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.auth-clerk-root [class*="socialButtons"] > div {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* Fix "Last used" wrapper - this is the outer pill that wraps the button */
+.auth-clerk-root [class*="socialButtonsBlockButtonWrapper"],
+.auth-clerk-root [class*="lastUsed"],
+.auth-clerk-root [class*="LastUsed"] {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: visible !important;
+}
+
+/* Space between Google button and "or" / form */
+.auth-clerk-root [class*="socialButtonsBlock"]:not([class*="Button"]) {
+  margin-bottom: 1rem !important;
+}
+
+/* The actual wrapper element around the social button with "Last used" */
+.auth-clerk-root .cl-socialButtonsBlockButton__google {
+  border: 1px solid #e2e8f0 !important;
+}
+
+/* Target wrapper divs only – never style the actual button */
+.auth-clerk-root [class*="socialButtonsBlock"] > div {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+/* Ensure the wrapper div doesn't add extra borders */
+.auth-clerk-root div:has(> .cl-socialButtonsBlockButton) {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* Style for "Last used" text badge – don't block clicks on the button */
+.auth-clerk-root [class*="socialButtonsBlockButton"] + span,
+.auth-clerk-root [class*="badge"],
+.auth-clerk-root [class*="Badge"] {
+  position: absolute !important;
+  right: -5px !important;
+  top: -8px !important;
+  font-size: 10px !important;
+  background: #f1f5f9 !important;
+  color: #64748b !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  border: none !important;
+  white-space: nowrap !important;
+  pointer-events: none !important;
 }
 
 .auth-clerk-root .cl-socialButtonsBlockButton:hover,
@@ -297,6 +431,7 @@
   box-shadow: none !important;
   outline: none !important;
   transition: background 0.15s ease, border-color 0.15s ease !important;
+  width: 100% !important;
 }
 
 .auth-clerk-social:hover {
@@ -307,6 +442,22 @@
 .auth-clerk-social:focus {
   outline: none !important;
   box-shadow: none !important;
+}
+
+/* Social icon styling */
+.auth-clerk-social-icon {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+/* Nuclear option: target all wrappers around social buttons */
+.auth-clerk-root button.auth-clerk-social {
+  margin: 0 !important;
+}
+
+.auth-clerk-root > div > div,
+.auth-clerk-root .cl-main > div {
+  overflow: visible !important;
 }
 
 /* Links */

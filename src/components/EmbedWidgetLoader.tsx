@@ -10,14 +10,18 @@ type EmbedWidgetLoaderProps = {
 };
 
 function cleanupWidget() {
+  // Remove the shadow DOM host
   const widgetHost = document.getElementById('xelochat-widget');
   if (widgetHost) {
     widgetHost.remove();
   }
+  // Remove the embed script
   const existingScript = document.getElementById('xelochat-embed-script');
   if (existingScript) {
     existingScript.remove();
   }
+  // Also remove any other xelochat elements that might have been created
+  document.querySelectorAll('[id^="xelochat-"]').forEach(el => el.remove());
 }
 
 export default function EmbedWidgetLoader({

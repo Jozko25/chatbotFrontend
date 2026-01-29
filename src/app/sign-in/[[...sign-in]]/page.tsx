@@ -19,14 +19,12 @@ export default function SignInPage() {
       <div className="auth-wrapper">
         <div className="auth-card">
           {/* Brand header */}
-          <div className="auth-brand">
-            <Link href="/" className="auth-logo">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-              </svg>
-              <span>XeloChat</span>
-            </Link>
-          </div>
+          <Link href="/" className="auth-logo">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span>XeloChat</span>
+          </Link>
 
           {/* Welcome message */}
           <div className="auth-header">
@@ -48,9 +46,19 @@ export default function SignInPage() {
                 headerSubtitle: 'auth-clerk-hidden',
                 footer: 'auth-clerk-footer',
                 socialButtonsBlockButton: 'auth-clerk-social',
+                socialButtonsProviderIcon: 'auth-clerk-social-icon',
+              },
+              layout: {
+                socialButtonsVariant: 'blockButton',
               },
             }}
           />
+
+          {/* Switch to sign up */}
+          <div className="auth-switch">
+            <span>Don&apos;t have an account?</span>
+            <Link href="/sign-up" className="auth-switch-link">Sign up</Link>
+          </div>
         </div>
 
         {/* Footer links */}

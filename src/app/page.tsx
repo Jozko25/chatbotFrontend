@@ -7,6 +7,7 @@ import { saveSession, loadSession, clearSession } from '@/lib/storage';
 import Navbar from '@/components/Navbar';
 import SetupForm from '@/components/SetupForm';
 import EmbedWidgetLoader from '@/components/EmbedWidgetLoader';
+import DemoWidgetFAB from '@/components/DemoWidgetFAB';
 import FAQ, { faqSchema } from '@/components/FAQ';
 import styles from './page.module.css';
 
@@ -43,6 +44,7 @@ export default function Home() {
     }>;
     phase: 'scraping' | 'extracting' | 'saving' | 'complete';
   } | null>(null);
+
 
   useEffect(() => {
     const saved = loadSession();
@@ -530,6 +532,9 @@ export default function Home() {
                 Sign up to embed
               </a>
             </div>
+            <p className={styles.embedNote}>
+              Missing information or something incorrect? You can update the knowledge base anytime from your dashboard after signing up.
+            </p>
           </section>
         )}
 
@@ -614,12 +619,20 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Widget loaded via embed code - same as what customers get */}
+      {/* XeloChat widget - always visible (bottom-right corner) */}
       <EmbedWidgetLoader
         chatbotId={process.env.NEXT_PUBLIC_WIDGET_CHATBOT_ID || ''}
         apiKey={process.env.NEXT_PUBLIC_WIDGET_API_KEY || ''}
         apiUrl={process.env.NEXT_PUBLIC_API_URL || ''}
       />
+
+      {/* User's demo chatbot FAB - appears above XeloChat FAB when demo data exists */}
+      {clinicData && (
+        <DemoWidgetFAB
+          clinicData={clinicData}
+          theme={theme}
+        />
+      )}
 
 
       {/* Customizer modal */}

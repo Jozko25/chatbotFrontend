@@ -854,3 +854,105 @@ export async function sendDemoChatMessageStream(
     onError(error instanceof Error ? error.message : 'Connection error');
   }
 }
+
+// ============================================
+// INTEGRATIONS API
+// ============================================
+
+export interface Integration {
+  id: string;
+  provider: 'GOOGLE_CALENDAR';
+  isConnected: boolean;
+  calendarId: string | null;
+  settings: Record<string, unknown>;
+  lastSyncAt: string | null;
+  error: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IntegrationsStatus {
+  integrations: Integration[];
+  available: {
+    GOOGLE_CALENDAR: {
+      configured: boolean;
+      connected: boolean;
+    };
+  };
+}
+
+export interface GoogleCalendarStatus {
+  connected: boolean;
+  configured?: boolean;
+  calendarId?: string;
+  calendars?: Array<{
+    id: string;
+    summary: string;
+    primary: boolean;
+    backgroundColor?: string;
+  }>;
+  lastSyncAt?: string;
+  error?: string;
+}
+
+// Get integrations status for a chatbot
+export async function getChatbotIntegrations(chatbotId: string): Promise<IntegrationsStatus> {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_URL}/api/integrations/chatbot/${chatbotId}`, { headers });
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Failed to get integrations' }));
+    throw new Error(error.error || 'Failed to get integrations');
+  }
+  return response.json();
+}
+
+// Start Google Calendar OAuth flow for a chatbot
+export async function connectGoogleCalendar(chatbotId: string): Promise<{ authUrl: string }> {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_URL}/api/integrations/chatbot/${chatbotId}/google-calendar/connect`, { headers });
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Failed to start connection' }));
+    throw new Error(error.error || 'Failed to start connection');
+  }
+  return response.json();
+}
+
+// Get Google Calendar status for a chatbot
+export async function getGoogleCalendarStatus(chatbotId: string): Promise<GoogleCalendarStatus> {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_URL}/api/integrations/chatbot/${chatbotId}/google-calendar/status`, { headers });
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Failed to get status' }));
+    throw new Error(error.error || 'Failed to get status');
+  }
+  return response.json();
+}
+
+// Update Google Calendar settings for a chatbot
+export async function updateGoogleCalendarSettings(chatbotId: string, calendarId: string): Promise<{ success: boolean; calendarId: string }> {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_URL}/api/integrations/chatbot/${chatbotId}/google-calendar/settings`, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify({ calendarId }),
+  });
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Failed to update settings' }));
+    throw new Error(error.error || 'Failed to update settings');
+  }
+  return response.json();
+}
+
+// Disconnect Google Calendar from a chatbot
+export async function disconnectGoogleCalendar(chatbotId: string): Promise<{ success: boolean }> {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_URL}/api/integrations/chatbot/${chatbotId}/google-calendar/disconnect`, {
+    method: 'POST',
+    headers,
+  });
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Failed to disconnect' }));
+    throw new Error(error.error || 'Failed to disconnect');
+  }
+  return response.json();
+}

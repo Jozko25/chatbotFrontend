@@ -19,19 +19,17 @@ export default function SignUpPage() {
       <div className="auth-wrapper">
         <div className="auth-card">
           {/* Brand header */}
-          <div className="auth-brand">
-            <Link href="/" className="auth-logo">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-              </svg>
-              <span>XeloChat</span>
-            </Link>
-          </div>
+          <Link href="/" className="auth-logo">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span>XeloChat</span>
+          </Link>
 
           {/* Welcome message */}
           <div className="auth-header">
             <h1 className="auth-title">Create your account</h1>
-            <p className="auth-subtitle">Start building AI chatbots for your websites</p>
+            <p className="auth-subtitle">Start building AI chatbots for your website</p>
           </div>
 
           {/* Clerk sign-up component */}
@@ -48,9 +46,19 @@ export default function SignUpPage() {
                 headerSubtitle: 'auth-clerk-hidden',
                 footer: 'auth-clerk-footer',
                 socialButtonsBlockButton: 'auth-clerk-social',
+                socialButtonsProviderIcon: 'auth-clerk-social-icon',
+              },
+              layout: {
+                socialButtonsVariant: 'blockButton',
               },
             }}
           />
+
+          {/* Switch to sign in */}
+          <div className="auth-switch">
+            <span>Already have an account?</span>
+            <Link href="/sign-in" className="auth-switch-link">Sign in</Link>
+          </div>
         </div>
 
         {/* Footer links */}
