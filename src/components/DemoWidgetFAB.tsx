@@ -7,6 +7,7 @@ import { sendDemoChatMessageStream } from '@/lib/api';
 interface DemoWidgetFABProps {
   clinicData: ClinicData;
   theme: ChatTheme;
+  onUseWebsite?: () => void;
 }
 
 // Language detection based on content or URL
@@ -78,6 +79,7 @@ function getPlaceholder(language: string): string {
 export default function DemoWidgetFAB({
   clinicData,
   theme,
+  onUseWebsite,
 }: DemoWidgetFABProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
@@ -352,11 +354,12 @@ export default function DemoWidgetFAB({
         .demo-widget-header {
           display: flex;
           justify-content: space-between;
-          align-items: center;
-          padding: 18px 20px;
+          align-items: flex-start;
+          padding: 14px 16px;
           background: #ffffff;
           border-bottom: 1px solid #e2e8f0;
           flex-shrink: 0;
+          gap: 10px;
         }
 
         .demo-widget-header-info {
@@ -402,6 +405,10 @@ export default function DemoWidgetFAB({
           color: #1e293b;
           margin: 0;
           line-height: 1.2;
+          overflow: hidden;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
         }
 
         .demo-widget-header-sub {
@@ -409,12 +416,16 @@ export default function DemoWidgetFAB({
           color: #64748b;
           font-size: 12px;
           line-height: 1.2;
+          overflow: hidden;
+          display: -webkit-box;
+          -webkit-line-clamp: 1;
+          -webkit-box-orient: vertical;
         }
 
         .demo-widget-header-actions {
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 8px;
           flex-shrink: 0;
         }
 
@@ -449,14 +460,34 @@ export default function DemoWidgetFAB({
         }
 
         .demo-widget-preview-badge {
-          font-size: 10px;
+          font-size: 9px;
           font-weight: 600;
           background: #f0fdf4;
           color: #16a34a;
-          padding: 4px 8px;
+          padding: 4px 6px;
           border-radius: 6px;
           text-transform: uppercase;
           letter-spacing: 0.3px;
+        }
+
+        .demo-widget-use-btn {
+          border: 1px solid #e2e8f0;
+          background: #ffffff;
+          color: #1e293b;
+          font-size: 10px;
+          font-weight: 600;
+          padding: 4px 8px;
+          border-radius: 999px;
+          cursor: pointer;
+          transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+          white-space: nowrap;
+        }
+
+        .demo-widget-use-btn:hover {
+          border-color: ${primaryColor};
+          color: ${primaryColor};
+          box-shadow: 0 8px 20px rgba(59, 130, 246, 0.18);
+          transform: translateY(-1px);
         }
 
         .demo-widget-messages {
@@ -688,16 +719,25 @@ export default function DemoWidgetFAB({
                 </svg>
               )}
             </div>
-            <div className="demo-widget-header-title">
-              <h3>{theme.name || clinicData.clinic_name || 'Assistant'}</h3>
-              <p className="demo-widget-header-sub">{theme.tagline || 'AI-powered assistant'}</p>
-            </div>
+          <div className="demo-widget-header-title">
+            <h3>{theme.name || clinicData.clinic_name || 'Assistant'}</h3>
+            <p className="demo-widget-header-sub">{theme.tagline || 'AI-powered assistant'}</p>
           </div>
-          <div className="demo-widget-header-actions">
-            <span className="demo-widget-preview-badge">Preview</span>
+        </div>
+        <div className="demo-widget-header-actions">
+          {onUseWebsite && (
             <button
-              className="demo-widget-action-btn"
-              onClick={handleClose}
+              className="demo-widget-use-btn"
+              onClick={onUseWebsite}
+              type="button"
+            >
+              Use on my website
+            </button>
+          )}
+          <span className="demo-widget-preview-badge">Preview</span>
+          <button
+            className="demo-widget-action-btn"
+            onClick={handleClose}
               aria-label="Minimize"
               title="Minimize"
               type="button"

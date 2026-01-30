@@ -35,14 +35,30 @@ interface SetupFormProps {
   info?: string | null;
   onReset?: () => void;
   progress?: ScrapeProgress | null;
+  previewReady?: boolean;
+  onUsePreview?: () => void;
 }
 
-export default function SetupForm({ onSubmit, isLoading, error, embedded, info, onReset, progress }: SetupFormProps) {
+export default function SetupForm({
+  onSubmit,
+  isLoading,
+  error,
+  embedded,
+  info,
+  onReset,
+  progress,
+  previewReady,
+  onUsePreview,
+}: SetupFormProps) {
   const [url, setUrl] = useState('');
   const containerClass = embedded ? styles.embedContainer : styles.container;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (previewReady && onUsePreview) {
+      onUsePreview();
+      return;
+    }
     onSubmit(url.trim());
   };
 
@@ -66,27 +82,30 @@ export default function SetupForm({ onSubmit, isLoading, error, embedded, info, 
         {info && <div className={styles.info}>{info}</div>}
 
         <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.inputGroup}>
-            <label htmlFor="url">Website URL</label>
-            <span className={styles.inputIcon}>🔗</span>
-            <input
-              id="url"
-              type="text"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="your-website.com"
-              required
-              disabled={isLoading}
-            />
-            <p className={styles.helpText}>We&apos;ll crawl up to 50 pages automatically.</p>
-          </div>
+          {!previewReady && (
+            <div className={styles.inputGroup}>
+              <label htmlFor="url">Website URL</label>
+              <span className={styles.inputIcon}>🔗</span>
+              <input
+                id="url"
+                type="text"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="your-website.com"
+                required
+                disabled={isLoading}
+              />
+              <p className={styles.helpText}>We&apos;ll crawl up to 50 pages automatically.</p>
+            </div>
+          )}
 
           <button
-            type="submit"
+            type={previewReady && onUsePreview ? 'button' : 'submit'}
             className={styles.button}
-            disabled={isLoading || !url}
+            disabled={isLoading || (!previewReady && !url)}
+            onClick={previewReady && onUsePreview ? onUsePreview : undefined}
           >
-            {isLoading ? 'Building...' : 'Create Chatbot'}
+            {isLoading ? 'Building...' : previewReady ? 'Use on my website' : 'Create Chatbot'}
           </button>
 
           {onReset && !isLoading && (

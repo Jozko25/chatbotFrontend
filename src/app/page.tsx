@@ -297,6 +297,13 @@ export default function Home() {
     closeCustomizer();
   };
 
+  const handleUseOnWebsite = () => {
+    if (!clinicData || typeof window === 'undefined') return;
+    saveSession({ clinicData, messages, theme });
+    localStorage.setItem('xelochat-demo-import-pending', 'true');
+    window.location.href = '/dashboard/chatbots';
+  };
+
   if (!isHydrated) {
     return null;
   }
@@ -326,6 +333,8 @@ export default function Home() {
                 embedded
                 onReset={clinicData ? handleReset : undefined}
                 progress={scrapeProgress}
+                previewReady={Boolean(clinicData) && !isLoading}
+                onUsePreview={handleUseOnWebsite}
               />
               <div className={styles.heroHighlights}>
                 <div className={styles.heroHighlight}>
@@ -732,6 +741,7 @@ export default function Home() {
         <DemoWidgetFAB
           clinicData={clinicData}
           theme={theme}
+          onUseWebsite={handleUseOnWebsite}
         />
       )}
 
