@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import Script from 'next/script';
 import { ClerkProvider } from '@clerk/nextjs';
 import './globals.css';
 
@@ -256,7 +257,11 @@ export default function RootLayout({
     <ClerkProvider publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}>
       <html lang="en">
         <head>
-        <script defer src="https://cloud.umami.is/script.js" data-website-id="61ccaf47-dbae-46a4-9d52-6a94a3d945c4"></script>
+          <Script
+            src="https://cloud.umami.is/script.js"
+            data-website-id="61ccaf47-dbae-46a4-9d52-6a94a3d945c4"
+            strategy="afterInteractive"
+          />
           {/* Preconnect to external domains for performance */}
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
