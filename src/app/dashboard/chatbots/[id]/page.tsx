@@ -51,12 +51,6 @@ const CalendarIcon = () => (
   </svg>
 );
 
-const BellIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-  </svg>
-);
-
 const DatabaseIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
@@ -103,9 +97,8 @@ const SECTIONS = [
   { id: 'ai', title: 'AI Settings', description: 'Configure AI behavior', icon: BrainIcon, keywords: ['ai', 'prompt', 'system', 'welcome', 'message', 'knowledge', 'behavior'] },
   { id: 'communication', title: 'Communication Style', description: 'Tone and language settings', icon: MessageIcon, keywords: ['communication', 'style', 'tone', 'language', 'greeting', 'professional', 'friendly'] },
   { id: 'pages', title: 'Page Restrictions', description: 'Control where widget appears', icon: LayoutIcon, keywords: ['page', 'pages', 'restriction', 'display', 'show', 'hide', 'url', 'path', 'exclude', 'include'] },
-  { id: 'booking', title: 'Booking & Appointments', description: 'Customer booking settings', icon: CalendarIcon, keywords: ['booking', 'appointment', 'schedule', 'calendar', 'reservation', 'date', 'time'] },
+  { id: 'booking', title: 'Booking & Appointments', description: 'Customer booking settings', icon: CalendarIcon, keywords: ['booking', 'appointment', 'schedule', 'calendar', 'reservation', 'date', 'time', 'notification', 'email', 'webhook'] },
   { id: 'integrations', title: 'Integrations', description: 'Connect Google Calendar and more', icon: LinkIcon, keywords: ['integration', 'integrations', 'google', 'calendar', 'connect', 'sync', 'oauth'] },
-  { id: 'notifications', title: 'Notifications', description: 'Email and webhook alerts', icon: BellIcon, keywords: ['notification', 'email', 'webhook', 'alert', 'notify'] },
   { id: 'knowledge', title: 'Knowledge Base', description: 'Business information', icon: DatabaseIcon, keywords: ['knowledge', 'base', 'data', 'business', 'clinic', 'services', 'hours', 'address', 'phone'] },
 ];
 
@@ -378,7 +371,8 @@ export default function ChatbotDetailPage() {
       setEditServices((cd.services || []).map((s: { name: string; price: string }) => `${s.name}: ${s.price}`).join('\n'));
 
       // Initialize notification & communication settings
-      setNotificationEmail(chatbotData.notificationEmail || '');
+      const defaultNotificationEmail = chatbotData.notificationEmail || chatbotData.clinicData?.email || '';
+      setNotificationEmail(defaultNotificationEmail);
       setNotificationWebhook(chatbotData.notificationWebhook || '');
       setNotifyOnBooking(chatbotData.notifyOnBooking ?? true);
       setBookingEnabled(chatbotData.bookingEnabled ?? true);
@@ -1102,75 +1096,171 @@ export default function ChatbotDetailPage() {
       case 'booking':
         return (
           <div className={styles.sectionContentInner}>
-            <form onSubmit={handleSaveBooking}>
-              <label
-                className={`${styles.checkboxField} ${bookingEnabled ? styles.checked : ''}`}
-                style={{ marginTop: '1rem' }}
-              >
-                <input
-                  type="checkbox"
-                  checked={bookingEnabled}
-                  onChange={(e) => setBookingEnabled(e.target.checked)}
-                />
-                <div className={styles.checkboxContent}>
-                  <span className={styles.checkboxLabel}>Enable booking requests</span>
-                  <p className={styles.checkboxDescription}>
-                    Allow customers to request appointments through the chatbot
-                  </p>
-                </div>
-              </label>
-
-              {bookingEnabled && (
-                <div className={styles.formSection}>
-                  <div className={styles.formSectionTitle}>Information to Collect</div>
-                  <p style={{ color: '#64748b', fontSize: '0.75rem', marginBottom: '0.75rem' }}>
-                    Select which information the chatbot should ask for when booking
-                  </p>
-                  <div className={styles.bookingFieldsGrid}>
-                    {availableBookingFields.map((field) => (
-                      <label
-                        key={field.id}
-                        className={`${styles.bookingFieldItem} ${bookingFields.includes(field.id) ? styles.selected : ''} ${field.required ? styles.disabled : ''}`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={bookingFields.includes(field.id)}
-                          disabled={field.required}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setBookingFields([...bookingFields, field.id]);
-                            } else {
-                              setBookingFields(bookingFields.filter(f => f !== field.id));
-                            }
-                          }}
-                        />
-                        <span>{field.label}</span>
-                        {field.required && <span className={styles.requiredTag}>Required</span>}
-                      </label>
-                    ))}
+            <div className={styles.bookingLayout}>
+              <form onSubmit={handleSaveBooking} className={styles.bookingPanel}>
+                <div className={styles.panelHeader}>
+                  <div>
+                    <h4>Booking Setup</h4>
+                    <p>Turn booking on and decide what details to collect.</p>
                   </div>
+                </div>
 
-                  <div className={styles.formGroup} style={{ marginTop: '1rem', marginBottom: 0 }}>
-                    <label htmlFor="bookingPromptMessage">Booking Prompt Message</label>
-                    <textarea
-                      id="bookingPromptMessage"
-                      value={bookingPromptMessage}
-                      onChange={(e) => setBookingPromptMessage(e.target.value)}
-                      placeholder="e.g., To book an appointment, I'll need a few details from you..."
-                      rows={2}
-                      style={{ fontFamily: 'inherit', resize: 'vertical' }}
+                <label
+                  className={`${styles.checkboxField} ${bookingEnabled ? styles.checked : ''}`}
+                  style={{ marginTop: '0.5rem' }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={bookingEnabled}
+                    onChange={(e) => setBookingEnabled(e.target.checked)}
+                  />
+                  <div className={styles.checkboxContent}>
+                    <span className={styles.checkboxLabel}>Enable booking requests</span>
+                    <p className={styles.checkboxDescription}>
+                      Allow customers to request appointments through the chatbot
+                    </p>
+                  </div>
+                </label>
+
+                {bookingEnabled && (
+                  <div className={styles.formSection}>
+                    <div className={styles.formSectionTitle}>Information to Collect</div>
+                    <p style={{ color: '#64748b', fontSize: '0.75rem', marginBottom: '0.75rem' }}>
+                      Select which information the chatbot should ask for when booking
+                    </p>
+                    <div className={styles.bookingFieldsGrid}>
+                      {availableBookingFields.map((field) => (
+                        <label
+                          key={field.id}
+                          className={`${styles.bookingFieldItem} ${bookingFields.includes(field.id) ? styles.selected : ''} ${field.required ? styles.disabled : ''}`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={bookingFields.includes(field.id)}
+                            disabled={field.required}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setBookingFields([...bookingFields, field.id]);
+                              } else {
+                                setBookingFields(bookingFields.filter(f => f !== field.id));
+                              }
+                            }}
+                          />
+                          <span>{field.label}</span>
+                          {field.required && <span className={styles.requiredTag}>Required</span>}
+                        </label>
+                      ))}
+                    </div>
+
+                    <div className={styles.formGroup} style={{ marginTop: '1rem', marginBottom: 0 }}>
+                      <label htmlFor="bookingPromptMessage">Booking Prompt Message</label>
+                      <textarea
+                        id="bookingPromptMessage"
+                        value={bookingPromptMessage}
+                        onChange={(e) => setBookingPromptMessage(e.target.value)}
+                        placeholder="e.g., To book an appointment, I'll need a few details from you..."
+                        rows={2}
+                        style={{ fontFamily: 'inherit', resize: 'vertical' }}
+                      />
+                      <small>The message the chatbot uses when asking for booking information.</small>
+                    </div>
+                  </div>
+                )}
+
+                <div className={styles.saveButtonContainer}>
+                  <button type="submit" className={styles.primaryBtn} disabled={savingBooking}>
+                    {savingBooking ? 'Saving...' : 'Save Booking Settings'}
+                  </button>
+                </div>
+              </form>
+
+              <form onSubmit={handleSaveNotifications} className={styles.bookingPanel}>
+                <div className={styles.panelHeader}>
+                  <div>
+                    <h4>Delivery & Notifications</h4>
+                    <p>Choose how booking requests are delivered.</p>
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.secondaryBtn}
+                    onClick={() => navigateToSection('integrations', true)}
+                  >
+                    Manage Integrations
+                  </button>
+                </div>
+
+                <div className={styles.bookingStatusRow}>
+                  <div>
+                    <span className={styles.bookingStatusLabel}>Google Calendar</span>
+                    <span className={`${styles.statusPill} ${googleStatus?.connected ? styles.statusActive : styles.statusMuted}`}>
+                      {googleStatus?.connected ? 'Connected' : 'Not connected'}
+                    </span>
+                  </div>
+                  <span className={styles.bookingStatusHint}>
+                    {googleStatus?.connected
+                      ? 'Bookings will also create calendar events.'
+                      : 'Connect to create calendar events automatically.'}
+                  </span>
+                </div>
+
+                {!googleStatus?.connected && (
+                  <div className={styles.noticeBox}>
+                    Google Calendar isn&apos;t connected. Booking requests will be emailed to the address below.
+                  </div>
+                )}
+
+                <label
+                  className={`${styles.checkboxField} ${notifyOnBooking ? styles.checked : ''}`}
+                  style={{ marginTop: '0.75rem' }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={notifyOnBooking}
+                    onChange={(e) => setNotifyOnBooking(e.target.checked)}
+                  />
+                  <div className={styles.checkboxContent}>
+                    <span className={styles.checkboxLabel}>Email notifications</span>
+                    <p className={styles.checkboxDescription}>
+                      Send booking requests via email (delivered through Resend)
+                    </p>
+                  </div>
+                </label>
+
+                <div className={styles.formGrid} style={{ marginTop: '1rem' }}>
+                  <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                    <label htmlFor="notificationEmail">Booking Email</label>
+                    <input
+                      type="email"
+                      id="notificationEmail"
+                      value={notificationEmail}
+                      onChange={(e) => setNotificationEmail(e.target.value)}
+                      placeholder={clinicData?.email || 'bookings@yourcompany.com'}
+                      disabled={!notifyOnBooking}
                     />
-                    <small>The message the chatbot uses when asking for booking information.</small>
+                    <small>{clinicData?.email ? 'Pre-filled from scraped website email.' : 'Email to receive booking notifications.'}</small>
+                  </div>
+                  <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                    <label htmlFor="notificationWebhook">Webhook URL (optional)</label>
+                    <input
+                      type="url"
+                      id="notificationWebhook"
+                      value={notificationWebhook}
+                      onChange={(e) => setNotificationWebhook(e.target.value)}
+                      placeholder="https://your-crm.com/webhook"
+                      disabled={!notifyOnBooking}
+                    />
+                    <small>For CRM or custom automations</small>
                   </div>
                 </div>
-              )}
 
-              <div className={styles.saveButtonContainer}>
-                <button type="submit" className={styles.primaryBtn} disabled={savingBooking}>
-                  {savingBooking ? 'Saving...' : 'Save Booking Settings'}
-                </button>
-              </div>
-            </form>
+                <div className={styles.saveButtonContainer}>
+                  <button type="submit" className={styles.primaryBtn} disabled={savingNotifications}>
+                    {savingNotifications ? 'Saving...' : 'Save Delivery Settings'}
+                  </button>
+                  {notificationsSuccess && <span className={styles.successMessage}><CheckIcon /> Saved</span>}
+                </div>
+              </form>
+            </div>
           </div>
         );
 
@@ -1413,61 +1503,6 @@ export default function ChatbotDetailPage() {
           </div>
         );
 
-      case 'notifications':
-        return (
-          <div className={styles.sectionContentInner}>
-            <form onSubmit={handleSaveNotifications}>
-              <label
-                className={`${styles.checkboxField} ${notifyOnBooking ? styles.checked : ''}`}
-                style={{ marginTop: '1rem' }}
-              >
-                <input
-                  type="checkbox"
-                  checked={notifyOnBooking}
-                  onChange={(e) => setNotifyOnBooking(e.target.checked)}
-                />
-                <div className={styles.checkboxContent}>
-                  <span className={styles.checkboxLabel}>Notify on new bookings</span>
-                  <p className={styles.checkboxDescription}>
-                    Send email/webhook when a customer submits a booking request
-                  </p>
-                </div>
-              </label>
-
-              <div className={styles.formGrid} style={{ marginTop: '1rem' }}>
-                <div className={styles.formGroup} style={{ marginBottom: 0 }}>
-                  <label htmlFor="notificationEmail">Notification Email</label>
-                  <input
-                    type="email"
-                    id="notificationEmail"
-                    value={notificationEmail}
-                    onChange={(e) => setNotificationEmail(e.target.value)}
-                    placeholder="bookings@yourcompany.com"
-                  />
-                  <small>Email to receive booking notifications</small>
-                </div>
-                <div className={styles.formGroup} style={{ marginBottom: 0 }}>
-                  <label htmlFor="notificationWebhook">Webhook URL (optional)</label>
-                  <input
-                    type="url"
-                    id="notificationWebhook"
-                    value={notificationWebhook}
-                    onChange={(e) => setNotificationWebhook(e.target.value)}
-                    placeholder="https://your-crm.com/webhook"
-                  />
-                  <small>For CRM/calendar integrations</small>
-                </div>
-              </div>
-
-              <div className={styles.saveButtonContainer}>
-                <button type="submit" className={styles.primaryBtn} disabled={savingNotifications}>
-                  {savingNotifications ? 'Saving...' : 'Save Notification Settings'}
-                </button>
-              </div>
-            </form>
-          </div>
-        );
-
       case 'knowledge':
         return (
           <div className={styles.sectionContentInner}>
@@ -1563,7 +1598,6 @@ export default function ChatbotDetailPage() {
       case 'communication': return communicationSuccess;
       case 'pages': return pagesSuccess;
       case 'booking': return bookingSuccess;
-      case 'notifications': return notificationsSuccess;
       case 'knowledge': return clinicDataSuccess;
       default: return false;
     }
@@ -1577,7 +1611,6 @@ export default function ChatbotDetailPage() {
       case 'pages': return pageDisplayMode !== 'ALL' ? (pageDisplayMode === 'INCLUDE' ? 'Include' : 'Exclude') : null;
       case 'booking': return bookingEnabled ? 'Enabled' : 'Disabled';
       case 'integrations': return googleStatus?.connected ? 'Connected' : null;
-      case 'notifications': return notifyOnBooking ? 'Active' : null;
       default: return null;
     }
   };
@@ -1598,6 +1631,61 @@ export default function ChatbotDetailPage() {
             Delete
           </button>
         </div>
+      </div>
+
+      {/* Insights Summary */}
+      <div className={styles.insightsSummary}>
+        <div className={styles.insightsHeader}>
+          <div>
+            <h4>Insights</h4>
+            <p>Last {insights?.rangeDays || 30} days · Anonymized trends</p>
+          </div>
+          <button
+            type="button"
+            className={styles.secondaryBtn}
+            onClick={loadInsights}
+            disabled={insightsLoading}
+          >
+            {insightsLoading ? 'Refreshing...' : 'Refresh'}
+          </button>
+        </div>
+
+        {insightsError ? (
+          <div className={styles.insightsEmpty}>
+            <p>{insightsError}</p>
+            <button type="button" className={styles.secondaryBtn} onClick={loadInsights}>
+              Retry
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className={styles.insightsGrid}>
+              <div className={styles.insightsCard}>
+                <span>Total user messages</span>
+                <strong>{insights ? insights.totalMessages : (insightsLoading ? '...' : 0)}</strong>
+              </div>
+              <div className={styles.insightsCard}>
+                <span>Pricing questions</span>
+                <strong>{insights ? insights.pricingQuestions : (insightsLoading ? '...' : 0)}</strong>
+              </div>
+              <div className={styles.insightsCard}>
+                <span>Location questions</span>
+                <strong>{insights ? insights.locationQuestions : (insightsLoading ? '...' : 0)}</strong>
+              </div>
+              <div className={styles.insightsCard}>
+                <span>Bookings created</span>
+                <strong>{insights ? insights.bookingCount : (insightsLoading ? '...' : 0)}</strong>
+              </div>
+            </div>
+
+            {!insightsLoading && (!insights || !hasInsights) && (
+              <div className={styles.insightsEmpty}>
+                <p>No insights yet.</p>
+                <span>Once visitors start chatting, trends will appear here.</span>
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       {/* Stats */}

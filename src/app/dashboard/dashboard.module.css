@@ -865,6 +865,99 @@
   gap: 0.5rem;
 }
 
+/* Booking layout */
+.bookingLayout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 900px) {
+  .bookingLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bookingPanel {
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+  padding: 1rem;
+  background: hsl(var(--background));
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.panelHeader h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: hsl(var(--foreground));
+}
+
+.panelHeader p {
+  margin: 0.35rem 0 0;
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.bookingStatusRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.625rem;
+  margin-top: 1rem;
+  background: hsl(var(--muted) / 0.3);
+}
+
+.bookingStatusLabel {
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+  margin-right: 0.5rem;
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.statusActive {
+  background: hsl(142 76% 92%);
+  color: hsl(142 72% 30%);
+}
+
+.statusMuted {
+  background: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+}
+
+.bookingStatusHint {
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.noticeBox {
+  margin-top: 0.75rem;
+  padding: 0.75rem 0.875rem;
+  border-radius: 0.625rem;
+  background: hsl(48 96% 90%);
+  color: hsl(32 95% 30%);
+  font-size: 0.75rem;
+}
+
 .formGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -1481,6 +1574,10 @@
 }
 
 /* Insights */
+.insightsSummary {
+  margin-bottom: 1.5rem;
+}
+
 .insightsHeader {
   display: flex;
   align-items: center;
