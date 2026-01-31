@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { getChatbot, deleteChatbot, createApiKey, getApiKeys, updateChatbotSettings, updateNotificationSettings, Chatbot, ApiKey, getChatbotIntegrations, connectGoogleCalendar, getGoogleCalendarStatus, updateGoogleCalendarSettings, disconnectGoogleCalendar, GoogleCalendarStatus, IntegrationsStatus } from '@/lib/api';
+import { getChatbot, deleteChatbot, createApiKey, getApiKeys, updateChatbotSettings, updateNotificationSettings, getChatbotInsights, Chatbot, ApiKey, ChatbotInsights, getChatbotIntegrations, connectGoogleCalendar, getGoogleCalendarStatus, updateGoogleCalendarSettings, disconnectGoogleCalendar, GoogleCalendarStatus, IntegrationsStatus } from '@/lib/api';
 import styles from '../../dashboard.module.css';
 
 // Icons as simple SVG components
@@ -97,6 +97,7 @@ const PlayIcon = () => (
 // Section configuration with search keywords
 const SECTIONS = [
   { id: 'preview', title: 'Chat Preview', description: 'Test your chatbot live', icon: PlayIcon, keywords: ['preview', 'test', 'chat', 'try', 'demo', 'live'] },
+  { id: 'insights', title: 'Insights', description: 'Anonymized chat trends', icon: MessageIcon, keywords: ['insights', 'trends', 'messages', 'monitor', 'feedback', 'history', 'chat', 'services', 'pricing', 'location'] },
   { id: 'embed', title: 'Embed Code', description: 'Add chatbot to your website', icon: CodeIcon, keywords: ['embed', 'code', 'script', 'website', 'install', 'widget'] },
   { id: 'apikeys', title: 'API Keys', description: 'Manage access keys', icon: KeyIcon, keywords: ['api', 'key', 'keys', 'access', 'token', 'authentication'] },
   { id: 'ai', title: 'AI Settings', description: 'Configure AI behavior', icon: BrainIcon, keywords: ['ai', 'prompt', 'system', 'welcome', 'message', 'knowledge', 'behavior'] },
@@ -118,6 +119,11 @@ export default function ChatbotDetailPage() {
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Insights state
+  const [insights, setInsights] = useState<ChatbotInsights | null>(null);
+  const [insightsLoading, setInsightsLoading] = useState(false);
+  const [insightsError, setInsightsError] = useState<string | null>(null);
 
   // Search and section state
   const [searchQuery, setSearchQuery] = useState('');
@@ -241,6 +247,16 @@ export default function ChatbotDetailPage() {
     );
   }, [searchQuery]);
 
+  const hasInsights =
+    insights &&
+    (insights.totalMessages > 0 ||
+      insights.pricingQuestions > 0 ||
+      insights.locationQuestions > 0 ||
+      insights.bookingCount > 0 ||
+      insights.topServices.length > 0 ||
+      insights.notProvidedServices.length > 0 ||
+      insights.couldntFindServices.length > 0);
+
   // Auto-open sections when searching
   useEffect(() => {
     if (searchQuery.trim()) {
@@ -259,6 +275,19 @@ export default function ChatbotDetailPage() {
       return next;
     });
   };
+
+  const loadInsights = useCallback(async () => {
+    setInsightsLoading(true);
+    setInsightsError(null);
+    try {
+      const data = await getChatbotInsights(chatbotId, 30);
+      setInsights(data);
+    } catch (err) {
+      setInsightsError(err instanceof Error ? err.message : 'Failed to load insights');
+    } finally {
+      setInsightsLoading(false);
+    }
+  }, [chatbotId]);
 
   useEffect(() => {
     loadData();
@@ -321,6 +350,9 @@ export default function ChatbotDetailPage() {
 
   async function loadData() {
     try {
+      setInsights(null);
+      setInsightsError(null);
+
       const [chatbotData, keysData] = await Promise.all([
         getChatbot(chatbotId),
         getApiKeys()
@@ -357,6 +389,8 @@ export default function ChatbotDetailPage() {
       setCommunicationStyle(chatbotData.communicationStyle || 'PROFESSIONAL');
       setLanguage(chatbotData.language || 'auto');
       setCustomGreeting(chatbotData.customGreeting || '');
+
+      await loadInsights();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load chatbot');
     } finally {
@@ -751,6 +785,115 @@ export default function ChatbotDetailPage() {
                 </>
               )}
             </div>
+          </div>
+        );
+
+      case 'insights':
+        return (
+          <div className={styles.sectionContentInner}>
+            <div className={styles.insightsHeader}>
+              <div>
+                <h4>Last {insights?.rangeDays || 30} days</h4>
+                <p>Only anonymized trends are shown. Raw messages are not exposed.</p>
+              </div>
+              <button
+                type="button"
+                className={styles.secondaryBtn}
+                onClick={loadInsights}
+                disabled={insightsLoading}
+              >
+                {insightsLoading ? 'Refreshing...' : 'Refresh'}
+              </button>
+            </div>
+
+            {insightsError && (
+              <div className={styles.insightsEmpty}>
+                <p>{insightsError}</p>
+                <button type="button" className={styles.secondaryBtn} onClick={loadInsights}>
+                  Retry
+                </button>
+              </div>
+            )}
+
+            {!insightsError && (!insights || !hasInsights) && !insightsLoading && (
+              <div className={styles.insightsEmpty}>
+                <p>No insights yet.</p>
+                <span>Once visitors start chatting, trends will appear here.</span>
+              </div>
+            )}
+
+            {insights && (
+              <div className={styles.insightsGrid}>
+                <div className={styles.insightsCard}>
+                  <span>Total user messages</span>
+                  <strong>{insights.totalMessages}</strong>
+                </div>
+                <div className={styles.insightsCard}>
+                  <span>Pricing questions</span>
+                  <strong>{insights.pricingQuestions}</strong>
+                </div>
+                <div className={styles.insightsCard}>
+                  <span>Location questions</span>
+                  <strong>{insights.locationQuestions}</strong>
+                </div>
+                <div className={styles.insightsCard}>
+                  <span>Bookings created</span>
+                  <strong>{insights.bookingCount}</strong>
+                </div>
+              </div>
+            )}
+
+            {insights && (
+              <div className={styles.insightsLists}>
+                <div className={styles.insightsList}>
+                  <h5>Most asked services</h5>
+                  {insights.topServices.length === 0 ? (
+                    <p>No service mentions yet.</p>
+                  ) : (
+                    <ul>
+                      {insights.topServices.map((item) => (
+                        <li key={item.service}>
+                          <span>{item.service}</span>
+                          <strong>{item.count}</strong>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                <div className={styles.insightsList}>
+                  <h5>Services people asked for (not offered)</h5>
+                  {insights.notProvidedServices.length === 0 ? (
+                    <p>No off-menu requests yet.</p>
+                  ) : (
+                    <ul>
+                      {insights.notProvidedServices.map((item) => (
+                        <li key={item.service}>
+                          <span>{item.service}</span>
+                          <strong>{item.count}</strong>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                <div className={styles.insightsList}>
+                  <h5>Couldn’t find on the website</h5>
+                  {insights.couldntFindServices.length === 0 ? (
+                    <p>No “can’t find” signals yet.</p>
+                  ) : (
+                    <ul>
+                      {insights.couldntFindServices.map((item) => (
+                        <li key={item.service}>
+                          <span>{item.service}</span>
+                          <strong>{item.count}</strong>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         );
 
@@ -1428,6 +1571,8 @@ export default function ChatbotDetailPage() {
 
   const getSectionBadge = (sectionId: string) => {
     switch (sectionId) {
+      case 'insights':
+        return insights?.totalMessages ? `${insights.totalMessages} msgs` : null;
       case 'apikeys': return apiKeys.length > 0 ? `${apiKeys.length} keys` : null;
       case 'pages': return pageDisplayMode !== 'ALL' ? (pageDisplayMode === 'INCLUDE' ? 'Include' : 'Exclude') : null;
       case 'booking': return bookingEnabled ? 'Enabled' : 'Disabled';

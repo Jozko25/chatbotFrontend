@@ -154,6 +154,17 @@ export interface BillingStatus {
   } | null;
 }
 
+export interface ChatbotInsights {
+  rangeDays: number;
+  totalMessages: number;
+  pricingQuestions: number;
+  locationQuestions: number;
+  bookingCount: number;
+  topServices: { service: string; count: number }[];
+  notProvidedServices: { service: string; count: number }[];
+  couldntFindServices: { service: string; count: number }[];
+}
+
 export async function importDemoChatbot(
   clinicData: ClinicData,
   theme: ChatTheme,
@@ -192,6 +203,17 @@ export async function getChatbot(id: string): Promise<Chatbot> {
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: 'Chatbot not found' }));
     throw new Error(error.error || 'Chatbot not found');
+  }
+  return response.json();
+}
+
+// Get chatbot conversations
+export async function getChatbotInsights(id: string, days = 30): Promise<ChatbotInsights> {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${API_URL}/api/chatbots/${id}/insights?days=${days}`, { headers });
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Failed to fetch insights' }));
+    throw new Error(error.error || 'Failed to fetch insights');
   }
   return response.json();
 }

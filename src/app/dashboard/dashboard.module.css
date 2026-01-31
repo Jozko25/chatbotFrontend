@@ -1479,3 +1479,111 @@
   color: hsl(142 76% 36%);
   margin-left: 1rem;
 }
+
+/* Insights */
+.insightsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid hsl(var(--border));
+  margin-bottom: 1rem;
+}
+
+.insightsHeader h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: hsl(var(--foreground));
+}
+
+.insightsHeader p {
+  margin: 0.35rem 0 0;
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.insightsEmpty {
+  padding: 1.25rem;
+  text-align: center;
+  color: hsl(var(--muted-foreground));
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.insightsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.insightsCard {
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: hsl(var(--background));
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.insightsCard span {
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.insightsCard strong {
+  font-size: 1.25rem;
+  color: hsl(var(--foreground));
+}
+
+.insightsLists {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.insightsList {
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+  background: hsl(var(--background));
+  padding: 1rem;
+}
+
+.insightsList h5 {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  color: hsl(var(--foreground));
+}
+
+.insightsList p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.insightsList ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.insightsList li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: hsl(var(--foreground));
+  border-bottom: 1px dashed hsl(var(--border));
+  padding-bottom: 0.5rem;
+}
+
+.insightsList li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
