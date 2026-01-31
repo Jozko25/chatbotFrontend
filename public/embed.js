@@ -75,6 +75,12 @@
     return div.innerHTML;
   };
 
+  const truncateText = (value, maxLength = 32) => {
+    if (typeof value !== 'string') return '';
+    if (value.length <= maxLength) return value;
+    return value.slice(0, Math.max(0, maxLength - 1)).trimEnd() + '…';
+  };
+
   const sanitizeColor = (value, fallback) => {
     if (typeof value !== 'string') return fallback;
     return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(value.trim()) ? value : fallback;
@@ -110,11 +116,11 @@
 
   const style = document.createElement('style');
   style.textContent = `
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
 
     :host {
       all: initial;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
@@ -243,13 +249,13 @@
       max-width: calc(100vw - 32px);
       height: min(640px, 80vh);
       max-height: calc(100vh - 48px);
-      background: var(--chat-surface);
+      background: linear-gradient(180deg, var(--chat-surface) 0%, #f8fafc 100%);
       border-radius: 24px;
       box-shadow:
-        0 0 0 1px rgba(0, 0, 0, 0.04),
-        0 24px 64px -16px rgba(0, 0, 0, 0.24),
-        0 8px 24px -8px rgba(0, 0, 0, 0.12);
-      border: none;
+        0 0 0 1px rgba(15, 23, 42, 0.06),
+        0 28px 60px -18px rgba(15, 23, 42, 0.35),
+        0 10px 24px -12px rgba(15, 23, 42, 0.18);
+      border: 1px solid rgba(15, 23, 42, 0.08);
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -273,9 +279,9 @@
       justify-content: space-between;
       align-items: center;
       padding: 20px 20px 16px 20px;
-      background: linear-gradient(180deg, var(--chat-surface) 0%, var(--chat-surface) 100%);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.96) 100%);
       flex-shrink: 0;
-      border-bottom: 1px solid var(--chat-assistant-border);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.06);
     }
 
     .headerLeft {
@@ -320,6 +326,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      max-width: 100%;
     }
 
     .headerSub {
@@ -384,7 +391,9 @@
       flex: 1;
       overflow-y: auto;
       padding: 20px;
-      background: var(--chat-bg);
+      background:
+        radial-gradient(circle at top right, rgba(59, 130, 246, 0.08), transparent 45%),
+        var(--chat-bg);
       display: flex;
       flex-direction: column;
       gap: 12px;
@@ -465,19 +474,20 @@
 
     .suggestion {
       padding: 12px 16px;
-      background: var(--chat-surface);
-      border: 1px solid var(--chat-assistant-border);
-      border-radius: 12px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      border-radius: 14px;
       font-size: 14px;
       color: var(--chat-text);
       cursor: pointer;
       transition: all 0.2s ease;
       text-align: left;
+      box-shadow: 0 8px 16px -12px rgba(15, 23, 42, 0.3);
     }
 
     .suggestion:hover {
       border-color: var(--chat-primary);
-      background: rgba(59, 130, 246, 0.04);
+      background: rgba(59, 130, 246, 0.06);
       transform: translateY(-1px);
     }
 
@@ -561,7 +571,7 @@
       gap: 12px;
       padding: 16px 20px 20px 20px;
       background: var(--chat-surface);
-      border-top: 1px solid var(--chat-assistant-border);
+      border-top: 1px solid rgba(15, 23, 42, 0.06);
       flex-shrink: 0;
     }
 
@@ -576,7 +586,7 @@
       width: 100%;
       height: 48px;
       padding: 0 48px 0 18px;
-      border: 2px solid var(--chat-assistant-border);
+      border: 2px solid rgba(15, 23, 42, 0.08);
       border-radius: 16px;
       font-size: 15px;
       font-family: inherit;
@@ -639,12 +649,14 @@
     /* ========== FOOTER ========== */
     .footer {
       display: flex;
-      justify-content: center;
+      justify-content: space-between;
+      align-items: center;
       padding: 12px 20px;
       background: var(--chat-bg);
-      border-top: 1px solid var(--chat-assistant-border);
+      border-top: 1px solid rgba(15, 23, 42, 0.06);
       font-size: 11px;
       color: var(--chat-muted);
+      gap: 12px;
     }
 
     .footer a {
@@ -655,6 +667,24 @@
 
     .footer a:hover {
       color: var(--chat-primary);
+    }
+
+    .footerLinks {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .footerDivider {
+      color: rgba(100, 116, 139, 0.6);
+    }
+
+    .footerBrand {
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
 
     /* ========== BOOKING BUTTON ========== */
@@ -864,6 +894,7 @@
 
     .panel.minimal .headerInfo h3 {
       font-size: 14px;
+      max-width: 100%;
     }
 
     .panel.minimal .headerSub {
@@ -922,6 +953,11 @@
       font-size: 13px;
     }
 
+    .panel.minimal .footer {
+      padding: 10px 14px;
+      font-size: 10px;
+    }
+
     .fab.minimal {
       width: 52px;
       height: 52px;
@@ -941,7 +977,7 @@
       max-width: none;
       max-height: none;
       border-radius: 16px;
-      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 4px 16px -4px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.08), 0 8px 20px -12px rgba(15, 23, 42, 0.28);
       opacity: 1;
       pointer-events: auto;
       transform: none;
@@ -988,6 +1024,11 @@
 
       .inputBar {
         padding: 12px 16px 16px 16px;
+      }
+
+      .footer {
+        flex-direction: column;
+        gap: 6px;
       }
 
       .form-row {
@@ -1059,7 +1100,12 @@
       </div>
     </div>
     <div class="footer">
-      <span>Powered by <a href="https://xelochat.com" target="_blank" rel="noopener">XeloChat</a></span>
+      <div class="footerLinks">
+        <a href="https://xelochat.com/terms" target="_blank" rel="noopener">Terms</a>
+        <span class="footerDivider">•</span>
+        <a href="https://xelochat.com/privacy" target="_blank" rel="noopener">Privacy</a>
+      </div>
+      <span class="footerBrand">Powered by <a href="https://xelochat.com" target="_blank" rel="noopener">XeloChat</a></span>
     </div>
 
     <!-- Booking Form -->
@@ -1139,6 +1185,15 @@
   const welcomeEl = panel.querySelector('.welcome');
   const welcomeTitle = panel.querySelector('.welcomeTitle');
   const welcomeText = panel.querySelector('.welcomeText');
+
+  const setHeaderName = (rawName) => {
+    const safeName = sanitize(rawName || 'Assistant');
+    const truncated = truncateText(safeName, 32);
+    if (headerName) {
+      headerName.textContent = truncated;
+      headerName.title = safeName;
+    }
+  };
 
   // Booking form elements
   const bookingForm = panel.querySelector('#bookingForm');
@@ -1390,7 +1445,7 @@
     panel.style.setProperty('--chat-assistant', theme.assistant);
     fab.style.setProperty('--fab-primary', theme.primary);
 
-    if (headerName) headerName.textContent = theme.name;
+    setHeaderName(theme.name);
   };
 
   const shouldDisplayOnPage = (displayMode, patterns) => {
@@ -1497,7 +1552,7 @@
       applyTheme(data.theme);
 
       const businessName = clinicData?.clinic_name || 'our business';
-      if (headerName) headerName.textContent = sanitize(businessName);
+      setHeaderName(businessName);
 
       suggestions = generateSuggestions(clinicData || {});
 
