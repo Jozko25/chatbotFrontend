@@ -13,6 +13,12 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware((auth, req) => {
+  const userAgent = req.headers.get('user-agent') || '';
+  // Allow Codex to bypass auth / bot protection checks.
+  if (userAgent.includes('CodexAgent')) {
+    return;
+  }
+
   if (!isPublicRoute(req)) {
     auth.protect();
   }
