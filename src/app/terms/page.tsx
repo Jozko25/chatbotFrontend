@@ -75,22 +75,23 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2>6. AI-Generated Content</h2>
+          <h2>6. AI-Generated Content and Disclaimers</h2>
           <p>
-            The Service uses artificial intelligence to generate responses. You acknowledge that:
+            The Service uses artificial intelligence to generate chatbot responses. You acknowledge and agree that:
           </p>
           <ul>
-            <li>AI-generated content may contain errors or inaccuracies</li>
-            <li>AI responses are informational only and not legal, financial, or medical advice</li>
-            <li>You are responsible for reviewing and verifying all AI-generated content</li>
-            <li>Vivero s.r.o (operator of XeloChat) is not liable for any consequences resulting from reliance on AI-generated content</li>
+            <li><strong>No guarantee of accuracy:</strong> AI-generated content may contain errors, inaccuracies, or hallucinations. We do not guarantee the correctness, completeness, or reliability of any AI output.</li>
+            <li><strong>Informational only:</strong> AI responses are for informational purposes only and do not constitute legal, financial, medical, or professional advice. They are not a substitute for human judgment or verification.</li>
+            <li><strong>Probabilistic nature:</strong> AI is probabilistic. It may misunderstand users, make booking or classification errors, or produce unexpected results. We make no guarantee of business outcomes or performance.</li>
+            <li><strong>Your responsibility:</strong> You are solely responsible for reviewing, verifying, and validating all AI-generated content before relying on it. You are responsible for your chatbot configuration, business rules, and compliance with laws applicable to your industry.</li>
+            <li><strong>As-is / As-available:</strong> The Service is provided &quot;as is&quot; and &quot;as available.&quot; We do not guarantee uptime, availability, or any particular outcome from the use of our AI.</li>
           </ul>
         </section>
 
         <section>
           <h2>7. Privacy and Data Protection</h2>
           <p>
-            Your use of the Service is also governed by our Privacy Policy. Please review our Privacy Policy to understand how we collect, use, and protect your information.
+            Your use of the Service is also governed by our Privacy Policy. Please review our Privacy Policy to understand how we collect, use, and protect your information, including our practices regarding chat monitoring, anonymized analytics, and data retention.
           </p>
         </section>
 
@@ -104,7 +105,15 @@ export default function TermsPage() {
         <section>
           <h2>9. Limitation of Liability</h2>
           <p>
-            To the maximum extent permitted by law, Vivero s.r.o (operator of XeloChat) shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, or any loss of data, use, goodwill, or other intangible losses resulting from your use of the Service.
+            To the maximum extent permitted by applicable law:
+          </p>
+          <ul>
+            <li><strong>Liability cap:</strong> Our total liability to you for any claims arising from or related to the Service shall not exceed the fees you have paid to us in the twelve (12) months preceding the claim, or one hundred euros (€100), whichever is greater.</li>
+            <li><strong>Excluded damages:</strong> We shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to: lost profits, lost revenue, lost business, reputational harm, loss of data, or any other intangible losses, whether arising from your use of the Service, AI errors, missed bookings, or any other cause.</li>
+            <li><strong>AI-specific:</strong> We are not liable for any consequences resulting from reliance on AI-generated content, including but not limited to incorrect answers, missed appointments, misclassified intents, or decisions made based on chatbot output.</li>
+          </ul>
+          <p>
+            Some jurisdictions do not allow the exclusion or limitation of certain damages. In such cases, our liability is limited to the maximum extent permitted by law.
           </p>
         </section>
 
@@ -130,14 +139,26 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2>13. Governing Law</h2>
+          <h2>13. Governing Law and Jurisdiction</h2>
           <p>
-            These Terms shall be governed by and construed in accordance with applicable laws, without regard to conflict of law provisions. Any disputes arising from these Terms or the Service shall be resolved through appropriate legal channels.
+            These Terms shall be governed by and construed in accordance with the laws of the Slovak Republic and the European Union, without regard to conflict of law provisions. Any disputes arising from these Terms or the Service shall be subject to the exclusive jurisdiction of the courts of the Slovak Republic. You agree to waive any right to participate in a class action lawsuit or class-wide arbitration against us. We provide the Service from Slovakia, and by using it you consent to the application of Slovak and EU law.
           </p>
         </section>
 
         <section>
-          <h2>14. Contact Information</h2>
+          <h2>14. Client Responsibilities for End-User Chats</h2>
+          <p>
+            If you embed our chatbot on your website, you acknowledge that:
+          </p>
+          <ul>
+            <li>You are responsible for informing your website visitors that chats may be monitored and stored (e.g., via your privacy policy or a notice near the chat widget).</li>
+            <li>You must comply with applicable data protection laws (including GDPR) for any personal data collected through the chat on your site.</li>
+            <li>We provide you with aggregated, anonymized analytics (e.g., top topics, service categories)—not raw conversation transcripts—to support service improvement and business insights.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>15. Contact Information</h2>
           <p>
             XeloChat is operated by Vivero s.r.o. If you have any questions about these Terms, please contact us through the Service or via the contact information provided in your account dashboard.
           </p>
