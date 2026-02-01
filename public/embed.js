@@ -4,6 +4,10 @@
   const script = document.currentScript;
   if (!script) return;
 
+  if (document.getElementById('xelochat-widget')) {
+    return;
+  }
+
   const chatbotId = script.getAttribute('data-chatbot-id')?.trim();
   const apiKey = script.getAttribute('data-api-key')?.trim();
   const apiUrl = script.getAttribute('data-api-url')?.trim() || '';
@@ -75,6 +79,18 @@
     return div.innerHTML;
   };
 
+  const stripMarkdown = (value) => {
+    if (typeof value !== 'string') return '';
+    let text = value;
+    text = text.replace(/^#{1,6}\s+/gm, '');
+    text = text.replace(/\*\*(.*?)\*\*/g, '$1');
+    text = text.replace(/__(.*?)__/g, '$1');
+    text = text.replace(/\*(.*?)\*/g, '$1');
+    text = text.replace(/_(.*?)_/g, '$1');
+    text = text.replace(/`([^`]+)`/g, '$1');
+    return text;
+  };
+
   const truncateText = (value, maxLength = 32) => {
     if (typeof value !== 'string') return '';
     if (value.length <= maxLength) return value;
@@ -99,6 +115,84 @@
     assistant: '#ffffff',
     assistantBorder: '#e2e8f0'
   };
+  let language = 'en';
+
+  const detectLanguage = (data) => {
+    const content = (data?.raw_content || '').toLowerCase();
+    const url = (data?.sourceUrl || '').toLowerCase();
+
+    if (url.includes('.sk') || url.includes('/sk/')) return 'sk';
+    if (url.includes('.cz') || url.includes('/cs/') || url.includes('/cz/')) return 'cs';
+    if (url.includes('.de') || url.includes('/de/')) return 'de';
+    if (url.includes('.fr') || url.includes('/fr/')) return 'fr';
+    if (url.includes('.es') || url.includes('/es/')) return 'es';
+    if (url.includes('.it') || url.includes('/it/')) return 'it';
+    if (url.includes('.pl') || url.includes('/pl/')) return 'pl';
+    if (url.includes('.nl') || url.includes('/nl/')) return 'nl';
+    if (url.includes('.pt') || url.includes('/pt/')) return 'pt';
+
+    const slovakWords = ['kontakt', 'služby', 'cenník', 'objednať', 'o nás', 'úvod', 'domov', 'lekár', 'klinika'];
+    const czechWords = ['služby', 'ceník', 'objednat', 'kontakt', 'úvod', 'domů', 'lékař'];
+    const germanWords = ['kontakt', 'über uns', 'dienstleistungen', 'preise', 'termin', 'arzt'];
+
+    const slovakCount = slovakWords.filter(w => content.includes(w)).length;
+    const czechCount = czechWords.filter(w => content.includes(w)).length;
+    const germanCount = germanWords.filter(w => content.includes(w)).length;
+
+    if (slovakCount >= 2) return 'sk';
+    if (czechCount >= 2) return 'cs';
+    if (germanCount >= 2) return 'de';
+
+    return 'en';
+  };
+
+  const getWelcomeTitle = (lang) => {
+    const titles = {
+      sk: 'Dobrý deň!',
+      cs: 'Dobrý den!',
+      de: 'Guten Tag!',
+      fr: 'Bonjour !',
+      es: '¡Hola!',
+      it: 'Ciao!',
+      pl: 'Dzień dobry!',
+      nl: 'Goedendag!',
+      pt: 'Olá!',
+      en: 'Hi there!'
+    };
+    return titles[lang] || titles.en;
+  };
+
+  const getPlaceholderText = (lang) => {
+    const placeholders = {
+      sk: 'Napíšte správu...',
+      cs: 'Napište zprávu...',
+      de: 'Nachricht schreiben...',
+      fr: 'Écrivez un message...',
+      es: 'Escribe un mensaje...',
+      it: 'Scrivi un messaggio...',
+      pl: 'Napisz wiadomość...',
+      nl: 'Schrijf een bericht...',
+      pt: 'Escreva uma mensagem...',
+      en: 'Type a message...'
+    };
+    return placeholders[lang] || placeholders.en;
+  };
+
+  const getWelcomeFallback = (name, lang) => {
+    const messages = {
+      sk: `Som AI asistent pre ${name}. Ako vám môžem pomôcť?`,
+      cs: `Jsem AI asistent pro ${name}. Jak vám mohu pomoci?`,
+      de: `Ich bin der KI-Assistent für ${name}. Wie kann ich Ihnen helfen?`,
+      fr: `Je suis l'assistant IA de ${name}. Comment puis-je vous aider ?`,
+      es: `Soy el asistente de IA de ${name}. ¿Cómo puedo ayudarte?`,
+      it: `Sono l'assistente AI di ${name}. Come posso aiutarti?`,
+      pl: `Jestem asystentem AI dla ${name}. Jak mogę pomóc?`,
+      nl: `Ik ben de AI-assistent van ${name}. Hoe kan ik u helpen?`,
+      pt: `Sou o assistente de IA da ${name}. Como posso ajudá-lo?`,
+      en: `I'm the AI assistant for ${name}. How can I help you today?`
+    };
+    return messages[lang] || messages.en;
+  };
 
   // Position styles
   const positionStyles = {
@@ -116,11 +210,12 @@
 
   const style = document.createElement('style');
   style.textContent = `
-    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
     :host {
       all: initial;
-      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-weight: 500;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
@@ -137,10 +232,10 @@
       ${pos.bottom ? `bottom: ${pos.bottom};` : ''}
       ${pos.right ? `right: ${pos.right};` : ''}
       ${pos.left ? `left: ${pos.left};` : ''}
-      width: 64px;
-      height: 64px;
-      border-radius: 20px;
-      background: linear-gradient(145deg, var(--fab-primary, #3b82f6) 0%, var(--fab-secondary, #1d4ed8) 100%);
+      width: 56px;
+      height: 56px;
+      border-radius: 999px;
+      background: linear-gradient(145deg, var(--fab-primary, #3b82f6) 0%, var(--fab-secondary, #1e40af) 100%);
       border: none;
       color: white;
       cursor: pointer;
@@ -152,30 +247,18 @@
         0 4px 12px -2px rgba(0, 0, 0, 0.1);
       z-index: 2147483646;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      animation: fabEnter 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-    }
-
-    @keyframes fabEnter {
-      0% {
-        opacity: 0;
-        transform: scale(0) rotate(-180deg);
-      }
-      100% {
-        opacity: 1;
-        transform: scale(1) rotate(0deg);
-      }
     }
 
     .fab.hidden {
       opacity: 0;
-      transform: scale(0.5) rotate(90deg);
+      transform: scale(0.7) translateY(6px);
       pointer-events: none;
       visibility: hidden;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.3s;
+      transition: all 0.25s ease, visibility 0s linear 0.25s;
     }
 
     .fab:hover {
-      transform: scale(1.05) translateY(-2px);
+      transform: scale(1.03) translateY(-1px);
       box-shadow:
         0 12px 40px -4px rgba(59, 130, 246, 0.6),
         0 8px 20px -4px rgba(0, 0, 0, 0.15);
@@ -189,6 +272,16 @@
       width: 28px;
       height: 28px;
       transition: transform 0.3s ease;
+    }
+
+    .fab.spin {
+      animation: fabSpin 0.5s ease-in-out;
+    }
+
+    @keyframes fabSpin {
+      0% { transform: rotate(0deg) scale(1); }
+      70% { transform: rotate(300deg) scale(1.05); }
+      100% { transform: rotate(360deg) scale(1); }
     }
 
     .fab.loading {
@@ -262,15 +355,15 @@
       z-index: 2147483646;
       opacity: 0;
       pointer-events: none;
-      transform: translateY(24px) scale(0.92);
+      transform: translateY(16px);
       transform-origin: ${widgetPosition === 'bottom-left' ? 'bottom left' : 'bottom right'};
-      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: opacity 0.25s ease, transform 0.25s ease;
     }
 
     .panel.open {
       opacity: 1;
       pointer-events: auto;
-      transform: translateY(0) scale(1);
+      transform: translateY(0);
     }
 
     /* ========== HEADER ========== */
@@ -499,11 +592,14 @@
     .msg {
       max-width: 85%;
       padding: 14px 18px;
-      border-radius: 18px;
+      border-radius: 22px;
       font-size: 15px;
       line-height: 1.55;
       white-space: pre-wrap;
       word-wrap: break-word;
+    }
+
+    .msg.new {
       animation: msgSlide 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
@@ -516,7 +612,7 @@
       align-self: flex-end;
       background: linear-gradient(145deg, var(--chat-user) 0%, #1d4ed8 100%);
       color: var(--chat-user-text);
-      border-bottom-right-radius: 6px;
+      border-bottom-right-radius: 14px;
       box-shadow: 0 2px 8px -2px rgba(59, 130, 246, 0.3);
     }
 
@@ -525,7 +621,7 @@
       background: var(--chat-surface);
       color: var(--chat-text);
       border: 1px solid var(--chat-assistant-border);
-      border-bottom-left-radius: 6px;
+      border-bottom-left-radius: 14px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
 
@@ -587,7 +683,7 @@
       height: 48px;
       padding: 0 48px 0 18px;
       border: 2px solid rgba(15, 23, 42, 0.08);
-      border-radius: 16px;
+      border-radius: 999px;
       font-size: 15px;
       font-family: inherit;
       background: var(--chat-bg);
@@ -616,7 +712,7 @@
       right: 6px;
       width: 36px;
       height: 36px;
-      border-radius: 12px;
+      border-radius: 999px;
       background: var(--chat-primary);
       border: none;
       color: white;
@@ -920,13 +1016,13 @@
       height: 42px;
       font-size: 14px;
       padding: 0 42px 0 14px;
-      border-radius: 12px;
+      border-radius: 999px;
     }
 
     .panel.minimal .send {
       width: 32px;
       height: 32px;
-      border-radius: 10px;
+      border-radius: 999px;
     }
 
     .panel.minimal .welcomeIcon {
@@ -959,9 +1055,9 @@
     }
 
     .fab.minimal {
-      width: 52px;
-      height: 52px;
-      border-radius: 16px;
+      width: 48px;
+      height: 48px;
+      border-radius: 999px;
     }
 
     .fab.minimal svg {
@@ -1009,9 +1105,9 @@
         bottom: 20px;
         right: 20px;
         left: auto;
-        width: 60px;
-        height: 60px;
-        border-radius: 18px;
+        width: 54px;
+        height: 54px;
+        border-radius: 999px;
       }
 
       .header {
@@ -1042,11 +1138,8 @@
   fab.type = 'button';
   fab.setAttribute('aria-label', 'Open chat');
   fab.innerHTML = `
-    <svg viewBox="0 0 24 24" fill="none">
-      <path d="M12 3C6.5 3 2 6.8 2 11.5c0 2.4 1.2 4.6 3.1 6.1l-.6 3.9 4.3-2.2c1 .3 2.1.4 3.2.4 5.5 0 10-3.8 10-8.5S17.5 3 12 3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" fill="none"/>
-      <circle cx="8" cy="11.5" r="1.5" fill="currentColor"/>
-      <circle cx="12" cy="11.5" r="1.5" fill="currentColor"/>
-      <circle cx="16" cy="11.5" r="1.5" fill="currentColor"/>
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 3C6.5 3 2 6.8 2 11.5c0 2.4 1.2 4.6 3.1 6.1l-.6 3.9 4.3-2.2c1 .3 2.1.4 3.2.4 5.5 0 10-3.8 10-8.5S17.5 3 12 3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
     </svg>
     <span class="fab-badge"></span>
   `;
@@ -1216,6 +1309,7 @@
   let showingWelcome = true;
   let suggestions = [];
   const messages = [];
+  let lastRenderedCount = 0;
 
   const scrollToBottom = () => {
     if (messagesEl) {
@@ -1240,9 +1334,12 @@
     hideWelcome();
     messagesEl.innerHTML = '';
 
-    messages.forEach((m) => {
+    const shouldAnimateLast = messages.length > lastRenderedCount;
+    messages.forEach((m, index) => {
       const div = document.createElement('div');
-      div.className = `msg ${m.role}`;
+      const isLast = index === messages.length - 1;
+      const animateClass = shouldAnimateLast && isLast ? ' new' : '';
+      div.className = `msg ${m.role}${animateClass}`;
       div.innerHTML = m.content;
       messagesEl.appendChild(div);
     });
@@ -1255,6 +1352,7 @@
     }
 
     scrollToBottom();
+    lastRenderedCount = messages.length;
   };
 
   const showError = (message) => {
@@ -1479,26 +1577,77 @@
   };
 
   // Generate suggestions based on available data
-  const generateSuggestions = (data) => {
+  const generateSuggestions = (data, lang) => {
+    const t = {
+      services: {
+        sk: 'Aké služby ponúkate?',
+        cs: 'Jaké služby nabízíte?',
+        de: 'Welche Dienstleistungen bieten Sie an?',
+        fr: 'Quels services proposez-vous ?',
+        es: '¿Qué servicios ofrecen?',
+        it: 'Quali servizi offrite?',
+        pl: 'Jakie usługi oferujecie?',
+        nl: 'Welke diensten biedt u aan?',
+        pt: 'Que serviços vocês oferecem?',
+        en: 'What services do you offer?'
+      },
+      hours: {
+        sk: 'Aké sú vaše otváracie hodiny?',
+        cs: 'Jaké jsou vaše otevírací hodiny?',
+        de: 'Wie sind Ihre Öffnungszeiten?',
+        fr: 'Quels sont vos horaires d\'ouverture ?',
+        es: '¿Cuáles son sus horarios de apertura?',
+        it: 'Quali sono i vostri orari di apertura?',
+        pl: 'Jakie są wasze godziny otwarcia?',
+        nl: 'Wat zijn jullie openingstijden?',
+        pt: 'Quais são os seus horários de funcionamento?',
+        en: 'What are your opening hours?'
+      },
+      contact: {
+        sk: 'Ako vás môžem kontaktovať?',
+        cs: 'Jak vás mohu kontaktovat?',
+        de: 'Wie kann ich Sie kontaktieren?',
+        fr: 'Comment puis-je vous contacter ?',
+        es: '¿Cómo puedo contactarlos?',
+        it: 'Come posso contattarvi?',
+        pl: 'Jak mogę się z wami skontaktować?',
+        nl: 'Hoe kan ik contact met jullie opnemen?',
+        pt: 'Como posso entrar em contato?',
+        en: 'How can I contact you?'
+      },
+      booking: {
+        sk: 'Chcel/a by som sa objednať',
+        cs: 'Chtěl/a bych se objednat',
+        de: 'Ich möchte einen Termin buchen',
+        fr: 'Je souhaite prendre rendez-vous',
+        es: 'Me gustaría reservar una cita',
+        it: 'Vorrei prenotare un appuntamento',
+        pl: 'Chciałbym/Chciałabym umówić wizytę',
+        nl: 'Ik wil graag een afspraak maken',
+        pt: 'Gostaria de marcar uma consulta',
+        en: 'I\'d like to book an appointment'
+      }
+    };
+
     const s = [];
     if (data.services?.length > 0) {
-      s.push('What services do you offer?');
+      s.push(t.services[lang] || t.services.en);
     }
     if (data.opening_hours) {
-      s.push('What are your opening hours?');
+      s.push(t.hours[lang] || t.hours.en);
     }
     if (data.phone || data.email) {
-      s.push('How can I contact you?');
+      s.push(t.contact[lang] || t.contact.en);
     }
     if (bookingEnabled) {
-      s.push('I\'d like to book an appointment');
+      s.push(t.booking[lang] || t.booking.en);
     }
     return s.slice(0, 3);
   };
 
-  const renderWelcome = (name, message, suggestionList) => {
-    if (welcomeTitle) welcomeTitle.textContent = `Hi there! 👋`;
-    if (welcomeText) welcomeText.textContent = message || `I'm here to help you with anything about ${name}. Ask me a question!`;
+  const renderWelcome = (name, message, suggestionList, lang) => {
+    if (welcomeTitle) welcomeTitle.textContent = getWelcomeTitle(lang);
+    if (welcomeText) welcomeText.textContent = message || getWelcomeFallback(name, lang);
 
     // Add suggestions
     if (suggestionList && suggestionList.length > 0 && welcomeEl) {
@@ -1549,21 +1698,26 @@
       bookingEnabled = data.bookingEnabled !== false;
       bookingFields = data.bookingFields || ['name', 'email', 'preferredDate', 'preferredTime'];
 
+      language = (data.language && data.language !== 'auto') ? data.language : detectLanguage(clinicData);
+
       applyTheme(data.theme);
 
       const businessName = clinicData?.clinic_name || 'our business';
       setHeaderName(businessName);
 
-      suggestions = generateSuggestions(clinicData || {});
+      suggestions = generateSuggestions(clinicData || {}, language);
 
-      const welcomeMsg = clinicData?.welcomeMessage || `I can help you with information about ${businessName}, answer questions about our services, or help you book an appointment.`;
-      renderWelcome(businessName, welcomeMsg, suggestions);
+      const welcomeMsg = clinicData?.welcomeMessage || '';
+      renderWelcome(businessName, welcomeMsg, suggestions, language);
 
       if (bookingEnabled) {
         updateBookingFormFields();
       }
 
-      if (inputEl) inputEl.disabled = false;
+      if (inputEl) {
+        inputEl.disabled = false;
+        inputEl.placeholder = getPlaceholderText(language);
+      }
       if (sendBtn) sendBtn.disabled = false;
       fab.classList.remove('loading');
       initialized = true;
@@ -1579,7 +1733,10 @@
     if (widgetStyle === 'embedded') return; // Always open in embedded mode
     open = true;
     panel.classList.add('open');
-    fab.classList.add('hidden');
+    fab.classList.add('spin');
+    setTimeout(() => {
+      fab.classList.add('hidden');
+    }, 120);
 
     if (isFirstOpen()) {
       markAsOpened();
@@ -1588,6 +1745,9 @@
     setTimeout(() => {
       if (initialized && !showingWelcome) inputEl?.focus();
     }, 100);
+    setTimeout(() => {
+      fab.classList.remove('spin');
+    }, 500);
   };
 
   const closePanel = () => {
@@ -1685,7 +1845,7 @@
       }
 
       if (assistantText) {
-        messages.push({ role: 'assistant', content: sanitize(assistantText) });
+        messages.push({ role: 'assistant', content: sanitize(stripMarkdown(assistantText)) });
       }
     } catch (err) {
       console.error('[XeloChat] Send failed:', err);

@@ -42,19 +42,34 @@ function detectLanguage(clinicData: ClinicData): string {
   return 'en';
 }
 
-// Get welcome message in detected language
-function getWelcomeMessage(clinicName: string, language: string): string {
+function getWelcomeTitle(language: string): string {
+  const titles: Record<string, string> = {
+    sk: 'Dobrý deň!',
+    cs: 'Dobrý den!',
+    de: 'Guten Tag!',
+    fr: 'Bonjour !',
+    es: '¡Hola!',
+    it: 'Ciao!',
+    pl: 'Dzień dobry!',
+    nl: 'Goedendag!',
+    pt: 'Olá!',
+    en: 'Hi there!',
+  };
+  return titles[language] || titles.en;
+}
+
+function getWelcomeFallback(clinicName: string, language: string): string {
   const messages: Record<string, string> = {
-    sk: `Dobrý deň! Som AI asistent pre ${clinicName}. Ako vám môžem pomôcť?`,
-    cs: `Dobrý den! Jsem AI asistent pro ${clinicName}. Jak vám mohu pomoci?`,
-    de: `Guten Tag! Ich bin der KI-Assistent für ${clinicName}. Wie kann ich Ihnen helfen?`,
-    fr: `Bonjour ! Je suis l'assistant IA de ${clinicName}. Comment puis-je vous aider ?`,
-    es: `¡Hola! Soy el asistente de IA de ${clinicName}. ¿Cómo puedo ayudarte?`,
-    it: `Ciao! Sono l'assistente AI di ${clinicName}. Come posso aiutarti?`,
-    pl: `Dzień dobry! Jestem asystentem AI dla ${clinicName}. Jak mogę pomóc?`,
-    nl: `Goedendag! Ik ben de AI-assistent van ${clinicName}. Hoe kan ik u helpen?`,
-    pt: `Olá! Sou o assistente de IA da ${clinicName}. Como posso ajudá-lo?`,
-    en: `Hi! I'm the AI assistant for ${clinicName}. How can I help you today?`,
+    sk: `Som AI asistent pre ${clinicName}. Ako vám môžem pomôcť?`,
+    cs: `Jsem AI asistent pro ${clinicName}. Jak vám mohu pomoci?`,
+    de: `Ich bin der KI-Assistent für ${clinicName}. Wie kann ich Ihnen helfen?`,
+    fr: `Je suis l'assistant IA de ${clinicName}. Comment puis-je vous aider ?`,
+    es: `Soy el asistente de IA de ${clinicName}. ¿Cómo puedo ayudarte?`,
+    it: `Sono l'assistente AI di ${clinicName}. Come posso aiutarti?`,
+    pl: `Jestem asystentem AI dla ${clinicName}. Jak mogę pomóc?`,
+    nl: `Ik ben de AI-assistent van ${clinicName}. Hoe kan ik u helpen?`,
+    pt: `Sou o assistente de IA da ${clinicName}. Como posso ajudá-lo?`,
+    en: `I'm the AI assistant for ${clinicName}. How can I help you today?`,
   };
   return messages[language] || messages.en;
 }
@@ -76,6 +91,73 @@ function getPlaceholder(language: string): string {
   return placeholders[language] || placeholders.en;
 }
 
+function getSuggestions(clinicData: ClinicData, language: string): string[] {
+  const t = {
+    services: {
+      sk: 'Aké služby ponúkate?',
+      cs: 'Jaké služby nabízíte?',
+      de: 'Welche Dienstleistungen bieten Sie an?',
+      fr: 'Quels services proposez-vous ?',
+      es: '¿Qué servicios ofrecen?',
+      it: 'Quali servizi offrite?',
+      pl: 'Jakie usługi oferujecie?',
+      nl: 'Welke diensten biedt u aan?',
+      pt: 'Que serviços vocês oferecem?',
+      en: 'What services do you offer?',
+    },
+    hours: {
+      sk: 'Aké sú vaše otváracie hodiny?',
+      cs: 'Jaké jsou vaše otevírací hodiny?',
+      de: 'Wie sind Ihre Öffnungszeiten?',
+      fr: 'Quels sont vos horaires d\'ouverture ?',
+      es: '¿Cuáles son sus horarios de apertura?',
+      it: 'Quali sono i vostri orari di apertura?',
+      pl: 'Jakie są wasze godziny otwarcia?',
+      nl: 'Wat zijn jullie openingstijden?',
+      pt: 'Quais são os seus horários de funcionamento?',
+      en: 'What are your opening hours?',
+    },
+    contact: {
+      sk: 'Ako vás môžem kontaktovať?',
+      cs: 'Jak vás mohu kontaktovat?',
+      de: 'Wie kann ich Sie kontaktieren?',
+      fr: 'Comment puis-je vous contacter ?',
+      es: '¿Cómo puedo contactarlos?',
+      it: 'Come posso contattarvi?',
+      pl: 'Jak mogę się z wami skontaktować?',
+      nl: 'Hoe kan ik contact met jullie opnemen?',
+      pt: 'Como posso entrar em contato?',
+      en: 'How can I contact you?',
+    },
+    booking: {
+      sk: 'Chcel/a by som sa objednať',
+      cs: 'Chtěl/a bych se objednat',
+      de: 'Ich möchte einen Termin buchen',
+      fr: 'Je souhaite prendre rendez-vous',
+      es: 'Me gustaría reservar una cita',
+      it: 'Vorrei prenotare un appuntamento',
+      pl: 'Chciałbym/Chciałabym umówić wizytę',
+      nl: 'Ik wil graag een afspraak maken',
+      pt: 'Gostaria de marcar uma consulta',
+      en: 'I\'d like to book an appointment',
+    },
+  };
+
+  const suggestions: string[] = [];
+  if (clinicData.services?.length) {
+    suggestions.push(t.services[language] || t.services.en);
+  }
+  if (clinicData.opening_hours) {
+    suggestions.push(t.hours[language] || t.hours.en);
+  }
+  if (clinicData.phone || clinicData.email) {
+    suggestions.push(t.contact[language] || t.contact.en);
+  }
+  suggestions.push(t.booking[language] || t.booking.en);
+
+  return suggestions.slice(0, 3);
+}
+
 export default function DemoWidgetFAB({
   clinicData,
   theme,
@@ -83,7 +165,6 @@ export default function DemoWidgetFAB({
 }: DemoWidgetFABProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
-  const [favicon, setFavicon] = useState<string | null>(null);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -91,31 +172,18 @@ export default function DemoWidgetFAB({
   // Detect language from scraped content
   const language = detectLanguage(clinicData);
 
-  // Always use localized welcome message based on detected language
-  // (ignore server's welcomeMessage which is typically in English)
-  const [messages, setMessages] = useState<Message[]>(() => {
-    return [{ role: 'assistant', content: getWelcomeMessage(clinicData.clinic_name, language) }];
-  });
+  const [messages, setMessages] = useState<Message[]>([]);
 
-  // Try to get favicon from the source URL
-  useEffect(() => {
-    if (clinicData.sourceUrl) {
-      try {
-        const url = new URL(clinicData.sourceUrl);
-        const faviconUrl = `https://www.google.com/s2/favicons?domain=${url.hostname}&sz=64`;
-        setFavicon(faviconUrl);
-      } catch {
-        setFavicon(null);
-      }
-    }
-  }, [clinicData.sourceUrl]);
+  const welcomeTitle = getWelcomeTitle(language);
+  const welcomeText = clinicData.welcomeMessage || getWelcomeFallback(clinicData.clinic_name, language);
+  const suggestions = getSuggestions(clinicData, language);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
-  const handleSend = useCallback(async () => {
-    const message = input.trim();
+  const handleSend = useCallback(async (override?: string) => {
+    const message = (override ?? input).trim();
     if (!message || isLoading) return;
 
     setInput('');
@@ -184,12 +252,12 @@ export default function DemoWidgetFAB({
 
         .demo-widget-fab {
           position: fixed;
-          bottom: 92px;
+          bottom: 96px;
           right: 24px;
           width: 56px;
           height: 56px;
-          border-radius: 50%;
-          background: linear-gradient(135deg, ${primaryColor} 0%, ${adjustColor(primaryColor, -15)} 100%);
+          border-radius: 999px;
+          background: linear-gradient(145deg, ${primaryColor} 0%, ${adjustColor(primaryColor, -30)} 100%);
           border: none;
           color: white;
           cursor: pointer;
@@ -197,75 +265,37 @@ export default function DemoWidgetFAB({
           align-items: center;
           justify-content: center;
           box-shadow:
-            0 4px 14px ${hexToRgba(primaryColor, 0.4)},
-            0 0 0 0 ${hexToRgba(primaryColor, 0)};
+            0 8px 32px -4px ${hexToRgba(primaryColor, 0.5)},
+            0 4px 12px -2px rgba(0, 0, 0, 0.1);
           z-index: 2147483646;
-          transition:
-            transform 0.2s ease,
-            box-shadow 0.2s ease,
-            background 0.2s ease,
-            opacity 0.2s ease,
-            visibility 0.2s ease;
-          animation: demoFabEnter 0.35s ease-out forwards;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-
-        @keyframes demoFabEnter {
-          0% {
-            opacity: 0;
-            transform: scale(0.5);
-          }
-          100% {
-            opacity: 1;
-            transform: scale(1);
-          }
         }
 
         .demo-widget-fab.hidden {
           opacity: 0;
-          transform: scale(0.8);
+          transform: scale(0.7) translateY(6px);
           pointer-events: none;
           visibility: hidden;
-          box-shadow: none;
-          transition:
-            opacity 0.2s ease,
-            transform 0.2s ease,
-            visibility 0s linear 0.2s,
-            box-shadow 0s linear 0.2s;
+          transition: all 0.25s ease, visibility 0s linear 0.25s;
         }
 
         .demo-widget-fab:hover {
-          background: linear-gradient(135deg, ${adjustColor(primaryColor, -10)} 0%, ${adjustColor(primaryColor, -25)} 100%);
+          background: linear-gradient(145deg, ${adjustColor(primaryColor, -8)} 0%, ${adjustColor(primaryColor, -35)} 100%);
           box-shadow:
-            0 6px 20px ${hexToRgba(primaryColor, 0.5)},
-            0 0 0 4px ${hexToRgba(primaryColor, 0.15)};
-          transform: scale(1.08);
+            0 12px 40px -4px ${hexToRgba(primaryColor, 0.6)},
+            0 8px 20px -4px rgba(0, 0, 0, 0.15);
+          transform: scale(1.03) translateY(-1px);
         }
 
         .demo-widget-fab:active {
-          transform: scale(0.96);
-          box-shadow:
-            0 2px 8px ${hexToRgba(primaryColor, 0.4)},
-            0 0 0 2px ${hexToRgba(primaryColor, 0.2)};
+          transform: scale(0.95);
         }
 
         .demo-widget-fab svg {
-          width: 24px;
-          height: 24px;
-          transition: transform 0.2s ease;
-        }
-
-        .demo-widget-fab:hover svg {
-          transform: scale(1.05);
-        }
-
-        .demo-widget-fab-icon {
           width: 28px;
           height: 28px;
-          border-radius: 6px;
-          object-fit: contain;
-          background: white;
-          padding: 2px;
+          transition: transform 0.3s ease;
         }
 
         .demo-widget-fab-badge {
@@ -292,95 +322,75 @@ export default function DemoWidgetFAB({
           --chat-user-text: #ffffff;
           --chat-assistant: ${theme.assistantBubbleColor || '#ffffff'};
           --chat-assistant-border: #e2e8f0;
+          --chat-bg: #f1f5f9;
           position: fixed;
           bottom: 24px;
           right: 24px;
-          width: 400px;
-          max-width: calc(100vw - 48px);
-          height: min(560px, 75vh);
+          width: 420px;
+          max-width: calc(100vw - 32px);
+          height: min(640px, 80vh);
           max-height: calc(100vh - 48px);
-          background: var(--chat-surface);
+          background: linear-gradient(180deg, var(--chat-surface) 0%, #f8fafc 100%);
           border-radius: 24px;
           box-shadow:
-            0 25px 50px -12px rgba(0, 0, 0, 0.15),
-            0 0 0 1px rgba(0, 0, 0, 0.05);
-          border: none;
+            0 0 0 1px rgba(15, 23, 42, 0.06),
+            0 28px 60px -18px rgba(15, 23, 42, 0.35),
+            0 10px 24px -12px rgba(15, 23, 42, 0.18);
+          border: 1px solid rgba(15, 23, 42, 0.08);
           display: flex;
           flex-direction: column;
           overflow: hidden;
           z-index: 2147483647;
           opacity: 0;
           pointer-events: none;
-          transform: translateY(20px) scale(0.96);
+          transform: translateY(16px);
           transform-origin: bottom right;
-          transition:
-            opacity 0.35s ease,
-            transform 0.35s cubic-bezier(0.2, 0.9, 0.2, 1),
-            box-shadow 0.35s ease;
+          transition: opacity 0.25s ease, transform 0.25s ease;
           font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         .demo-widget-panel.open {
           opacity: 1;
           pointer-events: auto;
-          transform: translateY(0) scale(1);
-          animation: demoPanelPop 0.45s cubic-bezier(0.2, 0.9, 0.2, 1);
-          box-shadow:
-            0 25px 50px -12px rgba(0, 0, 0, 0.2),
-            0 0 0 1px rgba(0, 0, 0, 0.05);
-        }
-
-        @keyframes demoPanelPop {
-          0% {
-            opacity: 0;
-            transform: translateY(28px) scale(0.94);
-          }
-          60% {
-            opacity: 1;
-            transform: translateY(-6px) scale(1.02);
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
+          transform: translateY(0);
         }
 
         .demo-widget-panel.closing {
           opacity: 0;
-          transform: translateY(20px) scale(0.96);
+          transform: translateY(16px);
           pointer-events: none;
         }
 
         .demo-widget-header {
           display: flex;
           justify-content: space-between;
-          align-items: flex-start;
-          padding: 14px 16px;
-          background: #ffffff;
-          border-bottom: 1px solid #e2e8f0;
+          align-items: center;
+          padding: 20px 20px 16px 20px;
+          background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.96) 100%);
+          border-bottom: 1px solid rgba(15, 23, 42, 0.06);
           flex-shrink: 0;
-          gap: 10px;
         }
 
         .demo-widget-header-info {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 14px;
           min-width: 0;
           flex: 1;
         }
 
         .demo-widget-header-avatar {
-          width: 36px;
-          height: 36px;
+          width: 44px;
+          height: 44px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          border-radius: 50%;
-          background: linear-gradient(135deg, ${primaryColor} 0%, ${adjustColor(primaryColor, -15)} 100%);
+          border-radius: 14px;
+          background: linear-gradient(145deg, ${primaryColor} 0%, ${adjustColor(primaryColor, -30)} 100%);
           color: #ffffff;
           flex-shrink: 0;
           overflow: hidden;
+          box-shadow: 0 4px 12px -2px ${hexToRgba(primaryColor, 0.4)};
         }
 
         .demo-widget-header-avatar img {
@@ -400,26 +410,37 @@ export default function DemoWidgetFAB({
         }
 
         .demo-widget-header-title h3 {
-          font-size: 15px;
+          font-size: 16px;
           font-weight: 600;
-          color: #1e293b;
+          color: var(--chat-text);
           margin: 0;
-          line-height: 1.2;
+          line-height: 1.3;
           overflow: hidden;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
+          white-space: nowrap;
+          text-overflow: ellipsis;
         }
 
         .demo-widget-header-sub {
           margin: 0;
-          color: #64748b;
-          font-size: 12px;
-          line-height: 1.2;
-          overflow: hidden;
-          display: -webkit-box;
-          -webkit-line-clamp: 1;
-          -webkit-box-orient: vertical;
+          color: var(--chat-muted);
+          font-size: 13px;
+          line-height: 1.3;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .demo-widget-status-dot {
+          width: 8px;
+          height: 8px;
+          background: #22c55e;
+          border-radius: 50%;
+          animation: demoStatusPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes demoStatusPulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
         }
 
         .demo-widget-header-actions {
@@ -430,28 +451,26 @@ export default function DemoWidgetFAB({
         }
 
         .demo-widget-action-btn {
-          width: 34px;
-          height: 34px;
-          border-radius: 10px;
-          border: 1px solid transparent;
+          width: 36px;
+          height: 36px;
+          border-radius: 12px;
+          border: none;
           background: transparent;
           color: #64748b;
           cursor: pointer;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+          transition: all 0.2s ease;
         }
 
         .demo-widget-action-btn:hover {
-          background: #eff6ff;
-          color: ${primaryColor};
-          transform: translateY(-1px);
+          background: var(--chat-bg);
+          color: var(--chat-text);
         }
 
         .demo-widget-action-btn:active {
-          background: #eff6ff;
-          color: ${primaryColor};
+          transform: scale(0.92);
         }
 
         .demo-widget-action-btn svg {
@@ -459,45 +478,90 @@ export default function DemoWidgetFAB({
           height: 18px;
         }
 
-        .demo-widget-preview-badge {
-          font-size: 9px;
-          font-weight: 600;
-          background: #f0fdf4;
-          color: #16a34a;
-          padding: 4px 6px;
-          border-radius: 6px;
-          text-transform: uppercase;
-          letter-spacing: 0.3px;
-        }
-
-        .demo-widget-use-btn {
-          border: 1px solid #e2e8f0;
-          background: #ffffff;
-          color: #1e293b;
-          font-size: 10px;
-          font-weight: 600;
-          padding: 4px 8px;
-          border-radius: 999px;
-          cursor: pointer;
-          transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-          white-space: nowrap;
-        }
-
-        .demo-widget-use-btn:hover {
-          border-color: ${primaryColor};
-          color: ${primaryColor};
-          box-shadow: 0 8px 20px rgba(59, 130, 246, 0.18);
-          transform: translateY(-1px);
-        }
-
         .demo-widget-messages {
           flex: 1;
           overflow-y: auto;
           padding: 20px;
-          background: #f8fafc;
+          background:
+            radial-gradient(circle at top right, rgba(59, 130, 246, 0.08), transparent 45%),
+            var(--chat-bg);
           display: flex;
           flex-direction: column;
-          gap: 16px;
+          gap: 12px;
+        }
+
+        .demo-widget-welcome {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          padding: 32px 24px;
+          height: 100%;
+          gap: 20px;
+        }
+
+        .demo-widget-welcome-icon {
+          width: 72px;
+          height: 72px;
+          border-radius: 20px;
+          background: linear-gradient(145deg, var(--chat-primary) 0%, #1d4ed8 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          box-shadow: 0 8px 24px -4px rgba(59, 130, 246, 0.4);
+        }
+
+        .demo-widget-welcome-icon svg {
+          width: 36px;
+          height: 36px;
+        }
+
+        .demo-widget-welcome-title {
+          font-size: 20px;
+          font-weight: 700;
+          color: var(--chat-text);
+          line-height: 1.3;
+        }
+
+        .demo-widget-welcome-text {
+          font-size: 15px;
+          color: var(--chat-muted);
+          line-height: 1.6;
+          max-width: 280px;
+        }
+
+        .demo-widget-welcome-suggestions {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          width: 100%;
+          max-width: 280px;
+          margin-top: 8px;
+        }
+
+        .demo-widget-suggestion {
+          padding: 12px 16px;
+          background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+          border: 1px solid rgba(15, 23, 42, 0.08);
+          border-radius: 14px;
+          font-size: 14px;
+          color: var(--chat-text);
+          cursor: pointer;
+          transition: all 0.2s ease;
+          text-align: left;
+          box-shadow: 0 8px 16px -12px rgba(15, 23, 42, 0.3);
+        }
+
+        .demo-widget-suggestion:hover {
+          border-color: var(--chat-primary);
+          background: rgba(59, 130, 246, 0.06);
+          transform: translateY(-1px);
+        }
+
+        .demo-widget-suggestion:active {
+          transform: scale(0.98);
         }
 
         .demo-widget-messages::-webkit-scrollbar {
@@ -517,26 +581,28 @@ export default function DemoWidgetFAB({
         .demo-widget-msg {
           max-width: 85%;
           padding: 14px 18px;
-          border-radius: 16px;
-          font-size: 14px;
-          line-height: 1.6;
+          border-radius: 22px;
+          font-size: 15px;
+          line-height: 1.55;
           white-space: pre-wrap;
           word-wrap: break-word;
         }
 
         .demo-widget-msg.user {
           align-self: flex-end;
-          background: var(--chat-user);
+          background: linear-gradient(145deg, var(--chat-user) 0%, #1d4ed8 100%);
           color: var(--chat-user-text);
-          border-bottom-right-radius: 4px;
+          border-bottom-right-radius: 14px;
+          box-shadow: 0 2px 8px -2px rgba(59, 130, 246, 0.3);
         }
 
         .demo-widget-msg.assistant {
           align-self: flex-start;
-          background: var(--chat-assistant);
+          background: var(--chat-surface);
           color: var(--chat-text);
           border: 1px solid var(--chat-assistant-border);
-          border-bottom-left-radius: 4px;
+          border-bottom-left-radius: 14px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         }
 
         .demo-widget-typing {
@@ -576,23 +642,30 @@ export default function DemoWidgetFAB({
         .demo-widget-input-bar {
           display: flex;
           gap: 12px;
-          padding: 18px 20px;
-          background: #ffffff;
-          border-top: 1px solid #e2e8f0;
+          padding: 16px 20px 20px 20px;
+          background: var(--chat-surface);
+          border-top: 1px solid rgba(15, 23, 42, 0.06);
           flex-shrink: 0;
         }
 
-        .demo-widget-input-bar input {
+        .demo-widget-input-wrapper {
           flex: 1;
-          height: 44px;
-          padding: 0 18px;
-          border: 1px solid #e2e8f0;
-          border-radius: 100px;
-          font-size: 14px;
+          position: relative;
+          display: flex;
+          align-items: center;
+        }
+
+        .demo-widget-input-bar input {
+          width: 100%;
+          height: 48px;
+          padding: 0 48px 0 18px;
+          border: 2px solid rgba(15, 23, 42, 0.08);
+          border-radius: 999px;
+          font-size: 15px;
           font-family: inherit;
-          background: #f8fafc;
+          background: var(--chat-bg);
           color: var(--chat-text);
-          transition: border-color 0.15s ease, background 0.15s ease;
+          transition: all 0.2s ease;
         }
 
         .demo-widget-input-bar input::placeholder {
@@ -601,8 +674,9 @@ export default function DemoWidgetFAB({
 
         .demo-widget-input-bar input:focus {
           outline: none;
-          border-color: ${primaryColor};
-          background: #ffffff;
+          border-color: var(--chat-primary);
+          background: var(--chat-surface);
+          box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
         }
 
         .demo-widget-input-bar input:disabled {
@@ -611,23 +685,25 @@ export default function DemoWidgetFAB({
         }
 
         .demo-widget-send {
-          width: 44px;
-          height: 44px;
-          border-radius: 100px;
-          background: ${primaryColor};
-          border: 1px solid ${primaryColor};
+          position: absolute;
+          right: 6px;
+          width: 36px;
+          height: 36px;
+          border-radius: 999px;
+          background: var(--chat-primary);
+          border: none;
           color: white;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
-          transition: background 0.15s ease, border-color 0.15s ease;
+          transition: all 0.2s ease;
         }
 
         .demo-widget-send:hover:not(:disabled) {
-          background: ${adjustColor(primaryColor, -10)};
-          border-color: ${adjustColor(primaryColor, -10)};
+          background: #1d4ed8;
+          transform: scale(1.05);
         }
 
         .demo-widget-send:disabled {
@@ -640,49 +716,64 @@ export default function DemoWidgetFAB({
           height: 18px;
         }
 
-        .demo-widget-legal-bar {
+        .demo-widget-footer {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 10px 20px;
-          background: hsl(214 32% 98%);
-          border-top: 1px solid hsl(214 32% 93%);
+          padding: 12px 20px;
+          background: var(--chat-bg);
+          border-top: 1px solid rgba(15, 23, 42, 0.06);
           font-size: 11px;
-          color: #64748b;
+          color: var(--chat-muted);
+          gap: 12px;
         }
 
-        .demo-widget-legal-bar a {
-          color: ${primaryColor};
+        .demo-widget-footer a {
+          color: var(--chat-muted);
           text-decoration: none;
-          font-weight: 500;
+          transition: color 0.2s ease;
         }
 
-        .demo-widget-legal-bar a:hover {
-          text-decoration: underline;
+        .demo-widget-footer a:hover {
+          color: var(--chat-primary);
         }
 
-        .demo-widget-legal-separator {
-          color: #64748b;
-          margin: 0 6px;
+        .demo-widget-footer-links {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          white-space: nowrap;
+        }
+
+        .demo-widget-footer-divider {
+          color: rgba(100, 116, 139, 0.6);
+        }
+
+        .demo-widget-footer-brand {
+          white-space: nowrap;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
         }
 
         @media (max-width: 480px) {
           .demo-widget-panel {
-            bottom: 16px;
-            right: 16px;
-            left: 16px;
-            width: auto;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            width: 100%;
             max-width: none;
-            height: calc(100vh - 100px);
-            max-height: none;
-            border-radius: 16px;
+            height: 100vh;
+            max-height: 100vh;
+            border-radius: 0;
           }
           .demo-widget-fab {
             bottom: 84px;
-            right: 16px;
+            right: 20px;
             left: auto;
-            width: 52px;
-            height: 52px;
+            width: 54px;
+            height: 54px;
+            border-radius: 999px;
           }
         }
       `}</style>
@@ -695,14 +786,9 @@ export default function DemoWidgetFAB({
         type="button"
       >
         <span className="demo-widget-fab-badge">Preview</span>
-        {favicon ? (
-          <img className="demo-widget-fab-icon" src={favicon} alt="" onError={() => setFavicon(null)} />
-        ) : (
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M8 10.5h8M8 14.5h5" strokeLinecap="round" />
-            <path d="M12 3C6.5 3 2 6.8 2 11.5c0 2.4 1.2 4.6 3.1 6.1l-.6 3.9 4.3-2.2c1 .3 2.1.4 3.2.4 5.5 0 10-3.8 10-8.5S17.5 3 12 3z" strokeLinejoin="round" />
-          </svg>
-        )}
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 3C6.5 3 2 6.8 2 11.5c0 2.4 1.2 4.6 3.1 6.1l-.6 3.9 4.3-2.2c1 .3 2.1.4 3.2.4 5.5 0 10-3.8 10-8.5S17.5 3 12 3z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
+        </svg>
       </button>
 
       {/* Chat Panel */}
@@ -710,31 +796,16 @@ export default function DemoWidgetFAB({
         <header className="demo-widget-header">
           <div className="demo-widget-header-info">
             <div className="demo-widget-header-avatar">
-              {favicon ? (
-                <img src={favicon} alt="" onError={() => setFavicon(null)} />
-              ) : (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M8 10.5h8M8 14.5h5" strokeLinecap="round" />
-                  <path d="M12 3C6.5 3 2 6.8 2 11.5c0 2.4 1.2 4.6 3.1 6.1l-.6 3.9 4.3-2.2c1 .3 2.1.4 3.2.4 5.5 0 10-3.8 10-8.5S17.5 3 12 3z" strokeLinejoin="round" />
-                </svg>
-              )}
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 3C6.5 3 2 6.8 2 11.5c0 2.4 1.2 4.6 3.1 6.1l-.6 3.9 4.3-2.2c1 .3 2.1.4 3.2.4 5.5 0 10-3.8 10-8.5S17.5 3 12 3z" strokeLinejoin="round"/>
+              </svg>
             </div>
           <div className="demo-widget-header-title">
             <h3>{theme.name || clinicData.clinic_name || 'Assistant'}</h3>
-            <p className="demo-widget-header-sub">{theme.tagline || 'AI-powered assistant'}</p>
+            <p className="demo-widget-header-sub"><span className="demo-widget-status-dot"></span>Online</p>
           </div>
         </div>
         <div className="demo-widget-header-actions">
-          {onUseWebsite && (
-            <button
-              className="demo-widget-use-btn"
-              onClick={onUseWebsite}
-              type="button"
-            >
-              Use on my website
-            </button>
-          )}
-          <span className="demo-widget-preview-badge">Preview</span>
           <button
             className="demo-widget-action-btn"
             onClick={handleClose}
@@ -750,6 +821,29 @@ export default function DemoWidgetFAB({
         </header>
 
         <div className="demo-widget-messages">
+          {messages.length === 0 && !isLoading && (
+            <div className="demo-widget-welcome">
+              <div className="demo-widget-welcome-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 3C6.5 3 2 6.8 2 11.5c0 2.4 1.2 4.6 3.1 6.1l-.6 3.9 4.3-2.2c1 .3 2.1.4 3.2.4 5.5 0 10-3.8 10-8.5S17.5 3 12 3z" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div className="demo-widget-welcome-title">{welcomeTitle}</div>
+              <div className="demo-widget-welcome-text">{welcomeText}</div>
+              <div className="demo-widget-welcome-suggestions">
+                {suggestions.map((s) => (
+                  <button
+                    key={s}
+                    className="demo-widget-suggestion"
+                    type="button"
+                    onClick={() => handleSend(s)}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           {messages.map((msg, i) => (
             <div key={i} className={`demo-widget-msg ${msg.role}`}>
               {msg.content}
@@ -768,35 +862,37 @@ export default function DemoWidgetFAB({
         </div>
 
         <div className="demo-widget-input-bar">
-          <input
-            type="text"
-            placeholder={getPlaceholder(language)}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            disabled={isLoading}
-            autoComplete="off"
-          />
-          <button
-            className="demo-widget-send"
-            onClick={handleSend}
-            disabled={!input.trim() || isLoading}
-            aria-label="Send message"
-            type="button"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
-            </svg>
-          </button>
+          <div className="demo-widget-input-wrapper">
+            <input
+              type="text"
+              placeholder={getPlaceholder(language)}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              disabled={isLoading}
+              autoComplete="off"
+            />
+            <button
+              className="demo-widget-send"
+              onClick={() => handleSend()}
+              disabled={!input.trim() || isLoading}
+              aria-label="Send message"
+              type="button"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+              </svg>
+            </button>
+          </div>
         </div>
 
-        <div className="demo-widget-legal-bar">
-          <span>Preview mode • AI responses may be imperfect</span>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div className="demo-widget-footer">
+          <div className="demo-widget-footer-links">
             <a href="/terms" target="_blank" rel="noopener noreferrer">Terms</a>
-            <span className="demo-widget-legal-separator">•</span>
+            <span className="demo-widget-footer-divider">•</span>
             <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy</a>
           </div>
+          <span className="demo-widget-footer-brand">Powered by <a href="https://xelochat.com" target="_blank" rel="noopener noreferrer">XeloChat</a></span>
         </div>
       </div>
     </>
