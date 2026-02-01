@@ -92,7 +92,7 @@ function getPlaceholder(language: string): string {
 }
 
 function getSuggestions(clinicData: ClinicData, language: string): string[] {
-  const t = {
+  const t: Record<string, Record<string, string>> = {
     services: {
       sk: 'Aké služby ponúkate?',
       cs: 'Jaké služby nabízíte?',
@@ -126,7 +126,7 @@ function getSuggestions(clinicData: ClinicData, language: string): string[] {
       it: 'Come posso contattarvi?',
       pl: 'Jak mogę się z wami skontaktować?',
       nl: 'Hoe kan ik contact met jullie opnemen?',
-      pt: 'Como posso entrar em contato?',
+      pt: 'Como posso entrar em contacto?',
       en: 'How can I contact you?',
     },
     booking: {
