@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { getChatbots, scrapeClinicStream, importDemoChatbot, ChatbotSummary, ScrapeProgressEvent } from '@/lib/api';
+import { getChatbots, scrapeClinicStreamWithController, importDemoChatbot, ChatbotSummary, ScrapeProgressEvent, ScrapeController } from '@/lib/api';
 import { loadSession, clearSession } from '@/lib/storage';
 import { ChatState } from '@/types/clinic';
 import styles from '../dashboard.module.css';
@@ -36,7 +36,15 @@ export default function ChatbotsPage() {
     currentUrl: string;
     scrapedPages: ScrapedPage[];
     phase: 'scraping' | 'extracting' | 'saving' | 'complete';
+    extractedColor?: string;
+    stopping?: boolean;
   } | null>(null);
+
+  // Scrape controller ref for stop functionality
+  const scrapeControllerRef = useRef<ScrapeController | null>(null);
+
+  // Link limit threshold - show warning above this
+  const LINK_WARNING_THRESHOLD = 500;
 
   useEffect(() => {
     loadChatbots();
@@ -106,7 +114,7 @@ export default function ChatbotsPage() {
     });
 
     try {
-      const result = await scrapeClinicStream(createUrl, (event: ScrapeProgressEvent) => {
+      const controller = scrapeClinicStreamWithController(createUrl, (event: ScrapeProgressEvent) => {
         setScrapeProgress(prev => {
           if (!prev) return prev;
 
@@ -163,6 +171,16 @@ export default function ChatbotsPage() {
               newState.status = event.message || 'Saving chatbot...';
               break;
 
+            case 'colors_done':
+              if (event.primaryColor) {
+                newState.extractedColor = event.primaryColor;
+              }
+              break;
+
+            case 'stopped':
+              newState.status = 'Finishing with scraped content...';
+              break;
+
             case 'complete':
               newState.phase = 'complete';
               newState.status = 'Complete!';
@@ -173,19 +191,31 @@ export default function ChatbotsPage() {
         });
       });
 
+      scrapeControllerRef.current = controller;
+      const result = await controller.promise;
+
       // Brief delay to show completion
       await new Promise(resolve => setTimeout(resolve, 500));
 
       setShowCreateModal(false);
       setCreateUrl('');
       setScrapeProgress(null);
+      scrapeControllerRef.current = null;
       // Redirect to the new chatbot
       window.location.href = `/dashboard/chatbots/${result.chatbotId}`;
     } catch (err) {
       setCreateError(err instanceof Error ? err.message : 'Failed to create chatbot');
       setScrapeProgress(null);
+      scrapeControllerRef.current = null;
     } finally {
       setCreating(false);
+    }
+  }
+
+  function handleStopScraping() {
+    if (scrapeControllerRef.current) {
+      setScrapeProgress(prev => prev ? { ...prev, stopping: true, status: 'Stopping...' } : prev);
+      scrapeControllerRef.current.stop();
     }
   }
 
@@ -363,6 +393,50 @@ export default function ChatbotsPage() {
                     <span>{scrapeProgress.pagesScraped} pages scraped</span>
                     <span>{scrapeProgress.totalLinksFound} links found</span>
                   </div>
+
+                  {/* Large site warning */}
+                  {scrapeProgress.phase === 'scraping' && scrapeProgress.totalLinksFound > LINK_WARNING_THRESHOLD && (
+                    <div style={{
+                      marginTop: '1rem',
+                      padding: '0.75rem 1rem',
+                      backgroundColor: '#fef3c7',
+                      border: '1px solid #fcd34d',
+                      borderRadius: '8px',
+                      fontSize: '0.875rem',
+                      color: '#92400e'
+                    }}>
+                      <strong>Large website detected!</strong> This site has {scrapeProgress.totalLinksFound.toLocaleString()} links.
+                      We&apos;ll scrape up to {scrapeProgress.maxPages} pages. You can stop anytime and use what&apos;s been collected.
+                    </div>
+                  )}
+
+                  {/* Stop button */}
+                  {scrapeProgress.phase === 'scraping' && scrapeProgress.pagesScraped >= 3 && !scrapeProgress.stopping && (
+                    <button
+                      onClick={handleStopScraping}
+                      style={{
+                        marginTop: '1rem',
+                        padding: '0.5rem 1rem',
+                        fontSize: '0.875rem',
+                        color: '#dc2626',
+                        backgroundColor: '#fef2f2',
+                        border: '1px solid #fecaca',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease'
+                      }}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.backgroundColor = '#fee2e2';
+                        e.currentTarget.style.borderColor = '#fca5a5';
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.backgroundColor = '#fef2f2';
+                        e.currentTarget.style.borderColor = '#fecaca';
+                      }}
+                    >
+                      Stop &amp; use {scrapeProgress.pagesScraped} pages
+                    </button>
+                  )}
                 </div>
 
                 {/* Pages list */}
@@ -431,6 +505,32 @@ export default function ChatbotsPage() {
                     ))
                   )}
                 </div>
+
+                {/* Extracted color indicator */}
+                {scrapeProgress.extractedColor && (
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    marginTop: '1rem',
+                    padding: '0.75rem 1rem',
+                    backgroundColor: '#f0fdf4',
+                    borderRadius: '8px',
+                    border: '1px solid #bbf7d0'
+                  }}>
+                    <div style={{
+                      width: '20px',
+                      height: '20px',
+                      borderRadius: '4px',
+                      backgroundColor: scrapeProgress.extractedColor,
+                      border: '1px solid rgba(0,0,0,0.1)'
+                    }} />
+                    <span style={{ fontSize: '0.875rem', color: '#166534' }}>
+                      Brand color detected: {scrapeProgress.extractedColor}
+                    </span>
+                  </div>
+                )}
 
                 {/* Phase indicator */}
                 <div style={{

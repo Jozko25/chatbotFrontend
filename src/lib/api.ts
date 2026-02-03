@@ -529,7 +529,7 @@ export async function scrapeClinicDemoStream(
 
 // Scrape progress event types
 export interface ScrapeProgressEvent {
-  type: 'start' | 'depth' | 'scraping' | 'page_done' | 'page_error' | 'scrape_complete' | 'extracting' | 'saving' | 'complete' | 'error';
+  type: 'start' | 'depth' | 'scraping' | 'page_done' | 'page_error' | 'scrape_complete' | 'extracting' | 'saving' | 'complete' | 'stopped' | 'error' | 'colors' | 'colors_done';
   url?: string;
   title?: string;
   contentLength?: number;
@@ -547,74 +547,162 @@ export interface ScrapeProgressEvent {
   phone?: string;
   email?: string;
   error?: string;
+  primaryColor?: string;
+  sessionId?: string;
 }
 
-// Streaming scrape with progress updates
+// Streaming scrape with progress updates and stop support
+export interface ScrapeController {
+  promise: Promise<{ chatbotId: string; name: string }>;
+  stop: () => void;
+}
+
+export function scrapeClinicStreamWithController(
+  url: string,
+  onProgress: (event: ScrapeProgressEvent) => void
+): ScrapeController {
+  const abortController = new AbortController();
+  let scrapeSessionId: string | null = null;
+  let stopped = false;
+
+  const promise = (async () => {
+    const headers = await getAuthHeaders();
+    const normalizedUrl = normalizeWebsiteUrl(url);
+    const response = await fetch(`${API_URL}/api/scrape/stream`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ url: normalizedUrl }),
+      signal: abortController.signal,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Failed to scrape website' }));
+      throw new Error(error.error || 'Failed to scrape website');
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error('No response body');
+    }
+
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let result: { chatbotId: string; name: string } | null = null;
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split('\n\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6)) as ScrapeProgressEvent;
+
+              // Capture session ID for stop requests
+              if (data.sessionId) {
+                scrapeSessionId = data.sessionId;
+              }
+
+              onProgress(data);
+
+              if ((data.type === 'complete' || data.type === 'stopped') && data.chatbotId) {
+                result = { chatbotId: data.chatbotId, name: data.name || '' };
+              }
+
+              if (data.type === 'error') {
+                throw new Error(data.error || 'Scraping failed');
+              }
+            } catch (e) {
+              if (e instanceof Error && e.message !== 'Scraping failed') {
+                console.error('Failed to parse SSE data:', e);
+              } else {
+                throw e;
+              }
+            }
+          }
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+
+    if (!result) {
+      throw new Error('Scraping completed but no chatbot was created');
+    }
+
+    return result;
+  })();
+
+  const stop = async () => {
+    if (stopped) return;
+    stopped = true;
+
+    // Send stop signal to backend
+    if (scrapeSessionId) {
+      try {
+        const headers = await getAuthHeaders();
+        await fetch(`${API_URL}/api/scrape/stop`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ sessionId: scrapeSessionId }),
+        });
+      } catch (e) {
+        console.error('Failed to send stop signal:', e);
+      }
+    }
+  };
+
+  return { promise, stop };
+}
+
+// Legacy function for backwards compatibility
 export async function scrapeClinicStream(
   url: string,
   onProgress: (event: ScrapeProgressEvent) => void
 ): Promise<{ chatbotId: string; name: string }> {
+  const controller = scrapeClinicStreamWithController(url, onProgress);
+  return controller.promise;
+}
+
+// ============================================
+// COLOR EXTRACTION API
+// ============================================
+
+export interface ExtractedColors {
+  primaryColor: string;
+  secondaryColor: string;
+  backgroundColor: string;
+  textColor: string;
+  userBubbleColor: string;
+  assistantBubbleColor: string;
+  allExtractedColors: string[];
+  cssVariables: Record<string, string>;
+  metaThemeColor: string | null;
+}
+
+export async function extractWebsiteColors(url: string): Promise<ExtractedColors> {
   const headers = await getAuthHeaders();
   const normalizedUrl = normalizeWebsiteUrl(url);
-  const response = await fetch(`${API_URL}/api/scrape/stream`, {
+
+  const response = await fetch(`${API_URL}/api/extract-colors`, {
     method: 'POST',
     headers,
     body: JSON.stringify({ url: normalizedUrl }),
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Failed to scrape website' }));
-    throw new Error(error.error || 'Failed to scrape website');
+    const error = await response.json().catch(() => ({ error: 'Failed to extract colors' }));
+    throw new Error(error.error || 'Failed to extract colors');
   }
 
-  const reader = response.body?.getReader();
-  if (!reader) {
-    throw new Error('No response body');
-  }
-
-  const decoder = new TextDecoder();
-  let buffer = '';
-  let result: { chatbotId: string; name: string } | null = null;
-
-  while (true) {
-    const { done, value } = await reader.read();
-
-    if (done) break;
-
-    buffer += decoder.decode(value, { stream: true });
-
-    const lines = buffer.split('\n\n');
-    buffer = lines.pop() || '';
-
-    for (const line of lines) {
-      if (line.startsWith('data: ')) {
-        try {
-          const data = JSON.parse(line.slice(6)) as ScrapeProgressEvent;
-          onProgress(data);
-
-          if (data.type === 'complete' && data.chatbotId) {
-            result = { chatbotId: data.chatbotId, name: data.name || '' };
-          }
-
-          if (data.type === 'error') {
-            throw new Error(data.error || 'Scraping failed');
-          }
-        } catch (e) {
-          if (e instanceof Error && e.message !== 'Scraping failed') {
-            console.error('Failed to parse SSE data:', e);
-          } else {
-            throw e;
-          }
-        }
-      }
-    }
-  }
-
-  if (!result) {
-    throw new Error('Scraping completed but no chatbot was created');
-  }
-
-  return result;
+  return response.json();
 }
 
 // ============================================
