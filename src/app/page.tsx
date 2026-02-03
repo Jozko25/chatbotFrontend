@@ -317,10 +317,11 @@ export default function Home() {
         <section id="hero" className={styles.hero}>
           <div className={styles.badge}>AI-Powered Customer Support</div>
           <h1 className={styles.title}>
-            Your website. Trained. 24/7.
+            Turn any website into<br /><span>an intelligent chatbot</span>
           </h1>
           <p className={styles.description}>
-            Paste your URL. XeloChat learns your content and turns it into a smart chatbot that answers visitors instantly—in their language. One embed, zero coding.
+            XeloChat crawls your website, understands your content, and creates a
+            smart AI assistant that can answer customer questions 24/7.
           </p>
 
           <div id="cta" className={styles.formWrapper}>
@@ -374,7 +375,6 @@ export default function Home() {
             <span>Shopify</span>
             <span>WordPress</span>
             <span>Squarespace</span>
-            <span>Wix</span>
             <span>Custom</span>
           </div>
         </section>
@@ -382,9 +382,11 @@ export default function Home() {
         {/* Live Bookings Calendar Demo */}
         <section className={styles.calendarSection}>
           <div className={styles.badge}>Live Demo</div>
-          <h2 className={styles.sectionTitle}>Book Appointments From Chat</h2>
+          <h2 className={styles.sectionTitle}>AI-Powered Booking System</h2>
           <p className={styles.sectionSub}>
-            Click the chat bubble in the corner. Ask to book an appointment—the AI creates a Google Calendar event in real time. No forms, no back-and-forth.
+            Try the chatbot widget in the bottom-right corner. Ask to book an appointment and watch
+            the AI create a calendar event in real-time. Google Calendar integration is live —
+            more integrations like Calendly, Cal.com, and CRM webhooks are coming soon.
           </p>
           <div style={{
             marginTop: '40px',
@@ -400,8 +402,8 @@ export default function Home() {
 
         {/* Features */}
         <section id="features" className={styles.features}>
-          <h2 className={styles.sectionTitle}>Built for real businesses</h2>
-          <p className={styles.sectionSub}>From FAQs to bookings—one chatbot, fully automated</p>
+          <h2 className={styles.sectionTitle}>Everything you need</h2>
+          <p className={styles.sectionSub}>Powerful features to automate customer support</p>
 
           <div className={styles.featureGrid}>
             <div className={styles.featureCard}>
@@ -411,7 +413,7 @@ export default function Home() {
                 </svg>
               </div>
               <h3>Smart Crawling</h3>
-              <p>Crawls up to 25 pages and learns your products, services, pricing, and FAQs—no manual setup.</p>
+              <p>Automatically scans up to 25 pages and extracts products, services, pricing, and FAQs.</p>
             </div>
 
             <div className={styles.featureCard}>
@@ -421,7 +423,7 @@ export default function Home() {
                 </svg>
               </div>
               <h3>Natural Conversations</h3>
-              <p>GPT-4 powered—understands intent, not just keywords. Answers in context, in any language.</p>
+              <p>Powered by GPT-4, your chatbot understands context and provides accurate, helpful answers.</p>
             </div>
 
             <div className={styles.featureCard}>
@@ -470,7 +472,7 @@ export default function Home() {
         {/* How it works */}
         <section id="how" className={styles.howSection}>
           <h2 className={styles.sectionTitle}>How it works</h2>
-          <p className={styles.sectionSub}>Three steps. About 90 seconds.</p>
+          <p className={styles.sectionSub}>Three simple steps to get started</p>
 
           <div className={styles.steps}>
             <div className={styles.step}>
@@ -588,8 +590,8 @@ export default function Home() {
 
         {/* Use cases */}
         <section className={styles.useCases}>
-          <h2 className={styles.sectionTitle}>Fits any industry</h2>
-          <p className={styles.sectionSub}>From clinics to e‑commerce—trained on your content</p>
+          <h2 className={styles.sectionTitle}>Built for every business</h2>
+          <p className={styles.sectionSub}>XeloChat adapts to your industry</p>
 
           <div className={styles.caseGrid}>
             <div className={styles.caseCard}>
@@ -638,8 +640,8 @@ export default function Home() {
 
         {/* CTA */}
         <section className={styles.cta}>
-          <h2>Your customers have questions. Answer them 24/7.</h2>
-          <p>Free to start—no credit card. One chatbot, 50 messages/month.</p>
+          <h2>Ready to automate your customer support?</h2>
+          <p>Create your AI chatbot in under a minute</p>
           <a href="#cta" className={styles.ctaButton}>Get Started Free</a>
         </section>
       </main>
@@ -689,6 +691,7 @@ export default function Home() {
                 <li><a href="#features" className={styles.footerLink}>Features</a></li>
                 <li><a href="#how" className={styles.footerLink}>How it Works</a></li>
                 <li><a href="/pricing" className={styles.footerLink}>Pricing</a></li>
+                <li><a href="/ai-chatbot/healthcare" className={styles.footerLink}>Use cases</a></li>
                 <li><a href="/dashboard" className={styles.footerLink}>Dashboard</a></li>
               </ul>
             </div>
@@ -697,7 +700,6 @@ export default function Home() {
             <div className={styles.footerSection}>
               <h4 className={styles.footerHeading}>Resources</h4>
               <ul className={styles.footerList}>
-                <li><a href="/blog" className={styles.footerLink}>Blog</a></li>
                 <li><a href="/embed-guide" className={styles.footerLink}>Integration Guide</a></li>
                 <li><a href="#faq" className={styles.footerLink}>FAQ</a></li>
                 <li><a href="mailto:support@xelochat.com" className={styles.footerLink}>Support</a></li>

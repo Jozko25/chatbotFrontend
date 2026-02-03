@@ -44,29 +44,8 @@ export default function PrivacyPage() {
             <li><strong>Usage Data:</strong> How you interact with the Service, features used, and time spent</li>
             <li><strong>Technical Data:</strong> IP address, browser type, device information, and operating system</li>
             <li><strong>Log Data:</strong> Server logs, error reports, and performance metrics</li>
-            <li><strong>Conversation Data:</strong> Chat messages and interactions with chatbots on websites that use our widget (stored for service provision, quality control, and support—see Section 2.4)</li>
+            <li><strong>Conversation Data:</strong> Chat messages and interactions with chatbots (stored for service functionality)</li>
           </ul>
-
-          <h3>2.3 Chat Widget and Visitor Data</h3>
-          <p>
-            When visitors interact with an AI chatbot embedded on a client&apos;s website, we may collect and store:
-          </p>
-          <ul>
-            <li><strong>Chat messages:</strong> The content of conversations between visitors and the chatbot</li>
-            <li><strong>Session identifiers:</strong> Technical identifiers used to associate messages with a single conversation</li>
-            <li><strong>Metadata:</strong> Timestamp, user agent (browser/device type), and optionally the page URL where the chat occurred</li>
-          </ul>
-          <p>
-            <strong>Purpose and legal basis:</strong> We process this data under legitimate interest (GDPR Art. 6(1)(f)) for: providing and improving the service, quality control, debugging, fraud prevention, and generating aggregated analytics. We may also process under contract (Art. 6(1)(b)) where necessary to deliver the chatbot service.
-          </p>
-          <p>
-            <strong>Transparency:</strong> We require our clients to inform their website visitors that chats may be monitored and stored. Our clients are responsible for providing appropriate notices in their privacy policies or near the chat widget.
-          </p>
-
-          <h3>2.4 Aggregated Analytics (No Raw Chats Shared With Clients)</h3>
-          <p>
-            We analyze chat interactions in aggregated and anonymized form. We provide our clients with insights such as: top requested services, most common topics, trends over time, and suggested website improvements. We do <strong>not</strong> share raw conversation transcripts, session IDs, or any personally identifiable information with our clients. This approach minimizes privacy risk and complies with data protection best practices.
-          </p>
         </section>
 
         <section>
@@ -75,16 +54,12 @@ export default function PrivacyPage() {
           <ul>
             <li>To provide, maintain, and improve the Service</li>
             <li>To process and fulfill your requests</li>
-            <li>To train and improve our AI models (using anonymized data where possible and as disclosed)</li>
+            <li>To train and improve our AI models (using anonymized data where possible)</li>
             <li>To send notifications, updates, and administrative messages</li>
             <li>To monitor and analyze usage patterns and trends</li>
             <li>To detect, prevent, and address technical issues and security threats</li>
-            <li>To provide clients with aggregated, anonymized analytics (e.g., top topics, service categories, website friction insights)—never raw chat transcripts</li>
             <li>To comply with legal obligations and enforce our Terms of Service</li>
           </ul>
-          <p>
-            We do not use chat data for marketing, profiling, or selling to third parties without explicit consent.
-          </p>
         </section>
 
         <section>
@@ -94,24 +69,11 @@ export default function PrivacyPage() {
           </p>
           <ul>
             <li>Analyzing and extracting information from websites you provide</li>
+            <li>Training AI models on publicly available content (with appropriate safeguards)</li>
             <li>Generating conversational responses based on your content</li>
-            <li>Optionally using anonymized or aggregated chat data to improve our AI models, where disclosed and in line with our legitimate interest—we do not use identifiable personal data for AI training without appropriate legal basis and transparency</li>
           </ul>
           <p>
             We only process publicly available website content. We do not access private, password-protected, or restricted content unless explicitly authorized by you.
-          </p>
-        </section>
-
-        <section>
-          <h2>4a. Chat Widget Notice (For Clients)</h2>
-          <p>
-            If you embed XeloChat on your website, we recommend you display a short notice near the chat widget, for example:
-          </p>
-          <p className={styles.noticeExample}>
-            &quot;Chats may be monitored and stored for support, quality improvement, and anonymized analytics. See our Privacy Policy for details.&quot;
-          </p>
-          <p>
-            This helps meet transparency requirements under GDPR and similar regulations.
           </p>
         </section>
 
@@ -147,29 +109,23 @@ export default function PrivacyPage() {
         <section>
           <h2>7. Data Retention</h2>
           <p>
-            We retain your information for as long as necessary to provide the Service and fulfill the purposes outlined in this Privacy Policy, unless a longer retention period is required or permitted by law.
+            We retain your information for as long as necessary to provide the Service and fulfill the purposes outlined in this Privacy Policy, unless a longer retention period is required or permitted by law. When you delete your account, we will delete or anonymize your personal information, except where we are required to retain it for legal or legitimate business purposes.
           </p>
-          <ul>
-            <li><strong>Raw chat messages:</strong> Typically 30 to 180 days, after which they are deleted or anonymized. We may retain longer only where required for debugging, legal obligations, or legitimate business needs.</li>
-            <li><strong>Aggregated analytics:</strong> Anonymized statistics (e.g., topic counts, trends) may be retained longer for reporting and service improvement, as they do not constitute personal data.</li>
-            <li><strong>Account data:</strong> When you delete your account, we will delete or anonymize your personal information, except where we are required to retain it for legal or legitimate business purposes.</li>
-          </ul>
         </section>
 
         <section>
-          <h2>8. Your Rights and Choices (GDPR)</h2>
-          <p>If you are in the EU/EEA or your data is subject to GDPR, you have the following rights:</p>
+          <h2>8. Your Rights and Choices</h2>
+          <p>Depending on your jurisdiction, you may have the following rights:</p>
           <ul>
-            <li><strong>Access (Art. 15):</strong> Request a copy of your personal information</li>
-            <li><strong>Correction (Art. 16):</strong> Request correction of inaccurate information</li>
-            <li><strong>Deletion (Art. 17):</strong> Request deletion of your personal information, unless we have a legal basis to retain it</li>
-            <li><strong>Portability (Art. 20):</strong> Request your data in a portable format</li>
-            <li><strong>Objection (Art. 21):</strong> Object to processing based on legitimate interest</li>
-            <li><strong>Restriction (Art. 18):</strong> Request restriction of processing in certain circumstances</li>
-            <li><strong>Complaint:</strong> Lodge a complaint with your local data protection authority</li>
+            <li><strong>Access:</strong> Request access to your personal information</li>
+            <li><strong>Correction:</strong> Request correction of inaccurate information</li>
+            <li><strong>Deletion:</strong> Request deletion of your personal information</li>
+            <li><strong>Portability:</strong> Request a copy of your data in a portable format</li>
+            <li><strong>Opt-out:</strong> Opt out of certain data processing activities (where applicable)</li>
+            <li><strong>Account Management:</strong> Update or delete your account through the dashboard</li>
           </ul>
           <p>
-            Visitors who use a chat widget on a client&apos;s website may also request access to or deletion of their chat data. To exercise any of these rights, contact us through the Service or your account dashboard. We will respond within the timeframes required by applicable law.
+            To exercise these rights, please contact us through the Service or your account dashboard.
           </p>
         </section>
 
@@ -197,14 +153,7 @@ export default function PrivacyPage() {
         <section>
           <h2>12. International Data Transfers</h2>
           <p>
-            We operate from the European Union (Slovakia). Your information may be transferred to and processed in countries outside the EU/EEA, including the United States (e.g., for cloud hosting, payment processing via Stripe, or AI providers). Where such transfers occur, we ensure adequate safeguards are in place:
-          </p>
-          <ul>
-            <li><strong>Standard Contractual Clauses (SCCs):</strong> We use EU-approved Standard Contractual Clauses with sub-processors where required.</li>
-            <li><strong>Data minimization:</strong> We transfer only the data necessary for the stated purposes and prefer EU hosting where feasible.</li>
-          </ul>
-          <p>
-            If you have questions about international transfers, please contact us.
+            Your information may be transferred to and processed in countries other than your country of residence. These countries may have data protection laws that differ from those in your country. We take appropriate measures to ensure your information receives adequate protection in accordance with this Privacy Policy.
           </p>
         </section>
 
@@ -218,7 +167,7 @@ export default function PrivacyPage() {
         <section>
           <h2>14. Contact Us</h2>
           <p>
-            XeloChat is operated by Vivero s.r.o. If you have any questions about this Privacy Policy, our data practices, or wish to exercise your GDPR rights (access, deletion, etc.), please contact us at support@xelochat.com or through the contact information provided in your account dashboard.
+            XeloChat is operated by Vivero s.r.o. If you have any questions about this Privacy Policy or our data practices, please contact us through the Service or via the contact information provided in your account dashboard.
           </p>
         </section>
       </div>

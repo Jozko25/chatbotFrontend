@@ -29,7 +29,6 @@ export default function Navbar() {
             <a href="#features" className={styles.link}>Features</a>
             <a href="#how" className={styles.link}>How it works</a>
             <a href="/pricing" className={styles.link}>Pricing</a>
-            <a href="/blog" className={styles.link}>Blog</a>
             
             {!isLoaded ? (
               <span className={styles.link}>Loading...</span>

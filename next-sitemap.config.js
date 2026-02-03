@@ -15,14 +15,21 @@ module.exports = {
     '/sign-up',
   ],
 
-  // Additional paths to include
-  additionalPaths: async (config) => [
-    await config.transform(config, '/'),
-    await config.transform(config, '/pricing'),
-    await config.transform(config, '/privacy'),
-    await config.transform(config, '/terms'),
-    await config.transform(config, '/embed-guide'),
-  ],
+  // Additional paths to include (static + programmatic SEO)
+  additionalPaths: async (config) => {
+    const staticPaths = [
+      await config.transform(config, '/'),
+      await config.transform(config, '/pricing'),
+      await config.transform(config, '/privacy'),
+      await config.transform(config, '/terms'),
+      await config.transform(config, '/embed-guide'),
+    ];
+    const programmaticData = require('./src/data/programmatic-seo.json');
+    const programmaticPaths = await Promise.all(
+      programmaticData.map((v) => config.transform(config, `/ai-chatbot/${v.slug}`))
+    );
+    return [...staticPaths, ...programmaticPaths];
+  },
 
   // Transform function to set priorities and change frequencies
   transform: async (config, path) => {
@@ -52,6 +59,12 @@ module.exports = {
     if (path === '/privacy' || path === '/terms') {
       priority = 0.3;
       changefreq = 'yearly';
+    }
+
+    // Programmatic SEO pages (ai-chatbot by industry)
+    if (path.startsWith('/ai-chatbot/')) {
+      priority = 0.65;
+      changefreq = 'monthly';
     }
 
     return {

@@ -46,6 +46,7 @@ export default function SignUpPage() {
                 headerSubtitle: 'auth-clerk-hidden',
                 footer: 'auth-clerk-footer',
                 socialButtonsBlockButton: 'auth-clerk-social',
+                socialButtonsBlockButtonArrow: 'auth-clerk-hidden',
                 socialButtonsProviderIcon: 'auth-clerk-social-icon',
               },
               layout: {

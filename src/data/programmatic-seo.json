@@ -1,0 +1,149 @@
+[
+  {
+    "slug": "healthcare",
+    "title": "Healthcare",
+    "metaTitle": "AI Chatbot for Healthcare - 24/7 Patient Support | XeloChat",
+    "metaDescription": "Add an AI chatbot to your healthcare site. Answer appointment questions, insurance FAQs, and practice info 24/7. HIPAA-aware, easy to embed.",
+    "introParagraph": "Healthcare practices need 24/7 answers about appointments, insurance, and services. An AI chatbot trained on your site can handle routine inquiries so staff focus on patients."
+  },
+  {
+    "slug": "legal",
+    "title": "Legal",
+    "metaTitle": "AI Chatbot for Law Firms - Client Intake & FAQ | XeloChat",
+    "metaDescription": "AI chatbot for law firms. Qualify leads, answer practice-area FAQs, and book consultations. One embed, no coding.",
+    "introParagraph": "Law firms get the same questions repeatedly: practice areas, consultation process, fees. An AI chatbot can qualify leads and book consultations while your team focuses on billable work."
+  },
+  {
+    "slug": "ecommerce",
+    "title": "E-commerce",
+    "metaTitle": "AI Chatbot for E-commerce - Product & Order Help | XeloChat",
+    "metaDescription": "E-commerce AI chatbot for product questions, shipping, returns, and orders. Trained on your catalog. Increase conversions and reduce support load.",
+    "introParagraph": "Shoppers look for instant answers on sizing, shipping, and returns. An AI chatbot trained on your product pages and policies can reduce cart abandonment and support tickets."
+  },
+  {
+    "slug": "real-estate",
+    "title": "Real Estate",
+    "metaTitle": "AI Chatbot for Real Estate - Listings & Inquiries | XeloChat",
+    "metaDescription": "AI chatbot for real estate agents and agencies. Answer listing questions, schedule viewings, and capture leads 24/7.",
+    "introParagraph": "Buyers and renters browse at all hours. An AI chatbot can answer questions about listings, areas, and viewing availability and pass qualified leads to your team."
+  },
+  {
+    "slug": "saas",
+    "title": "SaaS",
+    "metaTitle": "AI Chatbot for SaaS - Product & Support | XeloChat",
+    "metaDescription": "AI chatbot for SaaS websites. Answer product and pricing questions, reduce support load, and book demos. Trained on your docs and site.",
+    "introParagraph": "SaaS visitors want quick answers on features, pricing, and use cases. An AI chatbot trained on your docs and site can qualify leads and deflect repetitive support questions."
+  },
+  {
+    "slug": "restaurants",
+    "title": "Restaurants",
+    "metaTitle": "AI Chatbot for Restaurants - Reservations & Menu | XeloChat",
+    "metaDescription": "AI chatbot for restaurants. Answer menu and hours questions, take reservation requests, and drive orders. Works on any website.",
+    "introParagraph": "Guests look for hours, menus, and reservation options before they call. An AI chatbot can answer FAQs and collect reservation requests so your staff stays focused on service."
+  },
+  {
+    "slug": "dental",
+    "title": "Dental",
+    "metaTitle": "AI Chatbot for Dental Practices - Appointments & FAQ | XeloChat",
+    "metaDescription": "AI chatbot for dental clinics. Answer appointment and treatment FAQs, reduce no-shows with reminders, and capture new patients 24/7.",
+    "introParagraph": "Dental practices deal with repeated questions about treatments, insurance, and booking. An AI chatbot can explain services and capture appointment requests around the clock."
+  },
+  {
+    "slug": "fitness",
+    "title": "Fitness",
+    "metaTitle": "AI Chatbot for Gyms & Fitness - Memberships & Classes | XeloChat",
+    "metaDescription": "AI chatbot for gyms and fitness studios. Answer membership and class questions, book trials, and keep leads engaged.",
+    "introParagraph": "Gyms and studios get the same questions about memberships, classes, and trial sessions. An AI chatbot can answer them and book visits so front desk can focus on members."
+  },
+  {
+    "slug": "education",
+    "title": "Education",
+    "metaTitle": "AI Chatbot for Education - Courses & Enrollment | XeloChat",
+    "metaDescription": "AI chatbot for schools and course providers. Answer program and enrollment questions, reduce admin load, and capture leads.",
+    "introParagraph": "Prospective students ask about programs, fees, and enrollment all day. An AI chatbot trained on your courses can answer and hand off to admissions when needed."
+  },
+  {
+    "slug": "insurance",
+    "title": "Insurance",
+    "metaTitle": "AI Chatbot for Insurance - Quotes & Policy FAQ | XeloChat",
+    "metaDescription": "AI chatbot for insurance agents and brokers. Answer policy and quote questions, capture leads, and book callbacks.",
+    "introParagraph": "Insurance shoppers compare coverage and look for quick answers. An AI chatbot can explain products and collect contact details for follow-up."
+  },
+  {
+    "slug": "automotive",
+    "title": "Automotive",
+    "metaTitle": "AI Chatbot for Car Dealerships - Inventory & Service | XeloChat",
+    "metaDescription": "AI chatbot for dealerships. Answer vehicle and service questions, book test drives, and capture leads from your website.",
+    "introParagraph": "Car buyers research inventory and financing online. An AI chatbot can answer model and deal questions and book test drives so the showroom gets warmer leads."
+  },
+  {
+    "slug": "travel",
+    "title": "Travel",
+    "metaTitle": "AI Chatbot for Travel & Hospitality | XeloChat",
+    "metaDescription": "AI chatbot for travel and hospitality. Answer booking and destination questions 24/7. Multilingual support included.",
+    "introParagraph": "Travelers search for availability, policies, and local info at all hours. An AI chatbot can answer in their language and capture bookings or hand off to your team."
+  },
+  {
+    "slug": "accounting",
+    "title": "Accounting",
+    "metaTitle": "AI Chatbot for Accounting Firms - Client FAQ | XeloChat",
+    "metaDescription": "AI chatbot for accountants and CPAs. Answer service and engagement questions, book consultations, and qualify leads.",
+    "introParagraph": "Accounting firms get repeated questions about services, deadlines, and onboarding. An AI chatbot can explain offerings and schedule consultations."
+  },
+  {
+    "slug": "marketing-agencies",
+    "title": "Marketing Agencies",
+    "metaTitle": "AI Chatbot for Marketing Agencies - Lead Capture | XeloChat",
+    "metaDescription": "AI chatbot for marketing and creative agencies. Qualify leads, answer service questions, and book discovery calls.",
+    "introParagraph": "Agencies need to qualify leads and book calls without drowning in email. An AI chatbot can explain services and capture project details for your sales process."
+  },
+  {
+    "slug": "nonprofit",
+    "title": "Nonprofit",
+    "metaTitle": "AI Chatbot for Nonprofits - Donations & Programs | XeloChat",
+    "metaDescription": "AI chatbot for nonprofits. Answer program and donation questions, reduce admin load, and engage supporters 24/7.",
+    "introParagraph": "Donors and beneficiaries look for program details and ways to give. An AI chatbot can answer FAQs and direct them to the right forms or staff."
+  },
+  {
+    "slug": "salons-spas",
+    "title": "Salons & Spas",
+    "metaTitle": "AI Chatbot for Salons and Spas - Bookings & Services | XeloChat",
+    "metaDescription": "AI chatbot for salons and spas. Answer service and booking questions, reduce no-shows, and capture appointments 24/7.",
+    "introParagraph": "Salons and spas get constant questions about services and availability. An AI chatbot can explain treatments and take booking requests so reception stays free."
+  },
+  {
+    "slug": "beauty-wellness",
+    "title": "Beauty & Wellness",
+    "metaTitle": "AI Chatbot for Beauty and Wellness - Bookings & FAQ | XeloChat",
+    "metaDescription": "AI chatbot for beauty and wellness businesses. Answer treatment and booking questions, capture leads, and reduce no-shows 24/7.",
+    "introParagraph": "Beauty and wellness clients look for treatments, pricing, and availability. An AI chatbot can answer FAQs and take booking requests so your team can focus on clients."
+  },
+  {
+    "slug": "veterinary",
+    "title": "Veterinary",
+    "metaTitle": "AI Chatbot for Vet Clinics - Appointments & FAQ | XeloChat",
+    "metaDescription": "AI chatbot for veterinary clinics. Answer appointment and care questions, reduce front-desk load, and capture new clients.",
+    "introParagraph": "Pet owners ask about hours, services, and emergencies. An AI chatbot can answer common questions and collect appointment requests so the clinic can focus on patients."
+  },
+  {
+    "slug": "construction",
+    "title": "Construction",
+    "metaTitle": "AI Chatbot for Construction & Contractors | XeloChat",
+    "metaDescription": "AI chatbot for construction and contractors. Answer project and quote questions, capture leads, and book estimates.",
+    "introParagraph": "Homeowners and project managers look for scope, timeline, and quote info. An AI chatbot can explain services and capture details for estimates."
+  },
+  {
+    "slug": "financial-services",
+    "title": "Financial Services",
+    "metaTitle": "AI Chatbot for Financial Services - Advisory & FAQ | XeloChat",
+    "metaDescription": "AI chatbot for financial advisors and firms. Answer service and process questions, book consultations, and qualify leads.",
+    "introParagraph": "Clients and prospects ask about services, fees, and onboarding. An AI chatbot can provide clear answers and schedule calls with advisors."
+  },
+  {
+    "slug": "coaching",
+    "title": "Coaching",
+    "metaTitle": "AI Chatbot for Coaches - Programs & Booking | XeloChat",
+    "metaDescription": "AI chatbot for coaches and consultants. Answer program and session questions, book discovery calls, and capture leads.",
+    "introParagraph": "Coaches get the same questions about programs and availability. An AI chatbot can explain offerings and book discovery sessions so you spend less time on admin."
+  }
+]
